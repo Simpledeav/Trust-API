@@ -15,7 +15,7 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->string('symbol', 10)->unique();
             $table->string('name');
-            $table->text('img')->default('https://pngimg.com/d/dollar_sign_PNG35.png');
+            $table->text('img');
             $table->decimal('price', 15, 2);
             $table->enum('type', ['crypto', 'stocks']);
             $table->decimal('changes_percentage', 10, 4);
