@@ -25,10 +25,11 @@ class LoginRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'email' => [
-                'required',
-                Rule::when(app()->environment('production'), 'email:rfc,dns', 'email'),
-            ],
+            // 'email' => [
+            //     'required',
+            //     Rule::when(app()->environment('production'), 'email:rfc,dns', 'email'),
+            // ],
+            'login' => ['required', 'string'],
             'password' => [
                 'required',
             ],

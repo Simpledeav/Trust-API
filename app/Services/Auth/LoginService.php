@@ -40,9 +40,21 @@ class LoginService
         // Build the authentication credentials
         $authenticationCredentials = (new AuthenticationCredentials())->setUser($user);
 
-        $authenticationCredentials
-            ->setApiMessage(trans('auth.success'))
-            ->setToken($user->createToken($user->getMorphClass(), ['*'])->plainTextToken); // @phpstan-ignore-line
+       // Check for 2FA settings
+       if ($user instanceof MustSatisfyTwoFa && $user->two_fa_activated_at) {
+            $user->sendTwoFaNotification();
+
+            $authenticationCredentials
+                ->setTwoFaRequired(true)
+                ->setApiMessage(trans('auth.temp_success'))
+                ->setToken(
+                    $user->createToken($user->getMorphClass(), ['two_fa'])->plainTextToken // @phpstan-ignore-line
+                );
+        } else {
+            $authenticationCredentials
+                ->setApiMessage(trans('auth.success'))
+                ->setToken($user->createToken($user->getMorphClass(), ['*'])->plainTextToken); // @phpstan-ignore-line
+        }
 
         return $authenticationCredentials;
     }

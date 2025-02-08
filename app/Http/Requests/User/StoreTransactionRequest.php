@@ -22,17 +22,6 @@ class StoreTransactionRequest extends FormRequest
      *
      * @return array<string, mixed>
      */
-    // public function rules(): array
-    // {
-    //     return [
-    //         'amount' => ['required', 'numeric', 'min:0.01'],
-    //         'transactable_id' => ['required', 'uuid'],
-    //         'transactable_type' => ['required', 'string', 'max:255'],
-    //         'type' => ['required', Rule::in(['credit', 'debit', 'transfer'])],
-    //         'status' => ['required', Rule::in(['approved', 'declined', 'pending'])],
-    //         'comment' => ['nullable', 'string', 'max:255'],
-    //     ];
-    // }
 
     public function rules(): array
     {
@@ -40,7 +29,7 @@ class StoreTransactionRequest extends FormRequest
             'amount' => ['required', 'numeric', 'min:0.01'],
             'method' => ['nullable', Rule::in(['wallet', 'save', 'trade'])], // Defaults to 'wallet'
             'type' => ['required', Rule::in(['credit', 'debit', 'transfer'])],
-            'status' => ['required', Rule::in(['approved', 'declined', 'pending'])],
+            // 'status' => ['required', Rule::in(['approved', 'declined', 'pending'])],
             'comment' => ['nullable', 'string', 'max:255'],
         ];
     }

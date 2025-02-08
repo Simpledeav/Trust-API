@@ -3,23 +3,29 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+
 use App\Traits\UUID;
 use App\Enums\ApiErrorCode;
+use App\Traits\HasTwoFaTrait;
 use App\Traits\MorphMapTrait;
 use App\Traits\ActivityLogTrait;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Support\Facades\DB;
 use App\Contracts\Auth\MustVerifyEmail;
+use App\Contracts\Auth\MustSatisfyTwoFa;
 use Illuminate\Notifications\Notifiable;
+use App\Services\User\TransactionService;
 use App\Traits\EmailVerificationCodeTrait;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use MarcinOrlowski\ResponseBuilder\ResponseBuilder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use App\DataTransferObjects\Models\TransactionModelData;
 
 class User extends Authenticatable implements
-    MustVerifyEmail
+    MustVerifyEmail,
+    MustSatisfyTwoFa
 {
     use HasFactory;
     use Notifiable;
@@ -27,6 +33,7 @@ class User extends Authenticatable implements
     use EmailVerificationCodeTrait;
     use UUID;
     use MorphMapTrait;
+    use HasTwoFaTrait;
     // use ActivityLogTrait;
     use SoftDeletes {
         restore as public restoreFromTrait;
@@ -43,6 +50,7 @@ class User extends Authenticatable implements
         'username',
         'email',
         'phone',
+        'avatar',
         'address',
         'zipcode',
         'ssn',
@@ -61,6 +69,7 @@ class User extends Authenticatable implements
         'state_id',
         'city_id',
         'currency_id',
+        'email_verified_at',
     ];
 
     /**
@@ -284,6 +293,25 @@ class User extends Authenticatable implements
     public function transactions()
     {
         return $this->morphMany(Transaction::class, 'transactable');
+    }
+
+    public function storeTransaction(
+        float $amount,
+        string $transactableId,
+        string $transactableType,
+        string $type,
+        ?string $status = 'pending',
+        ?string $comment = null
+    ): Transaction {
+        return $this->transactions()->create([
+            'user_id'           => $this->id,
+            'amount'            => $amount,
+            'transactable_id'   => $transactableId,
+            'transactable_type' => $transactableType,
+            'type'              => $type,
+            'status'            => $status,
+            'comment'           => $comment,
+        ]);
     }
 
     public function savings()

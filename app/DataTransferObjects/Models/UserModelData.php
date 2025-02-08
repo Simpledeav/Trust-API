@@ -76,7 +76,7 @@ class UserModelData
      *
      * @var string|null
      */
-    private string|null $avatar = null;
+    private UploadedFile|null $avatar = null;
 
     /**
      * The referee's code.
@@ -221,9 +221,9 @@ class UserModelData
     /**
      * Get the avatar.
      *
-     * @return string|null
+     * @return \Illuminate\Http\UploadedFile|null
      */
-    public function getAvatar(): string|null
+    public function getAvatar(): UploadedFile|null
     {
         return $this->avatar;
     }
@@ -231,16 +231,17 @@ class UserModelData
     /**
      * Set the avatar.
      *
-     * @param string|null $avatar The avatar.
+     * @param \Illuminate\Http\UploadedFile|null $avatar The avatar.
      *
      * @return self
      */
-    public function setAvatar(string|null $avatar): self
+    public function setAvatar(UploadedFile|null $avatar): self
     {
         $this->avatar = $avatar;
 
         return $this;
     }
+
 
     /**
      * Get the password.

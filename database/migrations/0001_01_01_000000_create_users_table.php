@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->string('phone');
             $table->string('address');
+            $table->string('avatar')->nullable();
             $table->uuid('country_id')->constrained()->references('id')->on('countries');
             $table->uuid('state_id')->constrained()->references('id')->on('states');
             $table->uuid('city_id')->constrained()->references('id')->on('cities');
@@ -36,6 +37,7 @@ return new class extends Migration
             $table->text('back_id')->nullable();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->timestamp('two_fa_activated_at')->nullable();
             $table->timestamp('blocked_at')->nullable();
             $table->timestamps();
             $table->softDeletes();

@@ -103,7 +103,7 @@ class TransactionController extends Controller
                 ->setTransactableId($request->user()->wallet->id)
                 ->setTransactableType($request->transactable_type)
                 ->setType($request->type)
-                ->setStatus($request->status)
+                ->setStatus("pending")
                 ->setComment($request->comment),
             $request->user()
         );

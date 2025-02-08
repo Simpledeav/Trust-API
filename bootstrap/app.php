@@ -35,6 +35,8 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
             'unblocked' => \App\Http\Middleware\EnsureAccountIsUnblocked::class,
+            'auth.two_fa' => \App\Http\Middleware\AuthenticateTwoFa::class,
+            'password.secure' => \App\Http\Middleware\RequireSecurePassword::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

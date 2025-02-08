@@ -29,9 +29,11 @@ class LoginController extends Controller
      */
     public function login(LoginRequest $request): Response
     {
+        $usernameColumn = filter_var($request->login, FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
+
         $authenticationCredentials = $this->loginService->start(
-            'email',
-            $request->email,
+            $usernameColumn,
+            $request->login,
             $request->password,
             (new User())
         );
