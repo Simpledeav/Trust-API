@@ -26,6 +26,7 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class, // php artisan db:seed --class=UserSeeder
             AssetSeeder::class, // php artisan db:seed --class=AssetSeeder
             SavingsAccountSeeder::class, // php artisan db:seed --class=SavingsAccountSeeder
+            AdminSeeder::class, // php artisan db:seed --class=AdminSeeder
         ]);
     }
 }

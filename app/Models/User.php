@@ -14,14 +14,11 @@ use Illuminate\Support\Facades\DB;
 use App\Contracts\Auth\MustVerifyEmail;
 use App\Contracts\Auth\MustSatisfyTwoFa;
 use Illuminate\Notifications\Notifiable;
-use App\Services\User\TransactionService;
 use App\Traits\EmailVerificationCodeTrait;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Casts\Attribute;
-use MarcinOrlowski\ResponseBuilder\ResponseBuilder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use App\DataTransferObjects\Models\TransactionModelData;
 
 class User extends Authenticatable implements
     MustVerifyEmail,
@@ -67,7 +64,7 @@ class User extends Authenticatable implements
         'blocked_at',
         'country_id',
         'state_id',
-        'city_id',
+        'city',
         'currency_id',
         'email_verified_at',
     ];

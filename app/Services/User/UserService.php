@@ -54,7 +54,7 @@ class UserService
             'back_id' => $userModelData->getBackId(),  // Added new field 'back_id'
             'country_id' => $userModelData->getCountryId(),
             'state_id' => $userModelData->getStateId(),
-            'city_id' => $userModelData->getCityId(),
+            'city' => $userModelData->getCity(),
             'currency_id' => $userModelData->getCurrencyId(),
         ])->refresh();
 

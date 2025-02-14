@@ -41,7 +41,7 @@ class RegisterController extends Controller
                 ->setBackId($request->back_id)
                 ->setCountryId($request->country_id)
                 ->setStateId($request->state_id)
-                ->setCityId($request->city_id)
+                ->setCity($request->city)
                 ->setCurrencyId($request->currency_id),
             authenticate: true
         );

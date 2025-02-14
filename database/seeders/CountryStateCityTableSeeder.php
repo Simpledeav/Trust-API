@@ -62,25 +62,25 @@ class CountryStateCityTableSeeder extends Seeder
             }
         }
 
-        // Seed cities
-        $cities = CityDataProvider::data();
+        // // Seed cities
+        // $cities = CityDataProvider::data();
 
-        foreach ($cities as $cityData) {
-            if (isset($stateIds[$cityData['state_id']])) {
-                // Get the state UUID reference
-                $stateId = $stateIds[$cityData['state_id']];
+        // foreach ($cities as $cityData) {
+        //     if (isset($stateIds[$cityData['state_id']])) {
+        //         // Get the state UUID reference
+        //         $stateId = $stateIds[$cityData['state_id']];
 
-                // Generate UUID for city
-                $cityId = Str::uuid()->toString();
+        //         // Generate UUID for city
+        //         $cityId = Str::uuid()->toString();
 
-                // Store city data with UUID and reference state ID
-                City::create([
-                    'id' => $cityId,
-                    'state_id' => $stateId,
-                    'name' => $cityData['name'],
-                    'status' => 'active'
-                ]);
-            }
-        }
+        //         // Store city data with UUID and reference state ID
+        //         City::create([
+        //             'id' => $cityId,
+        //             'state_id' => $stateId,
+        //             'name' => $cityData['name'],
+        //             'status' => 'active'
+        //         ]);
+        //     }
+        // }
     }
 }

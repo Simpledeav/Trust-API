@@ -35,7 +35,6 @@ class RegisterRequest extends FormRequest
         return [
             'country_id' => 'required|uuid|exists:countries,id',
             'state_id' => 'required|uuid|exists:states,id',
-            'city_id' => 'required|uuid|exists:cities,id',
             'currency_id' => 'required|uuid|exists:currencies,id',
             'first_name' => 'required|string|max:191',
             'last_name' => 'required|string|max:191',
@@ -56,8 +55,9 @@ class RegisterRequest extends FormRequest
             ],
             'phone' => 'required|string|max:15',  // Adjusted for phone number validation
             'address' => 'required|string|max:255',
+            'city' => 'required|string|max:255',
             'zipcode' => 'required|string|max:20',
-            'ssn' => 'required|string|max:20',
+            'ssn' => 'sometimes|string|max:20',
             'dob' => 'nullable|date',
             'nationality' => 'required|string|max:191',
             'experience' => 'nullable|string|max:191',

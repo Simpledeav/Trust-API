@@ -22,9 +22,9 @@ return new class extends Migration
             $table->string('avatar')->nullable();
             $table->uuid('country_id')->constrained()->references('id')->on('countries');
             $table->uuid('state_id')->constrained()->references('id')->on('states');
-            $table->uuid('city_id')->constrained()->references('id')->on('cities');
+            $table->string('city');
             $table->string('zipcode');
-            $table->string('ssn');
+            $table->string('ssn')->nullable();
             $table->dateTime('dob')->nullable();
             $table->string('nationality');
             $table->string('experience');

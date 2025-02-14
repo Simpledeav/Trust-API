@@ -27,7 +27,7 @@ class UserSeeder extends Seeder
             'id' => Str::uuid(),
             'country_id' => $state->country_id,
             'state_id' => $state->id,
-            'city_id' => $city->id,
+            'city' => "Lagos City",
             'currency_id' => $currency->id,
             'first_name' => 'John',
             'last_name' => 'Doe',

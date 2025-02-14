@@ -96,7 +96,7 @@ class UserModelData
     private string|null $back_id = null;
     private string|null $currecnyId = null;
     private string|null $stateId = null;
-    private string|null $cityId = null;
+    private string|null $city = null;
 
     /**
      * Get the country ID.
@@ -592,14 +592,14 @@ class UserModelData
         return $this;
     }
 
-    public function getCityId(): ?string
+    public function getCity(): ?string
     {
-        return $this->cityId;
+        return $this->city;
     }
 
-    public function setCityId(?string $cityId): self
+    public function setCity(?string $city): self
     {
-        $this->cityId = $cityId;
+        $this->city = $city;
         return $this;
     }
 }

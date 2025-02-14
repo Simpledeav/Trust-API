@@ -36,6 +36,7 @@ class PersonalAccessToken extends SanctumPersonalAccessToken
 
         Relation::morphMap([
             'user' => \App\Models\User::class,
+            'admin' => \App\Models\Admin::class,
         ]);
     }
 }
