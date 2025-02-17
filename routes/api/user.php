@@ -59,11 +59,11 @@ Route::middleware('auth:api_user')->group(function () {
             Route::delete('profile', [ProfileController::class, 'destroy']);
 
             // Transactions
-            Route::prefix('transactions')->group(function () {
-                Route::get('transactions/fetch', [TransactionController::class, 'index']);
-                Route::post('transaction/deposit', [TransactionController::class, 'store']);
-                Route::post('transaction/withdraw', [TransactionController::class, 'store']);
-                Route::post('transaction/swap', [TransactionController::class, 'store']);
+            Route::prefix('transaction')->group(function () {
+                Route::get('/fetch', [TransactionController::class, 'index']);
+                Route::post('/deposit', [TransactionController::class, 'store']);
+                Route::post('/withdraw', [TransactionController::class, 'store']);
+                Route::post('/swap', [TransactionController::class, 'store']);
             });
 
             // Savings

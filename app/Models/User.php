@@ -17,6 +17,8 @@ use Illuminate\Notifications\Notifiable;
 use App\Traits\EmailVerificationCodeTrait;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
@@ -272,7 +274,7 @@ class User extends Authenticatable implements
         return $this->hasOne(Wallet::class);
     }
 
-    public function country()
+    public function country(): BelongsTo
     {
         return $this->belongsTo(Country::class);
     }
@@ -287,6 +289,11 @@ class User extends Authenticatable implements
         return $this->belongsTo(City::class);
     }
 
+    public function transactionsFetch(): HasMany
+    {
+        return $this->hasMany(Transaction::class);
+    }
+    
     public function transactions()
     {
         return $this->morphMany(Transaction::class, 'transactable');
@@ -314,5 +321,41 @@ class User extends Authenticatable implements
     public function savings()
     {
         return $this->hasMany(Savings::class);
+    }
+
+    public function currency()
+    {
+        return $this->belongsTo(Currency::class);
+    }
+
+    public function trade()
+    {
+        return $this->hasMany(Trade::class);
+    }
+
+    public function placeTrade(array $data): Trade
+    {
+        $asset = Asset::findOrFail($data['asset_id']);
+
+        if(!$asset) {
+            throw new \Exception("Error fetching the asset, data does not exist.");
+        }
+
+        return $this->trade()->create([
+            'asset_id' => $data['asset_id'],
+            'asset_type' => $data['asset_type'], // 'crypto' or 'stock'
+            'type' => $data['type'],            // 'buy' or 'sell'
+            'price' => $asset->price,
+            'quantity' => $data['quantity'],
+            'amount' => $data['amount'],
+            'status' => $data['status'] ?? 'open',
+            'entry' => $data['entry'] ?? null,
+            'exit' => $data['exit'] ?? null,
+            'leverage' => $data['leverage'] ?? null,
+            'interval' => $data['interval'] ?? null,
+            'tp' => $data['tp'] ?? null,
+            'sl' => $data['sl'] ?? null,
+            'admin' => $data['admin'] ?? 0,
+        ]);
     }
 }

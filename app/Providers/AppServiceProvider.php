@@ -28,6 +28,6 @@ class AppServiceProvider extends ServiceProvider
     {
         Sanctum::usePersonalAccessTokenModel(PersonalAccessToken::class);
 
-        Model::shouldBeStrict();
+        // Model::shouldBeStrict();
     }
 }

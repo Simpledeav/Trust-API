@@ -126,7 +126,7 @@ class ProfileController extends Controller
                 ->setNationality($request->nationality)
                 ->setCountryId($request->country_id)
                 ->setStateId($request->state_id)
-                ->setCityId($request->city_id)
+                ->setCity($request->city_id)
                 ->setCurrencyId($request->currency_id)
                 ->setAvatar($request->file('avatar')),
         );

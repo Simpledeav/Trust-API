@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Foundation\Application;
+use App\Http\Middleware\RoleMiddleware;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -29,6 +30,11 @@ return Application::configure(basePath: dirname(__DIR__))
                 ->prefix('api/admin')
                 ->name('api.admin')
                 ->group(base_path('routes/api/admin.php'));
+
+            Route::middleware('web')
+                ->prefix('admin')
+                ->name('admin.')
+                ->group(base_path('routes/admin.php'));
         },
     )
     ->withMiddleware(function (Middleware $middleware) {
@@ -37,6 +43,11 @@ return Application::configure(basePath: dirname(__DIR__))
             'unblocked' => \App\Http\Middleware\EnsureAccountIsUnblocked::class,
             'auth.two_fa' => \App\Http\Middleware\AuthenticateTwoFa::class,
             'password.secure' => \App\Http\Middleware\RequireSecurePassword::class,
+
+            'guest:admin' => \App\Http\Middleware\RedirectIfAuthenticated::class,
+            'auth:admin' => RoleMiddleware::class,
+            'active_admin' => \App\Http\Middleware\AdminMiddleware::class,
+            'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
