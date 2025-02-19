@@ -60,7 +60,7 @@ class TransactionController extends Controller
 
         if($request->action == 'approved') {
             
-            $user->wallet->credit($transaction->amount, 'brokerage', 'Admin approved deposit');
+            $user->wallet->credit($transaction->amount, 'wallet', 'Admin approved deposit');
 
             $transaction->update(['status' => 'approved']);
             
