@@ -91,7 +91,7 @@ class TransactionController extends Controller
 
         if($request->action == 'approved') {
             
-            $user->wallet->debit($transaction->amount, 'brokerage', 'Admin approved withdrawal');
+            $user->wallet->debit($transaction->amount, 'wallet', 'Admin approved withdrawal');
 
             $transaction->update(['status' => 'approved']);
             
