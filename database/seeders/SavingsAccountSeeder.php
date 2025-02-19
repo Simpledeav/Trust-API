@@ -24,10 +24,19 @@ class SavingsAccountSeeder extends Seeder
             ['name' => 'ROTH IRA', 'slug' => 'roth-ira', 'desc' => 'Tax-free retirement savings', 'rate' => 0.08],
             ['name' => 'Cash Management Account', 'slug' => 'cash-management-account', 'desc' => 'Flexible account for managing cash', 'rate' => 0.02],
         ];
-
+        
+        // Fetch all country IDs
+        $allCountryIds = Country::pluck('id')->toArray();
+        
         foreach ($accounts as $account) {
-            $countryIds = Country::inRandomOrder()->limit(rand(1, 3))->pluck('id')->toArray();
-
+            // "Savings Balance" should have all country IDs
+            if ($account['slug'] === 'savings-balance') {
+                $countryIds = $allCountryIds;
+            } else {
+                // Other accounts should have random country IDs
+                $countryIds = Country::inRandomOrder()->limit(rand(1, 3))->pluck('id')->toArray();
+            }
+        
             DB::table('savings_accounts')->insert([
                 'id' => Str::uuid(),
                 'name' => $account['name'],
@@ -35,10 +44,11 @@ class SavingsAccountSeeder extends Seeder
                 'title' => $account['desc'],
                 'rate' => $account['rate'],
                 'status' => 'active',
-                'country_id' => json_encode($countryIds),
+                'country_id' => json_encode($countryIds), // Store as JSON
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
         }
+        
     }
 }
