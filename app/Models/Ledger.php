@@ -50,10 +50,17 @@ class Ledger extends Model
         ]);
     }
 
-    public static function balance(Wallet $ledgerable): float
+    public static function balance(Wallet $ledgerable, ?string $account = null): float
     {
-        $credits = $ledgerable->credits()->sum('amount') ?? 0;
-        $debits = $ledgerable->debits()->sum('amount') ?? 0;
+        $query = $ledgerable->ledgerEntries();
+
+        // Apply account filtering if an account is specified
+        if ($account) {
+            $query->where('account', $account);
+        }
+
+        $credits = $query->where('type', 'credit')->sum('amount') ?? 0;
+        $debits = $query->where('type', 'debit')->sum('amount') ?? 0;
 
         return $credits - $debits;
     }

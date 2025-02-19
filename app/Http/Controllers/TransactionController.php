@@ -74,7 +74,7 @@ class TransactionController extends Controller
             // $user = $request->user();
             // $user->wallet->credit(1000, 'wallet', 'Bonus reward');
             // $user->wallet->debit(50, 'wallet', 'Bonus reward');
-            // $balance = $request->user()->wallet->getBalance('wallet');
+            // $balance = $user->wallet->getBalance('wallet');
             //::;::::: ADMIN
 
         return ResponseBuilder::asSuccess()

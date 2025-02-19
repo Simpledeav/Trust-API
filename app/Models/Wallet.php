@@ -60,8 +60,9 @@ class Wallet extends Model
         });
     }
 
-    public function getBalance(): float
+    public function getBalance(?string $account = null): float
     {
-        return Ledger::balance($this);
+        return Ledger::balance($this, $account);
     }
+
 }

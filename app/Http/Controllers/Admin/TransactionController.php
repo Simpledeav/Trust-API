@@ -37,7 +37,7 @@ class TransactionController extends Controller
             $type = "Transactions";
 
 
-        $transactions = $query->paginate(20);
+        $transactions = $query->latest()->paginate(20);
 
         return view('admin.transaction', [
             'transactions' => $transactions,
@@ -60,13 +60,38 @@ class TransactionController extends Controller
 
         if($request->action == 'approved') {
             
-            $user->credit($transaction->amount, 
-                [
-                    'wallet_id' => $user->wallet->id,
-                    'account' => 'wallet',
-                    'comment' => 'Approved Deposit'
-                ]
-            );
+            $user->wallet->credit($transaction->amount, 'brokerage', 'Admin approved deposit');
+
+            $transaction->update(['status' => 'approved']);
+            
+        } elseif($request->action == 'decline') {
+
+            $transaction->update(['status' => 'declined',]);
+
+        } else {
+            return back()->with('error', 'Error process transaction, try again');
+        }
+
+        // NotificationController::sendWelcomeEmailNotification($user);
+
+        return back()->with('success', 'Transaction updates successfully');
+    }
+
+    public function withdraw(Request $request, Transaction $transaction)
+    {
+        $validator = Validator::make($request->all(), [
+            'action' => 'required|in:approved,decline',
+        ]);
+
+        if ($validator->fails()) {
+            return back()->withErrors($validator)->withInput()->with('error', 'Invalid input data');
+        }
+
+        $user = $transaction->user;
+
+        if($request->action == 'approved') {
+            
+            $user->wallet->debit($transaction->amount, 'brokerage', 'Admin approved withdrawal');
 
             $transaction->update(['status' => 'approved']);
             

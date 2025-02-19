@@ -84,7 +84,7 @@
                                             <td>
                                                 <div class="btn-group">
                                                     <button class="btn btn-primary rounded-pill dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">Action</button>
-                                                    @if($transaction->status == 'pending')
+                                                    @if($transaction->status == 'pending' && $transaction->type == 'credit')
                                                         <ul class="dropdown-menu dropdown-menu-dark dropdown-block">
                                                             <li>
                                                                 <form action="{{ route('admin.transactions.deposit', $transaction->id) }}" method="POST" style="display: inline;">
@@ -101,6 +101,23 @@
                                                                 </form>
                                                             </li>
                                                         </ul>
+                                                    @elseif($transaction->status == 'pending' && $transaction->type == 'debit')
+                                                        <ul class="dropdown-menu dropdown-menu-dark dropdown-block">
+                                                            <li>
+                                                                <form action="{{ route('admin.transactions.withdraw', $transaction->id) }}" method="POST" style="display: inline;">
+                                                                    @csrf
+                                                                    <input type="hidden" name="action" value="approved">
+                                                                    <button type="submit" class="dropdown-item fw-bold">Approve</button>
+                                                                </form>
+                                                            </li>
+                                                            <li>
+                                                                <form action="{{ route('admin.transactions.withdraw', $transaction->id) }}" method="POST" style="display: inline;">
+                                                                    @csrf
+                                                                    <input type="hidden" name="action" value="decline">
+                                                                    <button type="submit" class="dropdown-item text-danger fw-bold">Decline</button>
+                                                                </form>
+                                                            </li>
+                                                        </ul>
                                                     @endif
                                                 </div>
                                             </td>
@@ -109,6 +126,11 @@
                                     @endforeach
                                 </tbody>
                             </table>
+                            @if($transactions->count() < 1)
+                                <div class="">
+                                    <p class="text-center my-4 py-4">No data</p>
+                                </div>
+                            @endif
                             <!-- Pagination Links -->
                             <div class="jsgrid-pager my-3 mx-2">
                                 Pages:

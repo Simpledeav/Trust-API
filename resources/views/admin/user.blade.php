@@ -59,11 +59,11 @@
                                             <!-- <td>{{ $index +  1 }}</td> -->
                                             <td> 
                                                 <div class="product-names fw-bold">
-                                                {{ $index +  1 }}. <a href="{{ route('admin.users.show', $user->id) }}" class="text-success">{{ $user->first_name }} {{ $user->last_name }}</a>
+                                                {{ $index +  1 }}. <a href="{{ route('admin.users.show', $user->id) }}" class="text-success truncate-content">{{ $user->first_name }} {{ $user->last_name }}</a>
                                                 </div>
                                             </td>
                                             <td> 
-                                                <p class="f-light">{{ $user->email }}</p>
+                                                <p class="f-light truncate-content">{{ $user->email }}</p>
                                             </td>
                                             <td> 
                                                 <p class="f-light">{{ $user->phone }}</p>
@@ -80,15 +80,46 @@
                                                 </span>
                                             </td>
                                             <td> 
-                                                <p class="f-light">{{ $user['created_at']->format('d M, Y \a\t h:i A') }}</p>
+                                                <p class="f-light truncate-content">{{ $user['created_at']->format('d M, Y \a\t h:i A') }}</p>
                                             </td>
-                                            <td> 
-                                                <a href="{{ route('admin.users.show', $user->id) }}" class="btn btn-primary">view</a>
+                                            <td>
+                                                <div class="btn-group">
+                                                    <button class="btn btn-dark rounded-pill dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">Action</button>
+                                                        <ul class="dropdown-menu dropdown-menu-dark dropdown-block">
+                                                            <li>
+                                                                <a href="{{ route('admin.users.show', $user->id) }}" class="dropdown-item text-dark fw-bold">View</a>
+                                                            </li>
+                                                            @if($user->status == 'active')
+                                                                <li>
+                                                                    <form action="{{ route('admin.users.toggle', $user->id) }}" method="POST" style="display: inline;">
+                                                                        @csrf
+                                                                        @method('PUT')
+                                                                        <input type="hidden" name="action" value="suspended">
+                                                                        <button type="submit" class="dropdown-item text-danger fw-bold">Block</button>
+                                                                    </form>
+                                                                </li>
+                                                            @else
+                                                                <li>
+                                                                    <form action="{{ route('admin.users.toggle', $user->id) }}" method="POST" style="display: inline;">
+                                                                        @csrf
+                                                                        @method('PUT')
+                                                                        <input type="hidden" name="action" value="active">
+                                                                        <button type="submit" class="dropdown-item text-success fw-bold">Activiate</button>
+                                                                    </form>
+                                                                </li>
+                                                            @endif
+                                                        </ul>
+                                                </div>
                                             </td>
                                         </tr>
                                     @endforeach
                                 </tbody>
                             </table>
+                            @if($users->count() < 1)
+                                <div class="">
+                                    <p class="text-center my-4 py-4">No data</p>
+                                </div>
+                            @endif
                             <!-- Pagination Links -->
                             <div class="jsgrid-pager my-3 mx-2">
                                 Pages:

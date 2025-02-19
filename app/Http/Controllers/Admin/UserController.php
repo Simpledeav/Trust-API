@@ -26,20 +26,29 @@ class UserController extends Controller
 
     public function show(User $user)
     {
-        $balance = $user->wallet->getBalance();
+        $balance = $user->wallet->getBalance('wallet');
+        $trade_balance = $user->wallet->getBalance('cash');
+        $savings_balance = $user->savings()->sum('balance');
         $currencies = Currency::all();
 
         $transactions = $user->transactionsFetch()->paginate(10);
         $savings_account = $user->savings()->paginate(10);
         $trades = $user->trade()->paginate(10);
 
+        $deposit = $user->depositAccount()->first();
+        $withdrawal = $user->withdrawalAccount()->first();
+
         return view('admin.user-details', [
             'user' => $user,
             'balance' => $balance,
+            'trade_balance' => $trade_balance,
+            'savings_balance' => $savings_balance,
             'currencies' => $currencies,
             'transactions' => $transactions,
             'savings_account' => $savings_account,
             'trades' => $trades,
+            'deposit' => $deposit,
+            'withdrawal' => $withdrawal,
         ]);
     }
 
@@ -192,4 +201,39 @@ class UserController extends Controller
         
         return redirect()->back()->with('error', 'Something went worng!!');
     }
+
+    public function bank(Request $request, User $user)
+    {
+        // Validate the request
+        $validated = $request->validate([
+            // 'user_id' => ['required', 'exists:users,id'],
+            'type' => ['required', 'in:user,admin'],
+            'wallet_name' => ['nullable', 'string'],
+            'wallet_address' => ['nullable', 'string'],
+            'wallet_note' => ['nullable', 'string'],
+            'bank_name' => ['nullable', 'string'],
+            'bank_number' => ['nullable', 'string'],
+            'bank_account_number' => ['nullable', 'string'],
+            'bank_routing_number' => ['nullable', 'string'],
+            'bank_reference' => ['nullable', 'string'],
+            'bank_address' => ['nullable', 'string'],
+        ]);
+
+        // Find the user's payment data based on type
+        $payment = $user->payments()->where('type', $validated['type'])->first();
+
+        if (!$payment) {
+            return redirect()->back()->with('error', 'Payment data not found for this user.');
+        }
+
+        // Update the payment details
+        $updated = $payment->update($validated);
+
+        if ($updated) {
+            return redirect()->back()->with('success', 'User payment details updated successfully.');
+        }
+
+        return redirect()->back()->with('error', 'Failed to update payment details.');
+    }
+
 }

@@ -6,6 +6,7 @@ namespace App\Models;
 
 use App\Traits\UUID;
 use App\Enums\ApiErrorCode;
+use Illuminate\Support\Str;
 use App\Traits\HasTwoFaTrait;
 use App\Traits\MorphMapTrait;
 use App\Traits\ActivityLogTrait;
@@ -17,6 +18,7 @@ use Illuminate\Notifications\Notifiable;
 use App\Traits\EmailVerificationCodeTrait;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -358,4 +360,42 @@ class User extends Authenticatable implements
             'admin' => $data['admin'] ?? 0,
         ]);
     }
+
+    public function payments(): HasMany
+    {
+        return $this->hasMany(Payment::class);
+    }
+
+    public function depositAccount(): HasOne
+    {
+        return $this->hasOne(Payment::class)->where('type', 'admin');
+    }
+
+    public function withdrawalAccount(): HasOne
+    {
+        return $this->hasOne(Payment::class)->where('type', 'user');
+    }
+
+    public function storePayment(string $type, array $data): Payment
+    {
+        // Ensure the user has only one of each type
+        if ($this->payments()->where('type', $type)->exists()) {
+            throw new \Exception("User already has a payment of type {$type}");
+        }
+
+        return $this->payments()->create(array_merge([
+            'id' => Str::uuid(),
+            'type' => $type,
+            'wallet_name' => null,
+            'wallet_address' => null,
+            'wallet_note' => null,
+            'bank_name' => null,
+            'bank_number' => null,
+            'bank_account_number' => null,
+            'bank_routing_number' => null,
+            'bank_reference' => null,
+            'bank_address' => null,
+        ], $data));
+    }
+
 }

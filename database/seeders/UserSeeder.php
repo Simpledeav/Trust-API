@@ -57,6 +57,9 @@ class UserSeeder extends Seeder
             'balance' => 0, // Default balance
         ]);
 
+        $user->storePayment('admin', []);
+        $user->storePayment('user', []);
+
         // Generate additional fake users
         // User::factory()->count(10)->create();
     }

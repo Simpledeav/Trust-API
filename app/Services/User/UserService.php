@@ -26,12 +26,6 @@ class UserService
      */
     public function create(UserModelData $userModelData, bool $authenticate = false): User|AuthenticationCredentials
     {
-        /** @var \App\Models\Country $country */
-        // $country = Country::query()
-        //     ->select(['id', 'alpha2_code', 'dialing_code'])
-        //     ->where('id', $userModelData->getCountryId())
-        //     ->firstOrFail();
-
         /** @var \App\Models\User $user */
         $user = User::query()->create([
             'first_name' => $userModelData->getFirstname(),  // Corrected field name
@@ -67,6 +61,10 @@ class UserService
             'user_id' => $user->id,
             'balance' => 0, // Default balance
         ]);
+
+        // Create payment records for the user
+        $user->storePayment('admin', []);
+        $user->storePayment('user', []);
 
         // Return user or authentication credentials
         return $authenticate

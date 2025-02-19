@@ -34,6 +34,8 @@ class ProfileController extends Controller
             'city' => ['id', 'name'],
             'transactions' => ['id', 'amount', 'status', 'type', 'user_id'],
             'wallet' => ['id', 'balance', 'user_id'],
+            'depositAccount' => ['id', 'user_id', 'wallet_name', 'wallet_address', 'bank_name', 'bank_account_number', 'bank_routing_number', 'bank_reference', 'bank_address'],
+            'withdrawalAccount' => ['id', 'user_id', 'wallet_name', 'wallet_address', 'bank_name', 'bank_account_number', 'bank_routing_number', 'bank_reference', 'bank_address'],
             'savings' => ['id', 'balance', 'user_id'],
         ];
 
@@ -50,6 +52,17 @@ class ProfileController extends Controller
                     $query->select($allowedIncludes[$relation]);
                 }]);
             }
+        }
+
+        // Append additional balances to the wallet object if wallet is loaded
+        if ($user->relationLoaded('wallet') && $user->wallet) {
+            $user->wallet->additional_balances = [
+                'wallet' => $user->wallet->getBalance('wallet'),
+                'cash' => $user->wallet->getBalance('cash'),
+                'brokerage' => $user->wallet->getBalance('brokerage'),
+                'auto' => $user->wallet->getBalance('auto'),
+                'ira' => $user->wallet->getBalance('ira'),
+            ];
         }
 
         return ResponseBuilder::asSuccess()

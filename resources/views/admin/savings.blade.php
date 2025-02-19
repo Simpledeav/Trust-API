@@ -83,6 +83,11 @@
                                 @endforeach
                                 </tbody>
                             </table>
+                            @if($savings->count() < 1)
+                                <div class="">
+                                    <p class="text-center my-4 py-4">No data</p>
+                                </div>
+                            @endif
                             <!-- Pagination Links -->
                             <div class="jsgrid-pager my-3 mx-2">
                                 Pages:
