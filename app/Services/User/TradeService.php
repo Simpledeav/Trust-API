@@ -82,7 +82,7 @@ class TradeService
 
             if($amount > 0) {
                 $user->wallet->credit($amount, 'wallet', 'Trade close');
-                $user->storeTransaction($amount, $trade->id, 'App/Models/Trade', 'credit', 'approved', null, null, now());
+                $user->storeTransaction($amount, $trade->id, 'App/Models/Trade', 'credit', 'approved', 'Open Order', null, null, now());
             }
         }
 

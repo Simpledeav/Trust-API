@@ -72,7 +72,7 @@ class TradeController extends Controller
 
         $user->wallet->debit($amount, 'wallet', $comment);
 
-        $user->storeTransaction($amount, $user->wallet->id, 'App/Models/Wallet', 'debit', 'approved', Carbon::parse($request->created_at)->format('Y-m-d H:i:s'));
+        $user->storeTransaction($amount, $user->wallet->id, 'App/Models/Wallet', 'debit', 'approved', 'Open Order by admin', null, null, Carbon::parse($request->created_at)->format('Y-m-d H:i:s'));
 
         if($trade)
             return back()->with('success', 'Order created successfully');
