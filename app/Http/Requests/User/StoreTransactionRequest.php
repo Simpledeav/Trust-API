@@ -31,6 +31,8 @@ class StoreTransactionRequest extends FormRequest
             'type' => ['required', Rule::in(['credit', 'debit', 'transfer'])],
             // 'status' => ['required', Rule::in(['approved', 'declined', 'pending'])],
             'comment' => ['nullable', 'string', 'max:255'],
+            'to' => ['sometimes', Rule::in(['wallet', 'cash', 'brokerage', 'auto', 'ira'])],
+            'from' => ['sometimes', Rule::in(['wallet', 'cash', 'brokerage', 'auto', 'ira'])],
         ];
     }
 
@@ -40,8 +42,8 @@ class StoreTransactionRequest extends FormRequest
             'method' => $this->method ?? 'wallet',
             'transactable_type' => match ($this->method ?? 'wallet') {
                 'wallet' => \App\Models\Wallet::class,
-                'save' => \App\Models\Wallet::class,
-                'trade' => \App\Models\Wallet::class,
+                'save' => \App\Models\Savings::class,
+                'trade' => \App\Models\Trade::class,
             },
         ]);
     }

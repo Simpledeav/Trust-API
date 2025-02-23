@@ -67,6 +67,14 @@
                                 </thead>
                                 <tbody>
                                 @foreach($trades as $index => $trade)
+                                    @php 
+                                        $assetPrice = $trade->asset->price;
+                                        $quantity = $trade->quantity;
+                                        $extra = $trade->extra;
+
+                                        $singleProfit = ($assetPrice * $quantity) - $trade->amount;
+                                        $profit = $singleProfit + $trade->extra;
+                                    @endphp
                                     <tr class="">
                                         <td>{{ $index +  1 }}</td>
                                         <td> 
@@ -88,7 +96,7 @@
                                             </span>
                                         </td>
                                         <td> 
-                                            <p class="f-light text-success">+--- USD</p>
+                                            <p class="f-light @if($profit >= 0) text-success @else text-danger @endif">{{ number_format($profit, 2) }} USD</p>
                                         </td>
                                         <td> 
                                             <span class="badge @if($trade->status == 'open') badge-light-success  @elseif($trade->status == 'hold') badge-light-warning @else badge-light-danger @endif">
@@ -137,6 +145,13 @@
                                                             </form>
                                                         </li>
                                                         @endif
+                                                        <li>
+                                                            <form action="{{ route('admin.trade.destroy', $trade->id) }}" method="POST" style="display: inline;">
+                                                                @csrf
+                                                                @method('DELETE')
+                                                                <button type="submit" class="dropdown-item text-white bg-danger fw-bold">Delete</button>
+                                                            </form>
+                                                        </li>
                                                     </ul>
                                             </div>
                                         </td>
@@ -154,28 +169,29 @@
                                                             @method('PUT')
                                                             <div class="col-md-12">
                                                                 <div class="mb-3">
-                                                                    <label class="form-label">Assets</label>
-                                                                    <div class="select-box">
-                                                                        <div class="options-container">
-                                                                            @foreach($assets as $asset)
-                                                                                <div class="selection-option">
-                                                                                    <input class="radio" id="asset_{{ $asset->name }}" type="radio" name="asset" value="{{ $asset->id }}" {{ $asset->id == $trade->asset->id ? 'checked' : '' }}>
-                                                                                    <label class="mb-0" for="asset_{{ $asset->name }}"> {{ $asset->name }} </label>
-                                                                                </div>
-                                                                            @endforeach
-                                                                        </div>
-                                                                        <div class="selected-box">{{ $trade->asset->name }}</div>
-                                                                        <div class="search-box">
-                                                                            <input type="text" placeholder="Start Typing...">
-                                                                        </div>
-                                                                    </div>
+                                                                    <label class="form-label">User</label>
+                                                                    <select class="form-select" id="" required="" name="user_id">
+                                                                        @foreach($users as $user)
+                                                                            @if($user->id === $trade->user->id)
+                                                                                <option selected value="{{ $user->id }}">{{ $user->first_name }} {{ $user->last_name }}</option>
+                                                                            @endif
+                                                                        @endforeach
+                                                                    </select>
                                                                 </div>
                                                             </div>
 
                                                             <div class="col-md-12">
                                                                 <div class="mb-3">
-                                                                    <label class="form-label">Username</label>
-                                                                    <input class="form-control" type="text" placeholder="Enter user eg (johndoe)..." name="username" id="editUsername" value="{{ $trade->user->username }}" required>
+                                                                    <label class="form-label">Asset</label>
+                                                                    <select class="form-select" id="" required="" name="asset_id">
+                                                                        @foreach($assets as $asset)
+                                                                            @if($asset->id === $trade->asset->id)
+                                                                                <option selected value="{{ $asset->id }}">{{ $asset->name }} ({{ $asset->symbol }})</option>
+                                                                            @else
+                                                                                <option value="{{ $asset->id }}">{{ $asset->name }} ({{ $asset->symbol }})</option>
+                                                                            @endif
+                                                                        @endforeach
+                                                                    </select>
                                                                 </div>
                                                             </div>
 
@@ -183,13 +199,6 @@
                                                                 <div class="mb-3">
                                                                     <label class="form-label">Amount</label>
                                                                     <input class="form-control" type="number" placeholder="Enter amount..." name="amount" id="editAmount" value="{{ $trade->amount }}" required>
-                                                                </div>
-                                                            </div>
-
-                                                            <div class="col-md-12">
-                                                                <div class="mb-3">
-                                                                    <label class="form-label">Quantity</label>
-                                                                    <input class="form-control" type="text" placeholder="Enter quantity..." name="quantity" id="editQuantity" value="{{ $trade->quantity }}" required>
                                                                 </div>
                                                             </div>
 
@@ -222,6 +231,27 @@
                                                                 <div class="mb-3">
                                                                     <label class="form-label">T/P</label>
                                                                     <input class="form-control" type="number" placeholder="(Optional)" name="tp" value="{{ $trade->tp }}" id="editTp">
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="col-md-12">
+                                                                <div class="mb-3">
+                                                                    <label class="form-label">Leverage</label>
+                                                                    <input class="form-control" type="text" placeholder="(Optional)" name="leverage" value="{{ $trade->leverage }}" id="leverage">
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="col-md-12">
+                                                                <div class="mb-3">
+                                                                    <label class="form-label">P&L (USD)</label>
+                                                                    <input class="form-control" type="number" placeholder="(Optional)" name="extra" value="{{ $trade->extra }}" id="editExtra">
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="col-md-12">
+                                                                <div class="mb-3">
+                                                                    <label class="form-label">Date</label>
+                                                                    <input class="form-control" type="datetime-local" name="created_at" id="dateEdit" required value="{{ $trade->created_at }}">
                                                                 </div>
                                                             </div>
 
@@ -328,18 +358,28 @@
                                     </div>
                                 </div>
                             </div> --}}
-                            
+
                             <div class="col-md-12">
                                 <div class="mb-3">
-                                    <label class="form-label">Asset</label>
-                                    <input class="form-control" type="text" placeholder="Enter asset Symbol eg (BTCUSD or APPL)..." name="asset" required>
+                                    <label class="form-label">User</label>
+                                    <select class="form-select" id="" required="" name="user_id">
+                                        <option selected="" disabled="" value="">---- Select User ---</option>
+                                        @foreach($users as $user)
+                                            <option value="{{ $user->id }}">{{ $user->first_name }} {{ $user->last_name }}</option>
+                                        @endforeach
+                                    </select>
                                 </div>
                             </div>
 
                             <div class="col-md-12">
                                 <div class="mb-3">
-                                    <label class="form-label">Username</label>
-                                    <input class="form-control" type="text" placeholder="Enter user eg (johndoe)..." name="username" required>
+                                    <label class="form-label">Asset</label>
+                                    <select class="form-select" id="" required="" name="asset_id">
+                                        <option selected="" disabled="" value="">---- Select Asset ---</option>
+                                        @foreach($assets as $asset)
+                                            <option value="{{ $asset->id }}">{{ $asset->name }} ({{ $asset->symbol }})</option>
+                                        @endforeach
+                                    </select>
                                 </div>
                             </div>
 
@@ -347,13 +387,6 @@
                                 <div class="mb-3">
                                     <label class="form-label">Amount</label>
                                     <input class="form-control" type="number" placeholder="Enter amount..." name="amount" required>
-                                </div>
-                            </div>
-
-                            <div class="col-md-12">
-                                <div class="mb-3">
-                                    <label class="form-label">Quantity</label>
-                                    <input class="form-control" type="text" placeholder="Enter quantity..." name="quantity" required>
                                 </div>
                             </div>
 
@@ -389,6 +422,27 @@
                                 </div>
                             </div>
 
+                            <div class="col-md-12">
+                                <div class="mb-3">
+                                    <label class="form-label">Leverage</label>
+                                    <input class="form-control" type="text" placeholder="(Optional)" name="leverage" value="{{ $trade->leverage }}" id="leverage">
+                                </div>
+                            </div>
+
+                            <div class="col-md-12">
+                                <div class="mb-3">
+                                    <label class="form-label">P&L (USD)</label>
+                                    <input class="form-control" type="number" placeholder="" name="extra" value="0.00">
+                                </div>
+                            </div>
+
+                            <div class="col-md-12">
+                                <div class="mb-3">
+                                    <label class="form-label">Date</label>
+                                    <input class="form-control" type="datetime-local" name="created_at" id="date" required>
+                                </div>
+                            </div>
+
                             <div class="form-footer mt-4 d-flex">
                                 <button class="btn btn-primary btn-block" type="submit">Submit</button>
                                 <button class="btn btn-danger btn-block mx-2" type="button" data-bs-dismiss="modal">Cancel</button>
@@ -404,6 +458,14 @@
 @endsection
 
 @section('scripts')
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            let now = new Date();
+            let formattedDateTime = now.toISOString().slice(0, 16); // Format: YYYY-MM-DDTHH:MM
+            document.getElementById("date").value = formattedDateTime;
+        });
+    </script>
     <script src="{{ asset('admin/assets/js/js-datatables/simple-datatables@latest.js') }}"></script>
     <script src="{{ asset('admin/assets/js/custom-list-product.js') }}"></script>
     <script src="{{ asset('admin/assets/js/owlcarousel/owl.carousel.js') }}"></script>

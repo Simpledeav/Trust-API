@@ -51,7 +51,7 @@
                                     <th> <span class="f-light f-w-600">S/N</span></th>
                                     <th> <span class="f-light f-w-600">Title</span></th>
                                     <th> <span class="f-light f-w-600">Slug</span></th>
-                                    <!-- <th> <span class="f-light f-w-600">Content </span></th> -->
+                                    <th> <span class="f-light f-w-600">Category </span></th>
                                     <th> <span class="f-light f-w-600">Status</span></th>
                                     <th> <span class="f-light f-w-600">Date</span></th>
                                     <th> <span class="f-light f-w-600">Action</span></th>
@@ -69,9 +69,9 @@
                                         <td> 
                                             <p class="truncate-content">{{ $article->slug }}</p>
                                         </td>
-                                        <!-- <td> 
-                                            <p class="f-light fw-bold truncate-content">{{ $article->content }}</p>
-                                        </td> -->
+                                        <td> 
+                                            <p class="f-light fw-bold text-capitalize">{{ $article->category }}</p>
+                                        </td>
                                         <td> 
                                             <span class="badge @if($article->status == 'enabled') badge-light-success @else badge-light-danger @endif">
                                                 @if($article->status == 'enabled') Active @else Inactive @endif
@@ -122,13 +122,30 @@
                                                 <div class="modal-body"> 
                                                     <div class="modal-toggle-wrapper"> 
                                                         <h4 class="text-center pb-2" id="">Edit Article</h4> 
-                                                        <form id="transactionForm" action="{{ route('admin.article.edit', $article->id) }}" method="POST">
+                                                        <form id="transactionForm" action="{{ route('admin.article.edit', $article->id) }}" method="POST" enctype="multipart/form-data">
                                                             @csrf
                                                             @method('PUT')
                                                             <div class="col-md-12">
                                                                 <div class="mb-3">
                                                                     <label class="form-label">Title</label>
                                                                     <input class="form-control" type="text" placeholder="Enter title..." name="title" required value="{{ $article->title }}">
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="col-md-12">
+                                                                <div class="mb-3">
+                                                                    <label class="form-label">Category</label>
+                                                                    <select class="form-control" name="category" required>
+                                                                        <option value="" disabled selected>Select a category</option>
+                                                                        <option value="business" {{ $article->category == 'business' ? 'selected' : '' }}>Business</option>
+                                                                        <option value="investing" {{ $article->category == 'investing' ? 'selected' : '' }}>Investing</option>
+                                                                        <option value="savings" {{ $article->category == 'savings' ? 'selected' : '' }}>Savings</option>
+                                                                        <option value="retirement" {{ $article->category == 'retirement' ? 'selected' : '' }}>Retirement</option>
+                                                                        <option value="management" {{ $article->category == 'management' ? 'selected' : '' }}>Management</option>
+                                                                        <option value="trends" {{ $article->category == 'trends' ? 'selected' : '' }}>Trends</option>
+                                                                        <option value="technology" {{ $article->category == 'technology' ? 'selected' : '' }}>Technology</option>
+                                                                        <option value="news" {{ $article->category == 'news' ? 'selected' : '' }}>News</option>
+                                                                    </select>
                                                                 </div>
                                                             </div>
 
@@ -140,7 +157,10 @@
                                                             <div class="col-md-12">
                                                                 <div class="mb-3">
                                                                     <label class="form-label">Image</label>
-                                                                    <input class="form-control" type="file" name="image" id="image">
+                                                                    <input class="form-control" type="file" name="image" id="imageEdit" accept="image/*" onchange="previewImageEdit(event)">
+                                                                </div>
+                                                                <div class="mb-3">
+                                                                    <img id="imageEditPreview" class="@if($article->image) d-block @else d-none @endif" src="{{ isset($article->image) ? asset($article->image) : '' }}" alt="Image Preview" class="img-fluid" style="max-width: 350px; height: auto;">
                                                                 </div>
                                                             </div>
 
@@ -152,7 +172,7 @@
                                                             </div>
 
                                                             <div class="form-footer mt-4 d-flex">
-                                                                <button class="btn btn-primary btn-block" type="submit">Submit</button>
+                                                                <button class="btn btn-success btn-block" type="submit">Submit</button>
                                                                 <button class="btn btn-danger btn-block mx-2" type="button" data-bs-dismiss="modal">Cancel</button>
                                                             </div>
                                                         </form>
@@ -250,12 +270,29 @@
                 <div class="modal-body"> 
                     <div class="modal-toggle-wrapper"> 
                         <h4 class="text-center pb-2" id="">Add Article</h4> 
-                        <form id="transactionForm" action="{{ route('admin.article.store') }}" method="POST">
+                        <form id="transactionForm" action="{{ route('admin.article.store') }}" method="POST" enctype="multipart/form-data">
                             @csrf
                             <div class="col-md-12">
                                 <div class="mb-3">
                                     <label class="form-label">Title</label>
                                     <input class="form-control" type="text" placeholder="Enter title..." name="title" required>
+                                </div>
+                            </div>
+
+                            <div class="col-md-12">
+                                <div class="mb-3">
+                                    <label class="form-label">Category</label>
+                                    <select class="form-control" name="category" required>
+                                        <option value="" disabled selected>Select a category</option>
+                                        <option value="business">Business</option>
+                                        <option value="investing">Investing</option>
+                                        <option value="savings">Savings</option>
+                                        <option value="retirement">Retirement</option>
+                                        <option value="management">Management</option>
+                                        <option value="trends">Trends</option>
+                                        <option value="technology">Technology</option>
+                                        <option value="news">News</option>
+                                    </select>
                                 </div>
                             </div>
 
@@ -267,7 +304,10 @@
                             <div class="col-md-12">
                                 <div class="mb-3">
                                     <label class="form-label">Image</label>
-                                    <input class="form-control" type="file" name="image" id="image">
+                                    <input class="form-control" type="file" name="image" id="image" accept="image/*" onchange="previewImage(event)">
+                                </div>
+                                <div class="mb-3">
+                                    <img id="imagePreview" src="" alt="Image Preview" class="img-fluid" style="max-width: 200px; height: auto; display: none;">
                                 </div>
                             </div>
 
@@ -279,7 +319,7 @@
                             </div>
 
                             <div class="form-footer mt-4 d-flex">
-                                <button class="btn btn-primary btn-block" type="submit">Submit</button>
+                                <button class="btn btn-success btn-block" type="submit">Submit</button>
                                 <button class="btn btn-danger btn-block mx-2" type="button" data-bs-dismiss="modal">Cancel</button>
                             </div>
                         </form>
@@ -317,6 +357,34 @@
             let formattedDateTime = now.toISOString().slice(0, 16); // Format: YYYY-MM-DDTHH:MM
             document.getElementById("date").value = formattedDateTime;
         });
+
+        function previewImage(event) {
+            const image = document.getElementById("image").files[0];
+            const imagePreview = document.getElementById("imagePreview");
+
+            if (image) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    imagePreview.src = e.target.result;
+                    imagePreview.style.display = "block";
+                };
+                reader.readAsDataURL(image);
+            }
+        }
+
+        function previewImageEdit(event) {
+            const image = document.getElementById("imageEdit").files[0];
+            const imagePreview = document.getElementById("imageEditPreview");
+
+            if (image) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    imagePreview.src = e.target.result;
+                    imagePreview.style.display = "block";
+                };
+                reader.readAsDataURL(image);
+            }
+        }
 
     </script>
 

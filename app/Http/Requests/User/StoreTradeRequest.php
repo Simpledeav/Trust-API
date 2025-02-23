@@ -36,7 +36,6 @@ class StoreTradeRequest extends FormRequest
             'interval'   => 'nullable|string',
             'tp'         => 'nullable|string',
             'sl'         => 'nullable|string',
-            'extra'      => 'nullable|numeric|min:0',
         ];
     }
 }

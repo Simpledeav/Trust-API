@@ -17,16 +17,23 @@ class ArticleController extends Controller
     public function index(Request $request): Response
     {
         $articles = QueryBuilder::for(Article::where('status', 'enabled')) // Fetch only active articles
-            ->allowedFields(['id', 'title', 'slug', 'content', 'image', 'created_at'])
+            ->allowedFields(['id', 'title', 'slug', 'category', 'content', 'image', 'created_at'])
             ->allowedFilters([
                 'title', 
                 'slug', 
+                'category', 
                 AllowedFilter::scope('creation_date'),
             ])
             ->defaultSort('-created_at') // Sort by newest first
             ->allowedSorts(['title', 'created_at'])
             ->paginate((int) $request->per_page)
             ->withQueryString();
+        
+        // Modify image URLs
+        $articles->getCollection()->transform(function ($article) {
+            $article->image = $article->image ? asset($article->image) : null;
+            return $article;
+        });
 
         return ResponseBuilder::asSuccess()
             ->withMessage('Active articles fetched successfully')
@@ -46,6 +53,8 @@ class ArticleController extends Controller
                 ])),
             ])
             ->firstOrFail();
+
+            $article->image = $article->image ? asset($article->image) : null;
 
         return ResponseBuilder::asSuccess()
             ->withMessage('Article fetched successfully')

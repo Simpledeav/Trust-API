@@ -307,7 +307,10 @@ class User extends Authenticatable implements
         string $transactableType,
         string $type,
         ?string $status = 'pending',
-        ?string $comment = null
+        ?string $comment = null,
+        ?string $swap_from = null,
+        ?string $swap_to = null,
+        string $created_at,
     ): Transaction {
         return $this->transactions()->create([
             'user_id'           => $this->id,
@@ -317,6 +320,9 @@ class User extends Authenticatable implements
             'type'              => $type,
             'status'            => $status,
             'comment'           => $comment,
+            'swap_from'           => $swap_from,
+            'swap_to'           => $swap_to,
+            'created_at'           => $created_at,
         ]);
     }
 
@@ -357,7 +363,8 @@ class User extends Authenticatable implements
             'interval' => $data['interval'] ?? null,
             'tp' => $data['tp'] ?? null,
             'sl' => $data['sl'] ?? null,
-            'admin' => $data['admin'] ?? 0,
+            'extra' => $data['extra'] ?? 0,
+            'created_at' => $data['created_at'] ?? now(),
         ]);
     }
 

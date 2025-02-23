@@ -466,6 +466,7 @@
                     <li><a href="{{ route('admin.transactions') }}">All</a></li>
                     <li><a href="{{ route('admin.transactions') }}?type=credit">Deposit</a></li>
                     <li><a href="{{ route('admin.transactions') }}?type=debit">Withdrawal</a></li>
+                    <li><a href="{{ route('admin.transactions') }}?type=transfer">Transfer</a></li>
                   </ul>
                 </li>
                 <li class="sidebar-list"><i class="fa fa-thumb-tack"></i><a class="sidebar-link sidebar-title link-nav" href="{{ route('admin.article.all') }}">

@@ -35,7 +35,16 @@
                                     <h4>{{ $title }}</h4>
                                 </div>
                                 <div class="d-flex align-items-center">
-                                    <input class="form-control" id="inputEmail4" type="email" placeholder="Search...">
+                                    <div class="d-flex align-items-center">
+                                        <input class="form-control" id="inputEmail4" type="email" placeholder="Search...">
+                                        <a class="btn btn-success w-100 mx-2" 
+                                            href="#"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#addTransaction"
+                                        >
+                                            <i class="fa fa-plus"></i>Add Transaction
+                                        </a>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -66,8 +75,8 @@
                                                 <p class="f-light fw-bold">{{ $transaction->amount }} USD</p>
                                             </td>
                                             <td> 
-                                                <span class="badge rounded-pill @if($transaction->type == 'credit') badge-light-success @else badge-danger @endif">
-                                                    @if($transaction->type == 'credit') Credit @else Debit @endif
+                                                <span class="badge rounded-pill @if($transaction->type == 'credit') badge-light-success @elseif($transaction->type == 'transfer') badge-light-dark text-white @else badge-light-danger @endif">
+                                                    @if($transaction->type == 'credit') Credit @elseif($transaction->type == 'transfer') Transfer @else Debit @endif
                                                 </span>
                                             </td>
                                             <td> 
@@ -83,9 +92,9 @@
                                             </td>
                                             <td>
                                                 <div class="btn-group">
-                                                    <button class="btn btn-primary rounded-pill dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">Action</button>
-                                                    @if($transaction->status == 'pending' && $transaction->type == 'credit')
-                                                        <ul class="dropdown-menu dropdown-menu-dark dropdown-block">
+                                                    <button class="btn btn-dark rounded-pill dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">Action</button>
+                                                    <ul class="dropdown-menu dropdown-menu-dark dropdown-block">
+                                                        @if($transaction->status == 'pending' && $transaction->type == 'credit')
                                                             <li>
                                                                 <form action="{{ route('admin.transactions.deposit', $transaction->id) }}" method="POST" style="display: inline;">
                                                                     @csrf
@@ -100,9 +109,7 @@
                                                                     <button type="submit" class="dropdown-item text-danger fw-bold">Decline</button>
                                                                 </form>
                                                             </li>
-                                                        </ul>
-                                                    @elseif($transaction->status == 'pending' && $transaction->type == 'debit')
-                                                        <ul class="dropdown-menu dropdown-menu-dark dropdown-block">
+                                                        @elseif($transaction->status == 'pending' && $transaction->type == 'debit')
                                                             <li>
                                                                 <form action="{{ route('admin.transactions.withdraw', $transaction->id) }}" method="POST" style="display: inline;">
                                                                     @csrf
@@ -117,8 +124,15 @@
                                                                     <button type="submit" class="dropdown-item text-danger fw-bold">Decline</button>
                                                                 </form>
                                                             </li>
-                                                        </ul>
-                                                    @endif
+                                                        @endif
+                                                        <li>
+                                                            <form action="{{ route('admin.transactions.destroy', $transaction->id) }}" method="POST" style="display: inline;">
+                                                                @csrf
+                                                                @method('DELETE')
+                                                                <button type="submit" class="dropdown-item fw-bold">Delete</button>
+                                                            </form>
+                                                        </li>
+                                                    </ul>
                                                 </div>
                                             </td>
 
@@ -185,10 +199,98 @@
             </div>
         </div>
         <!-- Container-fluid Ends-->
+        <div>
+        <!-- Reusable Modal -->
+        <div class="modal fade" id="addTransaction" tabindex="-1" aria-labelledby="addTransaction" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-body"> 
+                        <div class="modal-toggle-wrapper"> 
+                            <h4 class="text-center pb-2" id="modalTitle"></h4> 
+                            <form id="transactionForm" action="{{ route('admin.transactions.store') }}" method="POST">
+                                @csrf
+                                <h4 class="text-center my-1">Create Transaction</h4>
+
+                                <div class="col-md-12">
+                                    <div class="mb-3">
+                                        <label class="form-label">User</label>
+                                        <select class="form-select" id="" required="" name="user_id">
+                                            <option selected="" disabled="" value="">---- Select User ---</option>
+                                            @foreach($users as $user)
+                                                <option value="{{ $user->id }}">{{ $user->first_name }} {{ $user->last_name }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-12">
+                                    <div class="mb-3">
+                                        <label class="form-label">Account</label>
+                                        <select class="form-select" id="" required="" name="account">
+                                            <option selected="" disabled="" value="">--- Select Account ---</option>
+                                            <option value="wallet">Wallet</option>
+                                            <option value="cash">Cash</option>
+                                            <option value="brokerage">Brokerage</option>
+                                            <option value="ira">IRA</option>
+                                            <option value="auto">Auto</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-12">
+                                    <div class="mb-3">
+                                        <label class="form-label">Amount</label>
+                                        <input class="form-control" type="text" placeholder="Enter amount..." name="amount">
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-12">
+                                    <div class="mb-3">
+                                        <label class="form-label">Method</label>
+                                        <select class="form-select" id="" required="" name="type">
+                                            <option selected="" disabled="" value="">--- Select Method ---</option>
+                                            <option value="credit">Deposit</option>
+                                            <option value="debit">Withdraw</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-12">
+                                    <div class="mb-3">
+                                        <label class="form-label">Comment</label>
+                                        <input class="form-control" type="text" placeholder="Enter comment..." name="comment">
+                                    </div>
+                                </div>
+
+                                <div class="col-md-12">
+                                    <div class="mb-3">
+                                        <label class="form-label">Date</label>
+                                        <input class="form-control" type="datetime-local" name="created_at" id="date" required>
+                                    </div>
+                                </div>
+                                <div class="form-footer mt-4 d-flex">
+                                    <button class="btn btn-primary btn-block" type="submit">Submit</button>
+                                    <button class="btn btn-danger btn-block mx-2" type="button" data-bs-dismiss="modal">Cancel</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Credit Modal -->
+    </div>
     </div>
 @endsection
 
 @section('scripts')
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            let now = new Date();
+            let formattedDateTime = now.toISOString().slice(0, 16); // Format: YYYY-MM-DDTHH:MM
+            document.getElementById("date").value = formattedDateTime;
+        });
+    </script>
     <script src="{{ asset('admin/assets/js/js-datatables/simple-datatables@latest.js') }}"></script>
     <script src="{{ asset('admin/assets/js/custom-list-product.js') }}"></script>
     <script src="{{ asset('admin/assets/js/owlcarousel/owl.carousel.js') }}"></script>

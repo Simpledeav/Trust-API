@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Models\Asset;
 use App\Models\Trade;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
 
@@ -15,59 +16,63 @@ class TradeController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'asset' => ['required'],
-            'username' => ['required'],
+            'asset_id' => ['required'],
+            'user_id' => ['required'],
             'type' => ['required', 'in:buy,sell'],
-            'quantity' => ['required'],
+            'quantity' => ['sometimes'],
             'amount' => ['required'],
             'entry' => ['sometimes'],
             'tp' => ['sometimes'],
             'sl' => ['sometimes'],
+            'leverage' => ['sometimes'],
+            'extra' => ['required'],
+            'created_at' => ['required'],
         ]);
 
         if ($validator->fails()) {
             return back()->withErrors($validator)->withInput()->with('error', 'Invalid input data');
         }
 
-        $user = User::where('username', $request['username'])->first();
+        $user = User::where('id', $request['user_id'])->first();
         
         if(!$user) {
             return back()->with('error', 'Username does not exist!');
         }
 
-        // $asset = Asset::where('id', $request['asset'])->first();
-        $asset = Asset::where('symbol', $request['asset'])->first();
-        
+        $asset = Asset::where('id', $request['asset_id'])->first();
         if(!$asset) {
             return back()->with('error', 'Asset not found!');
         }
 
-        $amount = $request->amount;
-
+        $amount = (float) $request->amount;
         $balance = $user->wallet->getBalance('wallet');
-
-        if($amount < $balance)
-            $user->wallet->debit($amount, 'wallet', 'Admin deposit');
-        else
-            return back()->with('error', 'Insufficient Wallet balance');
-
+        $assetPrice = (float) $asset->price;
+        $quantity = ($amount / $assetPrice);
         $comment = 'Trade Order on ' . $asset->name;
+
+        if($amount > $balance) {
+            return back()->with('error', 'Insufficient Wallet balance');
+        }
         
         $trade = $user->placeTrade([
             'asset_id' => $asset->id,
             'asset_type' => $asset->type == 'stocks' ? 'stock' : $asset->type,
             'type' => $request->type,
-            'quantity' => $request->quantity,
-            'amount' => $request->amount,
+            'quantity' => $quantity,
+            'amount' => $amount,
+            'price' => $assetPrice,
             'status' => 'open',
             'entry' => $request->entry,
             'tp' => $request->tp,
             'sl' => $request->sl,
+            'leverage' => $request->leverage,
+            'extra' => $request->extra,
+            'created_at'  => $request->created_at ? Carbon::parse($request->created_at)->format('Y-m-d H:i:s') : now(),
         ]);
 
         $user->wallet->debit($amount, 'wallet', $comment);
 
-        $user->storeTransaction($amount, $user->wallet->id, 'App/Models/Wallet', 'debit', 'approved', $comment);
+        $user->storeTransaction($amount, $user->wallet->id, 'App/Models/Wallet', 'debit', 'approved', Carbon::parse($request->created_at)->format('Y-m-d H:i:s'));
 
         if($trade)
             return back()->with('success', 'Order created successfully');
@@ -77,51 +82,63 @@ class TradeController extends Controller
 
     public function update(Request $request, Trade $trade)
     {
+        // dd($request->all());
         $validator = Validator::make($request->all(), [
-            'asset' => ['required'],
-            'username' => ['required'],
+            'asset_id' => ['required'],
+            'user_id' => ['required'],
             'type' => ['required', 'in:buy,sell'],
-            'quantity' => ['required'],
             'amount' => ['required'],
             'entry' => ['sometimes'],
             'tp' => ['sometimes'],
             'sl' => ['sometimes'],
+            'leverage' => ['sometimes'],
+            'extra' => ['required'],
+            'created_at' => ['required'],
         ]);
 
         if ($validator->fails()) {
             return back()->withErrors($validator)->withInput()->with('error', 'Invalid input data');
         }
 
-        $user = User::where('username', $request['username'])->first();
+        $user = User::where('id', $request['user_id'])->first();
         
         if(!$user) {
-            return back()->with('error', 'Username does not exist!');
+            return back()->with('error', 'User does not exist!');
         }
 
-        $asset = Asset::where('id', $request['asset'])->first();
+        $asset = Asset::where('id', $request['asset_id'])->first();
         
         if(!$asset) {
             return back()->with('error', 'Asset not found!');
         }
 
-        $balance = $user->balance('wallet');
-
-        $amount = $request->amount;
+        $amount = (float) $request->amount;
+        $balance = $user->wallet->getBalance('wallet');
+        $assetPrice = (float) $asset->price;
+        $quantity = ($amount / $assetPrice);
+        $comment = 'Trade Order on ' . $asset->name;
 
         if($amount > $balance) {
             return back()->with('error', 'Insufficient Balance');
         }
 
+        $user->wallet->credit($trade->amount, 'wallet', $comment);
+        $user->wallet->debit($amount, 'wallet', $comment);
+
         $trade->update([
             'asset_id' => $asset->id,
             'asset_type' => $asset->type == 'stocks' ? 'stock' : $asset->type,
             'type' => $request->type,
-            'quantity' => $request->quantity,
-            'amount' => $request->amount,
+            'quantity' => $quantity,
+            'amount' => $amount,
+            'price' => $assetPrice,
             'status' => 'open',
             'entry' => $request->entry,
             'tp' => $request->tp,
             'sl' => $request->sl,
+            'leverage' => $request->leverage,
+            'extra' => $request->extra,
+            'created_at'  => Carbon::parse($request->created_at),
         ]);
 
         if($trade)
@@ -158,5 +175,12 @@ class TradeController extends Controller
             return back()->with('success', 'Successfully updated');
 
         return back()->withInput()->with('error', 'Error processing trade');
+    }
+
+    public function destroy(Trade $trade)
+    {
+        $trade->delete();
+
+        return redirect()->back()->with('success', 'Trade Order deleted successfully.');
     }
 }

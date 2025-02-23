@@ -18,7 +18,7 @@ return new class extends Migration
             $table->enum('asset_type', ['crypto', 'stock']);
             $table->enum('type', ['buy', 'sell']);
             $table->decimal('price', 18, 2)->default(0);
-            $table->decimal('quantity', 18, 2)->default(0);
+            $table->decimal('quantity', 18, 6)->default(0);
             $table->decimal('amount', 18, 2)->default(0);
             $table->enum('status', ['open', 'close', 'hold']);
             $table->string('entry')->nullable();

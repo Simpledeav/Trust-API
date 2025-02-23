@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\ApiErrorCode;
 use App\Models\Transaction;
 use Illuminate\Http\Request;
 use Spatie\QueryBuilder\QueryBuilder;
@@ -96,7 +97,55 @@ class TransactionController extends Controller
         StoreTransactionRequest $request,
         TransactionService $transactionService
     ): Response { 
+    
+        $user = $request->user();
+        $wallet = $user->wallet;
+        $balance = $user->wallet->getBalance('wallet'); // Get user wallet balance
+        $amount = (float) $request->amount;
+        $type = $request->type;
+    
+        // Check if transaction is a debit and if amount exceeds balance
+        if ($type === 'debit' && $amount > $balance) {
+            return ResponseBuilder::asError(ApiErrorCode::INSUFFICIENT_FUNDS->value)
+                ->withMessage('Insufficient wallet balance.')
+                ->build();
+        }
+    
+        // Proceed with transaction creation
         $transaction = $transactionService->create(
+            (new TransactionModelData())
+                ->setUserId($user->id)
+                ->setAmount($amount)
+                ->setTransactableId($wallet->id)
+                ->setTransactableType('App/Models/Wallet')
+                ->setType($type)
+                ->setStatus('pending')
+                ->setSwapFrom(null)
+                ->setSwapTo(null)
+                ->setComment($request->comment),
+            $user
+        );
+    
+        return ResponseBuilder::asSuccess()
+            ->withHttpCode(Response::HTTP_CREATED)
+            ->withMessage('Transaction created successfully')
+            ->withData(['transaction' => $transaction])
+            ->build();
+    }
+    
+
+    /**
+     * Create a new transaction.
+     *
+     * @param \App\Http\Requests\User\StoreTransactionRequest $request
+     * @param \App\Services\TransactionService $transactionService
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function transfer(
+        StoreTransactionRequest $request,
+        TransactionService $transactionService
+    ): Response { 
+        $transaction = $transactionService->swap(
             (new TransactionModelData())
                 ->setUserId($request->user()->id)
                 ->setAmount((float) $request->amount)
@@ -104,17 +153,17 @@ class TransactionController extends Controller
                 ->setTransactableType($request->transactable_type)
                 ->setType($request->type)
                 ->setStatus("pending")
+                ->setSwapFrom($request->from)
+                ->setSwapTo($request->to)
                 ->setComment($request->comment),
             $request->user()
         );
-
-        // $request->user()->wallet->credit($request->amount, 'wallet', 'Test Transaction');
 
         // Notifications::sendTestEmailNotification($request->user());
 
         return ResponseBuilder::asSuccess()
             ->withHttpCode(Response::HTTP_CREATED)
-            ->withMessage('Transaction created successfully')
+            ->withMessage('Transafer created successfully')
             ->withData([
                 'transaction' => $transaction,
             ])

@@ -65,9 +65,11 @@ Route::middleware('auth:api_user')->group(function () {
             // Transactions
             Route::prefix('transaction')->group(function () {
                 Route::get('/fetch', [TransactionController::class, 'index']);
-                Route::post('/deposit', [TransactionController::class, 'store']);
-                Route::post('/withdraw', [TransactionController::class, 'store']);
-                Route::post('/swap', [TransactionController::class, 'store']);
+                Route::middleware('throttle:6,1')->group(function () {
+                    Route::post('/deposit', [TransactionController::class, 'store']);
+                    Route::post('/withdraw', [TransactionController::class, 'store']);
+                    Route::post('/swap', [TransactionController::class, 'transfer']);
+                });
             });
 
             // Savings

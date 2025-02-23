@@ -22,6 +22,7 @@ class ArticleController extends Controller
         $validator = Validator::make($request->all(), [
             'title'   => 'required|string|max:255',
             'content' => 'required',
+            'category' => 'required',
             'image'   => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
             'created_at' => 'nullable',
         ]);
@@ -36,7 +37,8 @@ class ArticleController extends Controller
             'title'   => $request->title,
             'slug'    => Str::slug($request->title),
             'content' => $request->content,
-            'image'   => $imagePath,
+            'category' => $request->category,
+            'image'   => 'storage/' . $imagePath,
             'created_at'  => $request->created_at ? Carbon::parse($request->created_at)->format('Y-m-d H:i:s') : now(),
         ]);
 
@@ -48,6 +50,7 @@ class ArticleController extends Controller
         $validator = Validator::make($request->all(), [
             'title'   => 'required|string|max:255',
             'content' => 'required',
+            'category' => 'required',
             'image'   => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
             'created_at' => 'nullable',
         ]);
@@ -65,7 +68,8 @@ class ArticleController extends Controller
             'title'   => $request->title,
             'slug'    => Str::slug($request->title),
             'content' => $request->content,
-            'image'   => $imagePath,
+            'category' => $request->category,
+            'image'   => 'storage/' . $imagePath,
             'created_at'  => $request->created_at ? Carbon::parse($request->created_at)->format('Y-m-d H:i:s') : now(),
         ]);
 

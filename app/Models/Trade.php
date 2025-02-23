@@ -28,6 +28,7 @@ class Trade extends Model
         'tp',
         'sl',
         'extra',
+        'created_at',
     ];
 
     public function getQuerySelectables(): array

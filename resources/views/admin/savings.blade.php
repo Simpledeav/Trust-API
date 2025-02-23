@@ -18,7 +18,7 @@
                         <use href="../assets/svg/icon-sprite.svg#stroke-home"></use>
                     </svg></a></li>
                 <li class="breadcrumb-item">Dashboard </li>
-                <li class="breadcrumb-item active">Trades list</li>
+                <li class="breadcrumb-item active">Savings list</li>
                 </ol>
             </div>
             </div>
@@ -36,7 +36,17 @@
                                     <h4>Savings</h4>
                                 </div>
                                 <div class="d-flex align-items-center">
-                                    <input class="form-control" id="inputEmail4" type="email" placeholder="Search...">
+                                    <div class="d-flex align-items-center">
+                                        <a class="btn btn-success w-100 mx-2" 
+                                            href="#"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#addSavingsModal" 
+                                            data-action="Credit"
+                                            data-url=""
+                                        >
+                                            <i class="fa fa-plus"></i>Add
+                                        </a>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -59,25 +69,36 @@
                                         <td>{{ $index +  1 }}</td>
                                         <td> 
                                             <div class="product-names fw-bold">
-                                                <a href="#" class="text-success">{{ $saving->user->first_name }} {{ $saving->user->last_name }}</a>
+                                                <a href="{{ route('admin.users.show', $saving->user->id) }}" class="text-success">{{ $saving->user->first_name }} {{ $saving->user->last_name }}</a>
                                             </div>
                                         </td>
                                         <td> 
-                                            <p class="f-light fw-bold">{{ $saving->balance }} USD</p>
+                                            <p class="f-light fw-bold">{{ $saving->balance }} {{ $saving->user->currency->symbol }}</p>
                                         </td>
                                         <td> 
-                                            {{ $saving->accounts }}
+                                            <div class="product-names fw-bold">
+                                                <a href="{{ route('admin.accounts.transactions', ['user' => $saving->user->id, 'savings' => $saving->id]) }}" class="text-success">{{ $saving->savingsAccount->name }}</a>
+                                            </div>
                                         </td>
                                         <td> 
-                                            <p class="f-light text-success">+-- USD</p>
+                                            <p class="f-light text-success">+{{ $saving->savingsTransaction->where('method', 'profit')->sum('amount') }} {{ $saving->user->currency->symbol }}</p>
                                         </td>
                                         <td> 
                                             <span class="badge badge-light-success">
                                                 Active
                                             </span>
                                         </td>
-                                        <td> 
-                                            <a href="#" class="btn btn-primary">Action</a>
+                                        <td>
+                                            <div class="btn-group">
+                                                <button class="btn btn-dark rounded-pill dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">Action</button>
+                                                    <ul class="dropdown-menu dropdown-menu-dark dropdown-block">
+                                                        <li>
+                                                            <a href="{{ route('admin.accounts.transactions', ['user' => $saving->user->id, 'savings' => $saving->id]) }}" class="dropdown-item fw-bold">
+                                                                View
+                                                            </a>
+                                                        </li>
+                                                    </ul>
+                                            </div>
                                         </td>
                                     </tr>
                                 @endforeach
@@ -142,10 +163,73 @@
             </div>
         </div>
         <!-- Container-fluid Ends-->
+
+        <div>
+            <!-- Reusable Modal -->
+            <div class="modal fade" id="addSavingsModal" tabindex="-1" aria-labelledby="addSavingsModal" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-body"> 
+                            <div class="modal-toggle-wrapper"> 
+                                <h4 class="text-center pb-2" id="modalTitle"></h4> 
+                                <form id="transactionForm" action="{{ route('admin.account.store') }}" method="POST">
+                                    @csrf
+                                    <h4 class="text-center my-1">Create Savings Account</h4>
+
+                                    <div class="col-md-12">
+                                        <div class="mb-3">
+                                            <label class="form-label">User</label>
+                                            <select class="form-select" id="" required="" name="user_id">
+                                                <option selected="" disabled="" value="">---- Select User ---</option>
+                                                @foreach($users as $user)
+                                                    <option value="{{ $user->id }}">{{ $user->first_name }} {{ $user->last_name }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-12">
+                                        <div class="mb-3">
+                                            <label class="form-label">Account</label>
+                                            <select class="form-select" id="" required="" name="account_id">
+                                                <option selected="" disabled="" value="">---- Select Account ---</option>
+                                                @foreach($accounts as $account)
+                                                    <option value="{{ $account->id }}">{{ $account->name }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-12">
+                                        <div class="mb-3">
+                                            <label class="form-label">Date</label>
+                                            <input class="form-control" type="datetime-local" name="created_at" id="date" required>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-footer mt-4 d-flex">
+                                        <button class="btn btn-primary btn-block" type="submit">Submit</button>
+                                        <button class="btn btn-danger btn-block mx-2" type="button" data-bs-dismiss="modal">Cancel</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Credit Modal -->
+        </div>
     </div>
 @endsection
 
 @section('scripts')
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            let now = new Date();
+            let formattedDateTime = now.toISOString().slice(0, 16); // Format: YYYY-MM-DDTHH:MM
+            document.getElementById("date").value = formattedDateTime;
+        });
+    </script>
     <script src="{{ asset('admin/assets/js/js-datatables/simple-datatables@latest.js') }}"></script>
     <script src="{{ asset('admin/assets/js/custom-list-product.js') }}"></script>
     <script src="{{ asset('admin/assets/js/owlcarousel/owl.carousel.js') }}"></script>

@@ -43,6 +43,7 @@ class SavingsAccountSeeder extends Seeder
                 'slug' => $account['slug'],
                 'title' => $account['desc'],
                 'rate' => $account['rate'],
+                'note' => 'Lorem ipsum dolor sit, amet consectetur adipisicing elit. Reprehenderit repellat vitae tenetur quasi quos neque non voluptate nam? Fugit reiciendis ipsa optio aliquid nisi accusamus officiis minus amet eaque aspernatur.',
                 'status' => 'active',
                 'country_id' => json_encode($countryIds), // Store as JSON
                 'created_at' => now(),

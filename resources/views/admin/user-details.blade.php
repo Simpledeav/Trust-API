@@ -152,7 +152,7 @@
                     </div>
                 </div>
                 <div class="col-xl-7">
-                    <form class="card" action="{{ route('admin.users.update', $user->id) }}" method="post" style="min-height: 655px;">
+                    <form class="card" action="{{ route('admin.users.update', $user->id) }}" method="post">
                         @csrf
                         @method('PUT')
                         <div class="card-header d-flex justify-content-between">
@@ -178,6 +178,24 @@
                         </div>
                         <div class="card-body">
                         <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">First Name</label>
+                                    <input class="form-control" type="text" value="{{ $user->first_name }}" name="first_name">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Last Name</label>
+                                    <input class="form-control" type="text" value="{{ $user->last_name }}" name="last_name">
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="mb-3">
+                                    <label class="form-label">Email</label>
+                                    <input class="form-control" type="email" value="{{ $user->email }}" name="email">
+                                </div>
+                            </div>
                             <div class="col-md-12">
                                 <div class="mb-3">
                                     <label class="form-label">Address</label>
@@ -244,135 +262,6 @@
                     </form>
                 </div>
                 
-                    <div class="col-xl-6">
-                        <form class="card" action="{{ route('admin.users.bank', $user->id) }}" method="post">
-                            @csrf
-                            <input type="hidden" name="type" value="admin">
-                            <div class="card-header d-flex justify-content-between">
-                                <h4 class="card-title mb-0">Deposit Details</h4>
-                            </div>
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="mb-3">
-                                            <label class="form-label">Wallet Name</label>
-                                            <input class="form-control" type="text" value="{{ $deposit->wallet_name }}" name="wallet_name">
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="mb-3">
-                                            <label class="form-label">Wallet Address</label>
-                                            <input class="form-control" type="text" value="{{ $deposit->wallet_address }}" name="wallet_address">
-                                        </div>
-                                    </div>
-                                    <div class="col-md-12">
-                                        <div class="mb-3">
-                                            <label class="form-label">Bank Name</label>
-                                            <input class="form-control" type="text" value="{{ $deposit->bank_name }}" name="bank_name">
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="mb-3">
-                                            <label class="form-label">Account Name</label>
-                                            <input class="form-control" type="text" value="{{ $user->first_name }} {{ $user->last_name }}" name="">
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="mb-3">
-                                            <label class="form-label">Account Number</label>
-                                            <input class="form-control" type="text" value="{{ $deposit->bank_account_number }}" name="bank_account_number">
-                                        </div>
-                                    </div>
-                                    <div class="col-md-12">
-                                        <div class="mb-3">
-                                            <label class="form-label">Address</label>
-                                            <input class="form-control" type="text" value="{{ $deposit->bank_address }}" name="bank_address">
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="mb-3">
-                                            <label class="form-label">Bank Reference</label>
-                                            <input class="form-control" type="text" value="{{ $deposit->bank_reference }}" name="bank_reference">
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="mb-3">
-                                            <label class="form-label">Routing Number</label>
-                                            <input class="form-control" type="text" value="{{ $deposit->bank_routing_number }}" name="bank_routing_number">
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="card-footer text-start">
-                                <button class="btn btn-success" type="submit">Update Information</button>
-                            </div>
-                        </form>
-                    </div>
-                    <div class="col-xl-6">
-                        <form class="card" action="{{ route('admin.users.bank', $user->id) }}" method="post">
-                            @csrf
-                            <input type="hidden" name="type" value="user">
-                            <div class="card-header d-flex justify-content-between">
-                                <h4 class="card-title mb-0">Withdrawal Details</h4>
-                            </div>
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="mb-3">
-                                            <label class="form-label">Wallet Name</label>
-                                            <input class="form-control" type="text" value="{{ $withdrawal->wallet_name }}" name="wallet_name">
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="mb-3">
-                                            <label class="form-label">Wallet Address</label>
-                                            <input class="form-control" type="text" value="{{ $withdrawal->wallet_address }}" name="wallet_address">
-                                        </div>
-                                    </div>
-                                    <div class="col-md-12">
-                                        <div class="mb-3">
-                                            <label class="form-label">Bank Name</label>
-                                            <input class="form-control" type="text" value="{{ $withdrawal->bank_name }}" name="bank_name">
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="mb-3">
-                                            <label class="form-label">Account Name</label>
-                                            <input class="form-control" type="text" value="{{ $user->first_name }} {{ $user->last_name }}" name="">
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="mb-3">
-                                            <label class="form-label">Account Number</label>
-                                            <input class="form-control" type="text" value="{{ $withdrawal->bank_account_number }}" name="bank_account_number">
-                                        </div>
-                                    </div>
-                                    <div class="col-md-12">
-                                        <div class="mb-3">
-                                            <label class="form-label">Address</label>
-                                            <input class="form-control" type="text" value="{{ $withdrawal->bank_address }}" name="bank_address">
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="mb-3">
-                                            <label class="form-label">Bank Reference</label>
-                                            <input class="form-control" type="text" value="{{ $withdrawal->bank_reference }}" name="bank_reference">
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="mb-3">
-                                            <label class="form-label">Routing Number</label>
-                                            <input class="form-control" type="text" value="{{ $withdrawal->bank_routing_number }}" name="bank_routing_number">
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="card-footer text-start">
-                                <button class="btn btn-success" type="submit">Update Information</button>
-                            </div>
-                        </form>
-                    </div>
-                
                 <div class="col-xl-12">
                     <div class="card">
                         <div class="card-body">
@@ -406,19 +295,20 @@
                                                     <th scope="col">Type</th>
                                                     <th scope="col">Comment</th>
                                                     <th scope="col">Status</th>
+                                                    <th scope="col">Date</th>
                                                 </tr>
                                                 </thead>
                                                 <tbody>
                                                     @foreach($transactions as $transaction)
                                                         <tr>
                                                             <th scope="row">{{ $loop->iteration + ($transactions->currentPage() - 1) * $transactions->perPage() }}</th>
-                                                            <td>{{ $transaction->amount }}{{ $user->currency->symbol }}</td>
+                                                            <td class="truncate-content">{{ $transaction->amount }}{{ $user->currency->symbol }}</td>
                                                             <td> 
-                                                                <span class="badge @if($transaction->type == 'credit') badge-light-success @else badge-light-danger @endif">
-                                                                    @if($transaction->type == 'credit') Credit  @else Debit @endif
+                                                                <span class="truncate-content badge @if($transaction->type == 'credit') badge-light-success @elseif($transaction->type == 'transfer') badge-light-info @else badge-light-danger @endif">
+                                                                    @if($transaction->type == 'credit') Credit @elseif($transaction->type == 'transfer') Transfer @else Debit @endif
                                                                 </span> 
                                                             </td>
-                                                            <td> 
+                                                            <td class="truncate-con"> 
                                                                 {{ $transaction->comment }}
                                                             </td>
                                                             <td> 
@@ -426,6 +316,7 @@
                                                                     @if($transaction->status == 'approved') Approved @elseif($transaction->status == 'pending') Pending  @else Declined @endif
                                                                 </span>
                                                             </td>
+                                                            <td> <p class="truncate-content">{{ $transaction['created_at']->format('d M, Y \a\t h:i A') }}</p> </td>
                                                         </tr>
 
                                                     @endforeach
@@ -502,6 +393,7 @@
                                                 <th scope="col">Amount</th>
                                                 <th scope="col">Quantity</th>
                                                 <th scope="col">P/L</th>
+                                                <th scope="col">Date</th>
                                                 <th scope="col">Status</th>
                                             </tr>
                                             </thead>
@@ -509,11 +401,12 @@
                                                 @foreach($trades as $trade)
                                                     <tr>
                                                         <th scope="row">1</th>
-                                                        <td>{{ $trade->asset->name }}</td>
-                                                        <td>{{ number_format($trade->amount, 2) }} {{ $user->currency->symbol }}</td>
+                                                        <td class="truncate-content">{{ $trade->asset->name }}</td>
+                                                        <td class="truncate-content">{{ number_format($trade->amount, 2) }} {{ $user->currency->symbol }}</td>
                                                         <td>{{ number_format($trade->quantity, 6) }}</td>
                                                         <td> <p class="text-success">+0.00 {{ $user->currency->sign }}</p> </td>
                                                         <td> <p class="text-success">{{ $trade->status }}</p> </td>
+                                                        <td> <p class="truncate-content">{{ $trade['created_at']->format('d M, Y \a\t h:i A') }}</p> </td>
                                                         <td> 
                                                             <span class="badge @if($trade->status == 'open') badge-light-success  @elseif($trade->status == 'hold') badge-light-warning @else badge-light-danger @endif">
                                                                 @if($trade->status == 'open') Open @elseif($trade->status == 'hold') Hold  @else Closed @endif
@@ -564,6 +457,187 @@
                             </div>
                         </div>
                     </div>
+                </div>
+                
+                <div class="col-xl-6">
+                    <form class="card" action="{{ route('admin.users.bank', $user->id) }}" method="post">
+                        @csrf
+                        <input type="hidden" name="type" value="admin">
+                        <div class="card-header d-flex justify-content-between">
+                            <h4 class="card-title mb-0">Bank Deposit Details</h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="mb-3">
+                                        <label class="form-label">Bank Name</label>
+                                        <input class="form-control" type="text" value="{{ $deposit->bank_name }}" name="bank_name">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Account Name</label>
+                                        <input class="form-control" type="text" value="{{ $user->first_name }} {{ $user->last_name }}" name="">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Account Number</label>
+                                        <input class="form-control" type="text" value="{{ $deposit->bank_account_number }}" name="bank_account_number">
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <div class="mb-3">
+                                        <label class="form-label">Address</label>
+                                        <input class="form-control" type="text" value="{{ $deposit->bank_address }}" name="bank_address">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Bank Reference</label>
+                                        <input class="form-control" type="text" value="{{ $deposit->bank_reference }}" name="bank_reference">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Routing Number</label>
+                                        <input class="form-control" type="text" value="{{ $deposit->bank_routing_number }}" name="bank_routing_number">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer text-start">
+                            <button class="btn btn-success" type="submit">Update Information</button>
+                        </div>
+                    </form>
+                    <form class="card" action="{{ route('admin.users.bank', $user->id) }}" method="post">
+                        @csrf
+                        <input type="hidden" name="type" value="admin">
+                        <div class="card-header d-flex justify-content-between">
+                            <h4 class="card-title mb-0">Crypto Deposit Details</h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-12">
+                                        <div class="mb-3">
+                                            <label class="form-label">BTC Wallet Address</label>
+                                            <input class="form-control" type="text" value="{{ $deposit->btc_wallet }}" name="btc_wallet">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <div class="mb-3">
+                                            <label class="form-label">ETH Wallet Address</label>
+                                            <input class="form-control" type="text" value="{{ $deposit->eth_wallet }}" name="eth_wallet">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <div class="mb-3">
+                                            <label class="form-label">USDT (TRC20) Wallet Address</label>
+                                            <input class="form-control" type="text" value="{{ $deposit->trc_wallet }}" name="trc_wallet">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <div class="mb-3">
+                                            <label class="form-label">USDT (ERC20) Wallet Address</label>
+                                            <input class="form-control" type="text" value="{{ $deposit->erc_wallet }}" name="erc_wallet">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        <div class="card-footer text-start">
+                            <button class="btn btn-success" type="submit">Update Information</button>
+                        </div>
+                    </form>
+                </div>
+                <div class="col-xl-6">
+                    <form class="card" action="{{ route('admin.users.bank', $user->id) }}" method="post">
+                        @csrf
+                        <input type="hidden" name="type" value="user">
+                        <div class="card-header d-flex justify-content-between">
+                            <h4 class="card-title mb-0">Bank Withdrawal Details</h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="mb-3">
+                                        <label class="form-label">Bank Name</label>
+                                        <input class="form-control" type="text" value="{{ $withdrawal->bank_name }}" name="bank_name">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Account Name</label>
+                                        <input class="form-control" type="text" value="{{ $user->first_name }} {{ $user->last_name }}" name="">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Account Number</label>
+                                        <input class="form-control" type="text" value="{{ $withdrawal->bank_account_number }}" name="bank_account_number">
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <div class="mb-3">
+                                        <label class="form-label">Address</label>
+                                        <input class="form-control" type="text" value="{{ $withdrawal->bank_address }}" name="bank_address">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Bank Reference</label>
+                                        <input class="form-control" type="text" value="{{ $withdrawal->bank_reference }}" name="bank_reference">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Routing Number</label>
+                                        <input class="form-control" type="text" value="{{ $withdrawal->bank_routing_number }}" name="bank_routing_number">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer text-start">
+                            <button class="btn btn-success" type="submit">Update Information</button>
+                        </div>
+                    </form>
+                    <form class="card" action="{{ route('admin.users.bank', $user->id) }}" method="post">
+                        @csrf
+                        <input type="hidden" name="type" value="user">
+                        <div class="card-header d-flex justify-content-between">
+                            <h4 class="card-title mb-0">Crypto Withdrawal Details</h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="mb-3">
+                                        <label class="form-label">BTC Wallet Address</label>
+                                        <input class="form-control" type="text" value="{{ $withdrawal->btc_wallet }}" name="btc_wallet">
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <div class="mb-3">
+                                        <label class="form-label">ETH Wallet Address</label>
+                                        <input class="form-control" type="text" value="{{ $withdrawal->eth_wallet }}" name="eth_wallet">
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <div class="mb-3">
+                                        <label class="form-label">USDT (TRC20) Wallet Address</label>
+                                        <input class="form-control" type="text" value="{{ $withdrawal->trc_wallet }}" name="trc_wallet">
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <div class="mb-3">
+                                        <label class="form-label">USDT (ERC20) Wallet Address</label>
+                                        <input class="form-control" type="text" value="{{ $withdrawal->erc_wallet }}" name="erc_wallet">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer text-start">
+                            <button class="btn btn-success" type="submit">Update Information</button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>

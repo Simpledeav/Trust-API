@@ -25,9 +25,9 @@ class DatabaseSeeder extends Seeder
             CurrencySeeder::class, // php artisan db:seed --class=CurrenciesSeeder
             UserSeeder::class, // php artisan db:seed --class=UserSeeder
             AssetSeeder::class, // php artisan db:seed --class=AssetSeeder
-            SavingsAccountSeeder::class, // php artisan db:seed --class=SavingsAccountSeeder
+            SavingsAccountSeeder::class, // php artisan db:seed --class=SavingsAccountSeeder  php artisan migrate:refresh --path=/database/migrations/2025_02_03_090958_create_savings_accounts_table.php
             AdminSeeder::class, // php artisan db:seed --class=AdminSeeder
-            ArticleSeeder::class, // php artisan db:seed --class=ArticleSeeder
+            ArticleSeeder::class, // php artisan db:seed --class=ArticleSeeder  php artisan migrate:refresh --path=/database/migrations/2025_02_01_140812_create_transactions_table.php
         ]);
     }
 }

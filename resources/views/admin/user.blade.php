@@ -108,6 +108,13 @@
                                                                     </form>
                                                                 </li>
                                                             @endif
+                                                            <li>
+                                                                <form action="{{ route('admin.users.destroy', $user->id) }}" method="POST" style="display: inline;">
+                                                                    @csrf
+                                                                    @method('DELETE')
+                                                                    <button type="submit" class="dropdown-item text-danger fw-bold bg-danger text-white">DELETE</button>
+                                                                </form>
+                                                            </li>
                                                         </ul>
                                                 </div>
                                             </td>

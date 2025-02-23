@@ -22,4 +22,9 @@ class Savings extends Model
     {
         return $this->belongsTo(SavingsAccount::class);
     }
+
+    public function savingsTransaction()
+    {
+        return $this->hasMany(SavingsLedger::class);
+    }
 }

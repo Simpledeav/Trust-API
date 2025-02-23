@@ -19,7 +19,10 @@ class Transaction extends Model
         'transactable_type',
         'type',
         'status',
+        'swap_from',
+        'swap_to',
         'comment',
+        'created_at',
     ];
 
     protected $casts = [

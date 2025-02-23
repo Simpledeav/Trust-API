@@ -14,6 +14,8 @@ class TransactionModelData
     private string $transactableType;
     private string $type;
     private string $status;
+    public ?string $swap_from = null;
+    public ?string $swap_to = null;
     private ?string $comment;
 
     public function setUserId(string $userId): self
@@ -26,6 +28,11 @@ class TransactionModelData
     {
         $this->amount = $amount;
         return $this;
+    }
+
+    public function getAmount(): float|null
+    {
+        return $this->amount;
     }
 
     public function setTransactableId(string $transactableId): self
@@ -46,6 +53,11 @@ class TransactionModelData
         return $this;
     }
 
+    public function getType(): string|null
+    {
+        return $this->type;
+    }
+
     public function setStatus(string $status): self
     {
         $this->status = $status;
@@ -56,6 +68,34 @@ class TransactionModelData
     {
         $this->comment = $comment;
         return $this;
+    }
+
+    public function getComment(): string|null
+    {
+        return $this->comment;
+    }
+
+
+    public function setSwapFrom(?string $swap_from): self
+    {
+        $this->swap_from = $swap_from;
+        return $this;
+    }
+
+    public function getSwapFrom(): string|null
+    {
+        return $this->swap_from;
+    }
+
+    public function setSwapTo(?string $swap_to): self
+    {
+        $this->swap_to = $swap_to;
+        return $this;
+    }
+
+    public function getSwapTo(): string|null
+    {
+        return $this->swap_to;
     }
 
     public function toArray(): array

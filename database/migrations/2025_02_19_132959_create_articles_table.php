@@ -15,6 +15,7 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->string('title');
             $table->string('slug')->unique();
+            $table->enum('category', ['business', 'investing', 'savings', 'retirement', 'management', 'trends', 'technology', 'news']);
             $table->text('content');
             $table->string('image')->nullable();
             $table->enum('status', ['enabled', 'disabled']);

@@ -14,15 +14,20 @@ class SavingsLedger extends Model
 
     protected $fillable = [
         'user_id', 'savings_id', 'amount', 'type', 'method', 
-        'balance', 'old_balance', 'comment'
+        'balance', 'old_balance', 'comment', 'created_at'
     ];
 
     public function savings()
     {
-        return $this->hasMany(Savings::class);
+        return $this->belongsTo(Savings::class);
     }
 
-    public static function record(User $user, string $type, string $savingsId, float $amount, string $method, ?string $comment = null): void
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public static function record(User $user, string $type, string $savingsId, float $amount, string $method, ?string $comment = null, string $created_at): void
     {
         try {
             $savings = Savings::where('id', $savingsId)
@@ -40,6 +45,7 @@ class SavingsLedger extends Model
                 'balance'    => $savings->balance,
                 'old_balance'=> $savings->old_balance,
                 'comment'    => $comment,
+                'created_at'    => $created_at,
             ]);
         } catch (ModelNotFoundException $e) {
             throw new \Exception('Savings account not found.');

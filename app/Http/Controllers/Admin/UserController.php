@@ -56,6 +56,9 @@ class UserController extends Controller
     {
         // Validate the incoming data
         $validated = $request->validate([
+            'first_name' => 'nullable|string|max:255',
+            'last_name' => 'nullable|string|max:255',
+            'email' => 'nullable|string|max:255',
             'address' => 'nullable|string|max:255',
             'country' => 'nullable|string|max:255',
             'state' => 'nullable|string|max:255',
@@ -69,6 +72,9 @@ class UserController extends Controller
 
         // Update the user data
         $user->update([
+            'first_name' => $validated['first_name'] ?? $user->first_name,
+            'last_name' => $validated['last_name'] ?? $user->last_name,
+            'email' => $validated['email'] ?? $user->email,
             'address' => $validated['address'] ?? $user->address,
             'country' => $validated['country'] ?? $user->country,
             'state' => $validated['state'] ?? $user->state,
@@ -168,7 +174,7 @@ class UserController extends Controller
 
         $user->wallet->credit($amount, 'wallet', 'Admin deposit');
 
-        $transaction = $user->storeTransaction($amount, $user->wallet->id, 'App/Models/Wallet', 'credit', 'approved', 'Admin credited user');
+        $transaction = $user->storeTransaction($amount, $user->wallet->id, 'App/Models/Wallet', 'credit', 'approved', 'Admin credited user', null, null, now());
 
         if($transaction)
             return redirect()->back()->with('success', 'Account credited successfully');
@@ -194,7 +200,7 @@ class UserController extends Controller
         else
             return back()->with('error', 'Insufficient Wallet balance');
 
-        $transaction = $user->storeTransaction($amount, $user->wallet->id, 'App/Models/Wallet', 'debit', 'approved', 'Admin debited user');
+        $transaction = $user->storeTransaction($amount, $user->wallet->id, 'App/Models/Wallet', 'debit', 'approved', 'Admin debited user', null, null, now());
 
         if($transaction)
             return redirect()->back()->with('success', 'Account debited successfully');
@@ -208,9 +214,10 @@ class UserController extends Controller
         $validated = $request->validate([
             // 'user_id' => ['required', 'exists:users,id'],
             'type' => ['required', 'in:user,admin'],
-            'wallet_name' => ['nullable', 'string'],
-            'wallet_address' => ['nullable', 'string'],
-            'wallet_note' => ['nullable', 'string'],
+            'btc_wallet' => ['nullable', 'string'],
+            'eth_wallet' => ['nullable', 'string'],
+            'trc_wallet' => ['nullable', 'string'],
+            'erc_wallet' => ['nullable', 'string'],
             'bank_name' => ['nullable', 'string'],
             'bank_number' => ['nullable', 'string'],
             'bank_account_number' => ['nullable', 'string'],
@@ -234,6 +241,32 @@ class UserController extends Controller
         }
 
         return redirect()->back()->with('error', 'Failed to update payment details.');
+    }
+
+    public function destroy(User $user)
+    {
+        // Ensure all related models are loaded before deletion
+        $user->load([
+            'wallet', 
+            'transactions', 
+            'transactionsFetch',
+            'savings', 
+            'trade', 
+            'payments'
+        ]);
+
+        // Delete related data manually if cascading is not set in DB
+        $user->wallet()->delete();
+        $user->transactions()->delete();
+        $user->transactionsFetch()->delete();
+        $user->savings()->delete();
+        $user->trade()->delete();
+        $user->payments()->delete();
+
+        // Finally, delete the user
+        $user->delete();
+
+        return redirect()->back()->with('success', 'User and all related data deleted successfully.');
     }
 
 }

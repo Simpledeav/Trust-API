@@ -42,11 +42,11 @@ class TradeService
                 'interval'    => $data['interval'] ?? null,
                 'tp'          => $data['tp'] ?? null,
                 'sl'          => $data['sl'] ?? null,
-                'extra'       => $data['extra'] ?? 0,
+                'extra'       => 0,
             ]);
 
             $user->wallet->debit($amount, 'wallet', 'Trade create');
-            $user->storeTransaction($amount, $trade->id, 'App/Models/Trade', 'debit', 'approved');
+            $user->storeTransaction($amount, $trade->id, 'App/Models/Trade', 'debit', 'approved', 'Order created on ' . $asset->symbol . ' of ' . $data['quantity'] . ' units', null, null, now());
 
             return $trade;
         });
@@ -82,7 +82,7 @@ class TradeService
 
             if($amount > 0) {
                 $user->wallet->credit($amount, 'wallet', 'Trade close');
-                $user->storeTransaction($amount, $trade->id, 'App/Models/Trade', 'credit', 'approved');
+                $user->storeTransaction($amount, $trade->id, 'App/Models/Trade', 'credit', 'approved', null, null, now());
             }
         }
 

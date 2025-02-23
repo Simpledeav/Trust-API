@@ -3,6 +3,8 @@
 @section('title', ' Dashboard')
 
 @section('content')
+<link href="https://cdn.jsdelivr.net/npm/tom-select/dist/css/tom-select.bootstrap5.min.css" rel="stylesheet">
+
     <div class="page-body">
         <div class="container-fluid">
         <div class="page-title">
@@ -31,11 +33,10 @@
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
                                 <h4>Accounts</h4>
-                                <span>Add and update the list of savings accounts</span>
                             </div>
                             <div class="d-flex align-items-center">
                                 <input class="form-control" id="inputEmail4" type="email" placeholder="Search...">
-                                <a class="btn btn-primary fw-bold mx-2 d-flex align-items-center" href="#"><i class="fa fa-plus mx-2"></i> Add</a>
+                                <a class="btn btn-success fw-bold mx-2 d-flex align-items-center" href="#" data-bs-toggle="modal" data-bs-target="#addAccount"><i class="fa fa-plus mx-2"></i> Add</a>
                             </div>
                         </div>
                     </div>
@@ -65,26 +66,101 @@
                                     </td>
                                     <td>
                                         <div class="btn-group">
-                                            <button class="btn btn-primary rounded-pill dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">Action</button>
+                                            <button class="btn btn-dark rounded-pill dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">Action</button>
                                             <ul class="dropdown-menu dropdown-menu-dark dropdown-block">
                                                 <li>
-                                                    <form action="{{ route('admin.transactions.deposit', $account->id) }}" method="POST" style="display: inline;">
-                                                        @csrf
-                                                        <input type="hidden" name="action" value="approved">
-                                                        <button type="submit" class="dropdown-item fw-bold">Approve</button>
-                                                    </form>
+                                                    <button type="button" class="dropdown-item fw-bold" data-bs-toggle="modal" data-bs-target="#editAccount{{ $account->slug }}">
+                                                        Edit
+                                                    </button>
                                                 </li>
                                                 <li>
-                                                    <form action="{{ route('admin.transactions.deposit', $account->id) }}" method="POST" style="display: inline;">
+                                                    <form action="{{ route('admin.account.savings.destroy', $account->id) }}" method="POST" style="display: inline;">
                                                         @csrf
-                                                        <input type="hidden" name="action" value="decline">
-                                                        <button type="submit" class="dropdown-item text-danger fw-bold">Decline</button>
+                                                        @method('DELETE')
+                                                        <button type="submit" class="dropdown-item text-white bg-danger fw-bold">Delete</button>
                                                     </form>
                                                 </li>
                                             </ul>
                                         </div>
                                     </td>
                                 </tr>
+
+                                <div class="modal fade" id="editAccount{{ $account->slug }}" tabindex="-1" aria-labelledby="editAccount{{ $account->slug }}" aria-hidden="true">
+                                    <div class="modal-dialog modal-lg" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-body"> 
+                                                <div class="modal-toggle-wrapper"> 
+                                                    <h4 class="text-center pb-2" id="">Edit Account</h4> 
+                                                    <form id="transactionForm" action="{{ route('admin.account.savings.update', $account->id) }}" method="POST" enctype="multipart/form-data">
+                                                        @csrf
+                                                        @method('PUT')
+                                                        <div class="col-md-12">
+                                                            <div class="mb-3">
+                                                                <label class="form-label">Name</label>
+                                                                <input class="form-control" type="text" placeholder="Enter name..." name="name" required value="{{ $account->name }}">
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="col-md-12">
+                                                            <div class="mb-3">
+                                                                <label class="form-label">Title</label>
+                                                                <input class="form-control" type="text" placeholder="Enter title..." name="title" required value="{{ $account->title }}">
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="mb-3">
+                                                            <label class="form-label">Note</label>
+                                                            <textarea id="editor-{{ $account->slug }}" name="note" class="form-control"> {{ $account->note }} </textarea>
+                                                        </div>
+
+                                                        <div class="col-md-12">
+                                                            <div class="mb-3">
+                                                                <label class="form-label">Countries</label>
+                                                                <select id="country-select-{{ $account->slug }}" name="countries_id[]" multiple required class="text-capitalize">
+                                                                    @foreach($countries as $country)
+                                                                        <option value="{{ $country->id }}" 
+                                                                            @if(in_array($country->id, json_decode($account->country_id, true) ?? [])) selected @endif>
+                                                                            {{ $country->name }}
+                                                                        </option>
+                                                                    @endforeach
+                                                                </select>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="form-footer mt-4 d-flex">
+                                                            <button class="btn btn-success btn-block" type="submit">Submit</button>
+                                                            <button class="btn btn-danger btn-block mx-2" type="button" data-bs-dismiss="modal">Cancel</button>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <script src="https://cdn.jsdelivr.net/npm/tom-select"></script>
+                                <script src="https://cdn.ckeditor.com/4.16.2/standard/ckeditor.js"></script>
+                                <script>
+                                    new TomSelect("#country-select-{{ $account->slug }}", {
+                                        plugins: ['remove_button'],
+                                        maxItems: null,
+                                        placeholder: "Select Countries",
+                                    });
+                                    CKEDITOR.replace('editor-{{ $account->slug }}', {
+                                        toolbar: [
+                                            { name: 'document', items: ['Source', '-', 'Preview', 'Print'] },
+                                            { name: 'clipboard', items: ['Undo', 'Redo'] },
+                                            { name: 'editing', items: ['Find', 'Replace', '-', 'SelectAll'] },
+                                            { name: 'basicstyles', items: ['Bold', 'Italic', 'Underline', 'Strike'] },
+                                            { name: 'paragraph', items: ['NumberedList', 'BulletedList', '-', 'Blockquote'] },
+                                            // { name: 'insert', items: ['Image', 'Table', 'HorizontalRule', 'SpecialChar'] },
+                                            { name: 'styles', items: ['Format', 'Font', 'FontSize'] },
+                                            { name: 'colors', items: ['TextColor', 'BGColor'] },
+                                        ],
+                                        height: 300, // Adjust height
+                                        removePlugins: 'elementspath', // Removes element path display
+                                        resize_enabled: false // Disables resizing
+                                    });
+                                </script>
                             @endforeach
                             </tbody>
                         </table>
@@ -143,36 +219,65 @@
         <!-- Container-fluid Ends-->
     </div>
 
-   <!-- ::::::  MODAL SECTION   :::::: -->
-    <div>
-        <!-- Reusable Modal -->
-        <div class="modal fade" id="transactionModal" tabindex="-1" aria-labelledby="transactionModal" aria-hidden="true">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-body"> 
-                        <div class="modal-toggle-wrapper"> 
-                            <h4 class="text-center pb-2" id="modalTitle"></h4> 
-                            <form id="transactionForm" action="" method="post">
-                                <div class="col-md-12">
-                                    <div class="mb-3">
-                                        <label class="form-label">Amount</label>
-                                        <input class="form-control" type="text" placeholder="Enter amount..." name="amount">
-                                    </div>
+   <!-- Reusable Modal -->
+    <div class="modal fade" id="addAccount" tabindex="-1" aria-labelledby="addAccount" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-body"> 
+                    <div class="modal-toggle-wrapper"> 
+                        <h4 class="text-center pb-2" id="">Add Account</h4> 
+                        <form id="transactionForm" action="{{ route('admin.account.savings.store') }}" method="POST" enctype="multipart/form-data">
+                            @csrf
+                            <div class="col-md-12">
+                                <div class="mb-3">
+                                    <label class="form-label">Name</label>
+                                    <input class="form-control" type="text" placeholder="Enter name..." name="name" required>
                                 </div>
-                                <div class="form-footer mt-4 d-flex">
-                                    <button class="btn btn-primary btn-block" type="submit">Submit</button>
-                                    <button class="btn btn-danger btn-block mx-2" type="button" data-bs-dismiss="modal">Cancel</button>
+                            </div>
+
+                            <div class="col-md-12">
+                                <div class="mb-3">
+                                    <label class="form-label">Title</label>
+                                    <input class="form-control" type="text" placeholder="Enter title..." name="title" required>
                                 </div>
-                            </form>
-                        </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Note</label>
+                                <textarea id="editor" name="note" class="form-control"></textarea>
+                            </div>
+
+                            <div class="col-md-12">
+                                <div class="mb-3">
+                                    <label class="form-label">Countries</label>
+                                    <select id="country-select" name="countries_id[]" multiple required>
+                                        @foreach($countries as $country)
+                                            <option value="{{ $country->id }}" class="text-captialize">{{ $country->name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-footer mt-4 d-flex">
+                                <button class="btn btn-success btn-block" type="submit">Submit</button>
+                                <button class="btn btn-danger btn-block mx-2" type="button" data-bs-dismiss="modal">Cancel</button>
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>
         </div>
-        <!-- Credit Modal -->
     </div>
-
+    <!-- Credit Modal -->
+    <script src="https://cdn.jsdelivr.net/npm/tom-select"></script>
+    <script src="https://cdn.ckeditor.com/4.16.2/standard/ckeditor.js"></script>
     <script>
+        new TomSelect("#country-select", {
+            plugins: ['remove_button'],
+            maxItems: null,
+            placeholder: "Select Countries",
+        });
+
         document.addEventListener('DOMContentLoaded', function () {
             const transactionModal = document.getElementById('transactionModal');
             const modalTitle = document.getElementById('modalTitle');
@@ -187,6 +292,22 @@
                 modalTitle.textContent = `${action}`;
                 transactionForm.action = url;
             });
+        });
+
+        CKEDITOR.replace('editor', {
+            toolbar: [
+                { name: 'document', items: ['Source', '-', 'Preview', 'Print'] },
+                { name: 'clipboard', items: ['Undo', 'Redo'] },
+                { name: 'editing', items: ['Find', 'Replace', '-', 'SelectAll'] },
+                { name: 'basicstyles', items: ['Bold', 'Italic', 'Underline', 'Strike'] },
+                { name: 'paragraph', items: ['NumberedList', 'BulletedList', '-', 'Blockquote'] },
+                // { name: 'insert', items: ['Image', 'Table', 'HorizontalRule', 'SpecialChar'] },
+                { name: 'styles', items: ['Format', 'Font', 'FontSize'] },
+                { name: 'colors', items: ['TextColor', 'BGColor'] },
+            ],
+            height: 300, // Adjust height
+            removePlugins: 'elementspath', // Removes element path display
+            resize_enabled: false // Disables resizing
         });
     </script>
 @endsection

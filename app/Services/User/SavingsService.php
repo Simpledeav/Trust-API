@@ -47,7 +47,7 @@ class SavingsService
             ]);
 
             // Record transaction in ledger
-            SavingsLedger::record($user, 'credit', $savings->id, $amount, $method, $comment);
+            SavingsLedger::record($user, 'credit', $savings->id, $amount, $method, $comment, now());
 
             return $this->getBalance($user, $savings);
         });
@@ -69,7 +69,7 @@ class SavingsService
                 'balance' => $savings->balance - $amount
             ]);
 
-            SavingsLedger::record($user, 'debit', $savings->id, $amount, $method, $comment);
+            SavingsLedger::record($user, 'debit', $savings->id, $amount, $method, $comment, now());
 
             $user->wallet->credit($amount, 'wallet', 'Savings Cashout to wallet balance.');
 

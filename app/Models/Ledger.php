@@ -59,9 +59,11 @@ class Ledger extends Model
             $query->where('account', $account);
         }
 
-        $credits = $query->where('type', 'credit')->sum('amount') ?? 0;
-        $debits = $query->where('type', 'debit')->sum('amount') ?? 0;
+        // Clone the query to prevent it from being modified
+        $credits = (clone $query)->where('type', 'credit')->sum('amount') ?? 0;
+        $debits = (clone $query)->where('type', 'debit')->sum('amount') ?? 0;
 
         return $credits - $debits;
     }
+
 }

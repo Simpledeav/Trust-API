@@ -14,8 +14,10 @@ return new class extends Migration
     {
         Schema::create('settings', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->string('wallet_name')->nullable();
-            $table->string('wallet_address')->nullable();
+            $table->string('btc_wallet')->nullable();
+            $table->string('eth_wallet')->nullable();
+            $table->string('trc_wallet')->nullable();
+            $table->string('erc_wallet')->nullable();
             $table->text('wallet_note')->nullable();
             $table->string('bank_name')->nullable();
             $table->string('bank_number')->nullable();
@@ -29,8 +31,10 @@ return new class extends Migration
 
         \App\Models\Setting::create([
             'id' => Str::uuid(),
-            'wallet_name' => 'Default Wallet',
-            'wallet_address' => '0x123456789ABCDEF',
+            'btc_wallet' => 'Weqwerszewwrfdf0x123456789ABCDEF',
+            'eth_wallet' => 'lijugiyjhhy0x123456789ABCDEF',
+            'trc_wallet' => '243k5jhjw342gq0x123456789ABCDEF',
+            'erc_wallet' => 'oaoireuksw3iu0x123456789ABCDEF',
             'wallet_note' => 'Default note',
             'bank_name' => 'Default Bank',
             'bank_number' => '123456',

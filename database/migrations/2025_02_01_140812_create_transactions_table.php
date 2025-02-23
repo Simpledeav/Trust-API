@@ -18,6 +18,8 @@ return new class extends Migration
             $table->uuidMorphs('transactable');
             $table->enum('type', ['credit', 'debit', 'transfer']);
             $table->enum('status', ['approved', 'declined', 'pending']);
+            $table->enum('swap_from', ['wallet', 'cash', 'brokerage', 'auto', 'ira'])->nullable();
+            $table->enum('swap_to', ['wallet', 'cash', 'brokerage', 'auto', 'ira'])->nullable();
             $table->string('comment')->nullable();
             $table->timestamps();
             
