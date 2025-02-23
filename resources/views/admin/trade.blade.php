@@ -425,7 +425,7 @@
                             <div class="col-md-12">
                                 <div class="mb-3">
                                     <label class="form-label">Leverage</label>
-                                    <input class="form-control" type="text" placeholder="(Optional)" name="leverage" value="{{ $trade->leverage }}" id="leverage">
+                                    <input class="form-control" type="text" placeholder="(Optional)" name="leverage" id="leverage">
                                 </div>
                             </div>
 
