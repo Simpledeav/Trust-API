@@ -44,7 +44,7 @@
                                             data-action="Credit"
                                             data-url=""
                                         >
-                                            <i class="fa fa-plus"></i>Add
+                                            <i class="fa fa-plus"></i> Create Account
                                         </a>
                                     </div>
                                 </div>
@@ -58,7 +58,7 @@
                                     <th> <span class="f-light f-w-600">Name</span></th>
                                     <th> <span class="f-light f-w-600">Amount </span></th>
                                     <th> <span class="f-light f-w-600">Account(s)</span></th>
-                                    <th> <span class="f-light f-w-600">P/L</span></th>
+                                    <th> <span class="f-light f-w-600">Interest</span></th>
                                     <th> <span class="f-light f-w-600">Status</span></th>
                                     <th> <span class="f-light f-w-600">Action</span></th>
                                 </tr>

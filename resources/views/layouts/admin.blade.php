@@ -452,7 +452,8 @@
                     </svg><span>Savings</span></a>
                   <ul class="sidebar-submenu">
                     <li><a href="{{ route('admin.account.savings') }}">All</a></li>
-                    <li><a href="{{ route('admin.accounts.savings') }}">Account Q&A</a></li>
+                    <li><a href="{{ route('admin.account.fetch.transactions') }}">Transactions</a></li>
+                    <li><a href="{{ route('admin.accounts.savings') }}">Account</a></li>
                   </ul>
                 </li>
                 <li class="sidebar-list"> <i class="fa fa-thumb-tack"> </i><a class="sidebar-link sidebar-title" href="{{ url('#') }}">

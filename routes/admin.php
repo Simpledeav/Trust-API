@@ -59,6 +59,7 @@ Route::group(['middleware' => ['active_admin']], function (){
     Route::post('/savings/{user}/contribue/{savings}', [SavingsController::class, 'contribute'])->name('accounts.contribute');
     Route::delete('/savings/destroy/{savingsLedger}', [SavingsController::class, 'destroy'])->name('savings.destroy');
     Route::post('/savings/user/account', [SavingsController::class, 'store'])->name('account.store');
+    Route::get('/savings/transactions', [SavingsController::class, 'fetchTransactions'])->name('account.fetch.transactions');
 
 
     Route::get('/articles/all', [ArticleController::class, 'index'])->name('article.all');

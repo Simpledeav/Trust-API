@@ -68,7 +68,7 @@
                                             <td>{{ $index +  1 }}</td>
                                             <td> 
                                                 <div class="product-names fw-bold">
-                                                    <a href="#" class="text-success">{{ $transaction->user->first_name }} {{ $transaction->user->last_name }}</a>
+                                                    <a href="{{ route('admin.users.show', $transaction->user->id) }}" class="text-success">{{ $transaction->user->first_name }} {{ $transaction->user->last_name }}</a>
                                                 </div>
                                             </td>
                                             <td> 
@@ -223,15 +223,14 @@
                                     </div>
                                 </div>
 
+                                @if($title == 'Transfer')
                                 <div class="col-md-12">
                                     <div class="mb-3">
-                                        <label class="form-label">Account</label>
+                                        <label class="form-label">From Account</label>
                                         <select class="form-select" id="" required="" name="account">
                                             <option selected="" disabled="" value="">--- Select Account ---</option>
-                                            <option value="wallet">Wallet</option>
-                                            <option value="cash">Cash</option>
+                                            <option value="wallet">Cash</option>
                                             <option value="brokerage">Brokerage</option>
-                                            <option value="ira">IRA</option>
                                             <option value="auto">Auto</option>
                                         </select>
                                     </div>
@@ -239,11 +238,46 @@
 
                                 <div class="col-md-12">
                                     <div class="mb-3">
+                                        <label class="form-label">To Account</label>
+                                        <select class="form-select" id="" required="" name="to">
+                                            <option selected="" disabled="" value="">--- Select Account ---</option>
+                                            <option value="wallet">Cash</option>
+                                            <option value="brokerage">Brokerage</option>
+                                            <option value="auto">Auto</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                @else 
+                                <div class="col-md-12">
+                                    <div class="mb-3">
+                                        <label class="form-label">Account</label>
+                                        <select class="form-select" id="" required="" name="account">
+                                            <option selected="" disabled="" value="">--- Select Account ---</option>
+                                            <option value="wallet">Cash</option>
+                                            <!-- <option value="brokerage">Brokerage</option>
+                                            <option value="auto">Auto</option> -->
+                                        </select>
+                                    </div>
+                                </div>
+                                @endif
+
+                                <div class="col-md-12">
+                                    <div class="mb-3">
                                         <label class="form-label">Amount</label>
                                         <input class="form-control" type="text" placeholder="Enter amount..." name="amount">
                                     </div>
                                 </div>
-                                
+
+                                @if($title == 'Transfer')
+                                <div class="col-md-12">
+                                    <div class="mb-3">
+                                        <label class="form-label">Method</label>
+                                        <select class="form-select" id="" required="" name="type">
+                                            <option selected value="transfer">Transfer</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                @else
                                 <div class="col-md-12">
                                     <div class="mb-3">
                                         <label class="form-label">Method</label>
@@ -254,6 +288,7 @@
                                         </select>
                                     </div>
                                 </div>
+                                @endif
 
                                 <div class="col-md-12">
                                     <div class="mb-3">

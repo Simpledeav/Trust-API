@@ -54,8 +54,10 @@ class SettingController extends Controller
     {
         // Validate the request
         $validated = $request->validate([
-            'wallet_name' => ['nullable', 'string'],
-            'wallet_address' => ['nullable', 'string'],
+            'btc_wallet' => ['nullable', 'string'],
+            'eth_wallet' => ['nullable', 'string'],
+            'trc_wallet' => ['nullable', 'string'],
+            'erc_wallet' => ['nullable', 'string'],
             'wallet_note' => ['nullable', 'string'],
             'bank_name' => ['nullable', 'string'],
             'bank_number' => ['nullable', 'string'],

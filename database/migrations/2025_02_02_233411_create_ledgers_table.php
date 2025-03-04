@@ -16,7 +16,7 @@ return new class extends Migration
             $table->uuid('wallet_id');
             $table->decimal('amount', 18, 2)->default(0);
             $table->enum('type', ['debit', 'credit']);
-            $table->enum('account', ['wallet', 'cash', 'brokerage', 'auto', 'ira']);
+            $table->enum('account', ['wallet', 'brokerage', 'auto']);
             $table->decimal('balance', 18, 2)->default(0);
             $table->decimal('old_balance', 18, 2)->default(0);
             $table->uuidMorphs('ledgerable');

@@ -19,6 +19,7 @@ class TradeController extends Controller
             'asset_id' => ['required'],
             'user_id' => ['required'],
             'type' => ['required', 'in:buy,sell'],
+            'account' => ['required', 'in:wallet,brokerage,auto'],
             'quantity' => ['sometimes'],
             'amount' => ['required'],
             'entry' => ['sometimes'],
@@ -45,13 +46,14 @@ class TradeController extends Controller
         }
 
         $amount = (float) $request->amount;
-        $balance = $user->wallet->getBalance('wallet');
+        $account = $request->account;
+        $balance = $user->wallet->getBalance($account);
         $assetPrice = (float) $asset->price;
         $quantity = ($amount / $assetPrice);
         $comment = 'Trade Order on ' . $asset->name;
 
         if($amount > $balance) {
-            return back()->with('error', 'Insufficient Wallet balance');
+            return back()->with('error', 'Insufficient ' . $account . ' balance');
         }
         
         $trade = $user->placeTrade([
@@ -70,11 +72,11 @@ class TradeController extends Controller
             'created_at'  => $request->created_at ? Carbon::parse($request->created_at)->format('Y-m-d H:i:s') : now(),
         ]);
 
-        $user->wallet->debit($amount, 'wallet', $comment);
-
-        $user->storeTransaction($amount, $user->wallet->id, 'App/Models/Wallet', 'debit', 'approved', 'Open Order by admin', null, null, Carbon::parse($request->created_at)->format('Y-m-d H:i:s'));
-
         if($trade)
+            $user->wallet->debit($amount, $account, $comment);
+
+            $user->storeTransaction($amount, $user->wallet->id, 'App/Models/Wallet', 'debit', 'approved', 'Open Order by admin', null, null, Carbon::parse($request->created_at)->format('Y-m-d H:i:s'));
+
             return back()->with('success', 'Order created successfully');
 
         return back()->withInput()->with('error', 'Error processing trade');
@@ -87,6 +89,7 @@ class TradeController extends Controller
             'asset_id' => ['required'],
             'user_id' => ['required'],
             'type' => ['required', 'in:buy,sell'],
+            'account' => ['required', 'in:wallet,brokerage,auto'],
             'amount' => ['required'],
             'entry' => ['sometimes'],
             'tp' => ['sometimes'],
@@ -113,7 +116,8 @@ class TradeController extends Controller
         }
 
         $amount = (float) $request->amount;
-        $balance = $user->wallet->getBalance('wallet');
+        $account = $request->account;
+        $balance = $user->wallet->getBalance($account);
         $assetPrice = (float) $asset->price;
         $quantity = ($amount / $assetPrice);
         $comment = 'Trade Order on ' . $asset->name;
@@ -122,8 +126,8 @@ class TradeController extends Controller
             return back()->with('error', 'Insufficient Balance');
         }
 
-        $user->wallet->credit($trade->amount, 'wallet', $comment);
-        $user->wallet->debit($amount, 'wallet', $comment);
+        $user->wallet->credit($trade->amount, $account, $comment);
+        $user->wallet->debit($amount, $account, $comment);
 
         $trade->update([
             'asset_id' => $asset->id,

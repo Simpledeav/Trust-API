@@ -83,8 +83,8 @@
                                     <div class="col-5">
                                         <div class="revenuegrowth-details my-3"> 
                                             <div class="growth-details">
-                                                <span class="f-light f-12  text-uppercase">Wallet Balance</span>
-                                                <h4 class="fw-bold mb-1">{{ $user->currency->sign }}{{ number_format($balance, 2) }} </h4>
+                                                <span class="f-light f-12  text-uppercase">Cash Balance</span>
+                                                <h4 class="fw-bold mb-1">{{ $user->currency->sign }}{{ number_format($balance, 2) }}</h4>
                                                 <div class="mb-4">
                                                     <!-- <span class="f-light text-success f-12 f-w-600">+40.15%</span> -->
                                                 </div>
@@ -92,8 +92,17 @@
                                         </div>
                                         <div class="revenuegrowth-details my-3"> 
                                             <div class="growth-details">
-                                                <span class="f-light f-12  text-uppercase">Cash Balance</span>
-                                                <h4 class="fw-bold mb-1">{{ $user->currency->sign }}{{ number_format($trade_balance, 2) }}</h4>
+                                                <span class="f-light f-12  text-uppercase">Brokerage Balance</span>
+                                                <h4 class="fw-bold mb-1">{{ $user->currency->sign }}{{ number_format($brokerage_balance, 2) }}</h4>
+                                                <div class="mb-4">
+                                                    <!-- <span class="f-light text-success f-12 f-w-600">+40.15%</span> -->
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="revenuegrowth-details my-3"> 
+                                            <div class="growth-details">
+                                                <span class="f-light f-12  text-uppercase">Auto Balance</span>
+                                                <h4 class="fw-bold mb-1">{{ $user->currency->sign }}{{ number_format($auto_balance, 2) }}</h4>
                                                 <div class="mb-4">
                                                     <!-- <span class="f-light text-success f-12 f-w-600">+40.15%</span> -->
                                                 </div>

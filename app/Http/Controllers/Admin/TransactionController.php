@@ -49,6 +49,7 @@ class TransactionController extends Controller
             'account' => ['required', 'in:wallet,cash,brokerage,auto,ira'],
             'type' => ['required'],
             'comment' => ['sometimes'],
+            'to' => ['sometimes', 'in:wallet,cash,brokerage,auto,ira'],
             'created_at' => ['required'],
         ]);
 
@@ -91,10 +92,32 @@ class TransactionController extends Controller
                 return redirect()->back()->with('success', 'Account debited successfully');
         } elseif($request->type == 'transfer') {
 
+            $amount = $request->amount;
+            $account = $request->account;
+            $to = $request->to;
+            $comment = $request->comment ?? 'Transferred from ' . $account . ' to ' . $to . ' by Admin';
+
+            $balance = $user->wallet->getBalance($account);
+            if($amount > $balance)
+                return back()->with('error', 'Insufficient ' . $account . ' balance');
+
+            if(!$to)
+                return back()->with('error', 'Invalid recepient account');
+
+            if($account === $to)
+                return back()->with('error', 'Transfer cannot be made to same account');
+
+            $user->wallet->debit($amount, $account, $comment);
+            $user->wallet->credit($amount, $to, $comment);
+
+            $transaction = $user->storeTransaction($amount, $user->wallet->id, 'App/Models/Wallet', 'transfer', 'approved', $comment, null, null, Carbon::parse($request->created_at)->format('Y-m-d H:i:s'));
+
+            if($transaction)
+                return redirect()->back()->with('success', 'Account transfer successful');
 
         }
         
-        return redirect()->back()->with('error', 'Something went worng!! ');
+        return redirect()->back()->with('error', 'Error: Something went worng!! ');
     }
 
     public function destroyTransaction(Transaction $transaction)

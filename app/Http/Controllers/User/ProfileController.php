@@ -4,18 +4,26 @@ namespace App\Http\Controllers\User;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use App\Services\User\ProfileTwoFaService;
-use Symfony\Component\HttpFoundation\Response;
-use App\Services\User\ProfilePasswordService;
-use App\DataTransferObjects\Models\UserModelData;
+use App\Services\User\AnalyticsService;
 use App\Services\User\UserProfileService;
+use App\Services\User\ProfileTwoFaService;
+use App\Services\User\ProfilePasswordService;
+use Symfony\Component\HttpFoundation\Response;
+use App\Http\Requests\User\ProfileUpdateRequest;
+use App\DataTransferObjects\Models\UserModelData;
+use App\Http\Requests\User\UpdatePasswordRequest;
 use MarcinOrlowski\ResponseBuilder\ResponseBuilder;
 use App\Http\Requests\User\Profile\DeleteProfileRequest;
-use App\Http\Requests\User\ProfileUpdateRequest;
-use App\Http\Requests\User\UpdatePasswordRequest;
 
 class ProfileController extends Controller
 {
+    protected AnalyticsService $analyticsService;
+
+    public function __construct(AnalyticsService $analyticsService)
+    {
+        $this->analyticsService = $analyticsService;
+    }
+
     /**
      * Get account data.
      *
@@ -57,11 +65,9 @@ class ProfileController extends Controller
         // Append additional balances to the wallet object if wallet is loaded
         if ($user->relationLoaded('wallet') && $user->wallet) {
             $user->wallet->additional_balances = [
-                'wallet' => $user->wallet->getBalance('wallet'),
-                'cash' => $user->wallet->getBalance('cash'),
+                'cash' => $user->wallet->getBalance('wallet'),
                 'brokerage' => $user->wallet->getBalance('brokerage'),
                 'auto' => $user->wallet->getBalance('auto'),
-                'ira' => $user->wallet->getBalance('ira'),
             ];
         }
 
@@ -71,6 +77,30 @@ class ProfileController extends Controller
                 'user' => $user,
             ])
             ->build();
+    }
+
+    public function analytics(Request $request)
+    {
+        try {
+            $user = $request->user();
+            $time = $request->timeframe ?? 'all';
+            $timeframe = $request->query('timeframe', $time);
+
+            $data = $this->analyticsService->getUserAnalytics($user, $timeframe);
+
+            return ResponseBuilder::asSuccess()
+                ->withMessage('Analytics fetched successfully')
+                ->withData($data)
+                ->build();
+        } catch (\InvalidArgumentException $e) {
+            return ResponseBuilder::asError(400)
+                ->withMessage($e->getMessage())
+                ->build();
+        } catch (\Exception $e) {
+            return ResponseBuilder::asError(500)
+                ->withMessage('An unexpected error occurred.')
+                ->build();
+        }
     }
 
     /**

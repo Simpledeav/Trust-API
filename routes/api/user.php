@@ -61,6 +61,8 @@ Route::middleware('auth:api_user')->group(function () {
             Route::delete('profile', [ProfileController::class, 'destroy']);
             Route::post('/profile/bank', [PaymentController::class, 'updatePayment']);
 
+            //Analytics
+            Route::get('analytics', [ProfileController::class, 'analytics']);
 
             // Transactions
             Route::prefix('transaction')->group(function () {

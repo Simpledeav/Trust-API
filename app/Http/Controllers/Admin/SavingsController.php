@@ -41,6 +41,15 @@ class SavingsController extends Controller
         ]);
     }
 
+    public function fetchTransactions()
+    {
+        $transactions = SavingsLedger::latest()->paginate(20);
+
+        return view('admin.savings-profit', [
+            'transactions' => $transactions,
+        ]);
+    }
+
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -186,7 +195,7 @@ class SavingsController extends Controller
             case 'debit':
                 $balance = $savings->balance;
                 if ($balance < $amount) {
-                    return back()->with("Insufficient funds in your " . $savings->savingsAccount->name . " account.");
+                    return back()->with('error', "Insufficient funds in your " . $savings->savingsAccount->name . " account.");
                 }
 
                 $user->wallet->credit($amount, 'wallet', 'Savings Cashout from ' . $savings->savingsAccount->name . ' account.');

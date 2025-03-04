@@ -215,6 +215,18 @@
 
                                                             <div class="col-md-12">
                                                                 <div class="mb-3">
+                                                                    <label class="form-label">Account</label>
+                                                                    <select class="form-select" id="" required="" name="account">
+                                                                        <option selected="" disabled="" value="">---- Select Account ---</option>
+                                                                        <option value="wallet">Cash</option>
+                                                                        <option value="brokerage">Brokerage</option>
+                                                                        <option value="auto">Auto Investing</option>
+                                                                    </select>
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="col-md-12">
+                                                                <div class="mb-3">
                                                                     <label class="form-label">Entry</label>
                                                                     <input class="form-control" type="number" placeholder="(Optional)" name="entry" value="{{ $trade->entry }}" id="editEntry">
                                                                 </div>
@@ -394,9 +406,21 @@
                                 <div class="mb-3">
                                     <label class="form-label">Type</label>
                                     <select class="form-select" id="" required="" name="type">
-                                        <option selected="" disabled="" value="">Trade type...</option>
+                                        <option selected="" disabled="" value="">---- Select Type ---</option>
                                         <option value="buy">BUY</option>
                                         <option value="sell">SELL</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="col-md-12">
+                                <div class="mb-3">
+                                    <label class="form-label">Account</label>
+                                    <select class="form-select" id="" required="" name="account">
+                                        <option selected="" disabled="" value="">---- Select Account ---</option>
+                                        <option value="wallet">Cash</option>
+                                        <option value="brokerage">Brokerage</option>
+                                        <option value="auto">Auto Investing</option>
                                     </select>
                                 </div>
                             </div>

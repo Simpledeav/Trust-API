@@ -27,7 +27,8 @@ class UserController extends Controller
     public function show(User $user)
     {
         $balance = $user->wallet->getBalance('wallet');
-        $trade_balance = $user->wallet->getBalance('cash');
+        $brokerage_balance = $user->wallet->getBalance('brokerage');
+        $auto_balance = $user->wallet->getBalance('auto');
         $savings_balance = $user->savings()->sum('balance');
         $currencies = Currency::all();
 
@@ -41,7 +42,8 @@ class UserController extends Controller
         return view('admin.user-details', [
             'user' => $user,
             'balance' => $balance,
-            'trade_balance' => $trade_balance,
+            'brokerage_balance' => $brokerage_balance,
+            'auto_balance' => $auto_balance,
             'savings_balance' => $savings_balance,
             'currencies' => $currencies,
             'transactions' => $transactions,
@@ -113,7 +115,7 @@ class UserController extends Controller
 
     public function trades()
     {
-        $trade = Trade::paginate(10);
+        $trade = Trade::latest()->paginate(10);
 
         $users = User::all();
 

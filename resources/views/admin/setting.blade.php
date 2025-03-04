@@ -27,7 +27,7 @@
         <!-- Container-fluid starts-->
         <div class="container-fluid">
             <div class="row">
-                <div class="col-xl-6">
+                <div class="col-xl-8">
                     <form class="card" action="{{ route('admin.settings.update') }}" method="post">
                         @csrf
                         <input type="hidden" name="type" value="admin">
@@ -38,15 +38,30 @@
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label class="form-label">Wallet Name</label>
-                                        <input class="form-control" type="text" value="{{ $settings->wallet_name }}" name="wallet_name">
+                                        <label class="form-label">BTC Wallet Address</label>
+                                        <input class="form-control" type="text" value="{{ $settings->btc_wallet }}" name="btc_wallet">
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label class="form-label">Wallet Address</label>
-                                        <input class="form-control" type="text" value="{{ $settings->wallet_address }}" name="wallet_address">
+                                        <label class="form-label">ETH Wallet Address</label>
+                                        <input class="form-control" type="text" value="{{ $settings->eth_wallet }}" name="eth_wallet">
                                     </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">USDT (TRC20) Wallet Address</label>
+                                        <input class="form-control" type="text" value="{{ $settings->trc_wallet }}" name="trc_wallet">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">USDT (ERC20) Wallet Address</label>
+                                        <input class="form-control" type="text" value="{{ $settings->erc_wallet }}" name="erc_wallet">
+                                    </div>
+                                </div>
+                                <div class="my-3">
+
                                 </div>
                                 <div class="col-md-12">
                                     <div class="mb-3">
