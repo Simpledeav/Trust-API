@@ -36,6 +36,7 @@ class StoreTradeRequest extends FormRequest
             'interval'   => 'nullable|string',
             'tp'         => 'nullable|string',
             'sl'         => 'nullable|string',
+            'wallet' => 'required|in:auto,brokerage',
         ];
     }
 }

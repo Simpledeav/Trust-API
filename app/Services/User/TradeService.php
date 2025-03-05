@@ -21,7 +21,7 @@ class TradeService
     {
         return DB::transaction(function () use ($data, $user) {
             $asset = Asset::findOrFail($data['asset_id']);
-            $balance = $user->wallet->getBalance('wallet');
+            $balance = $user->wallet->getBalance($data['wallet']);
             $amount = ($asset->price * $data['quantity']);
 
             if ($balance < $amount) {
@@ -46,7 +46,7 @@ class TradeService
                 'extra'       => 0,
             ]);
 
-            $user->wallet->debit($amount, 'wallet', 'Trade create');
+            $user->wallet->debit($amount, $data['wallet'], 'Trade create');
             $user->storeTransaction($amount, $trade->id, 'App/Models/Trade', 'debit', 'approved', 'Order created on ' . $asset->symbol . ' of ' . $data['quantity'] . ' units', null, null, now());
 
             return $trade;
@@ -161,7 +161,6 @@ class TradeService
     public function closePosition(Position $position, $user, $request)
     {
         return DB::transaction(function () use ($position, $user, $request) {
-            logger($request);
             // Find the asset safely
             $asset = Asset::find($position->asset_id);
 
