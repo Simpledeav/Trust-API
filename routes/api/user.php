@@ -11,6 +11,7 @@ use App\Http\Controllers\Generic\AssetController;
 use App\Http\Controllers\User\Auth\LoginController;
 use App\Http\Controllers\User\Auth\RegisterController;
 use App\Http\Controllers\Admin\SavingsAccountController;
+use App\Http\Controllers\PositionController;
 use App\Http\Controllers\User\Auth\VerificationController;
 use App\Http\Controllers\User\Auth\ResetPasswordController;
 use App\Http\Controllers\User\Auth\TwoFactorLoginController;
@@ -95,6 +96,13 @@ Route::middleware('auth:api_user')->group(function () {
                 Route::get('/', [TradeController::class, 'index']);
                 Route::post('/store', [TradeController::class, 'store']);
                 Route::put('/toggle/{trade}', [TradeController::class, 'toggleStatus']);
+            });
+
+            // Position
+            Route::prefix('position')->group(function () {
+                Route::get('/', [PositionController::class, 'index']);
+                Route::post('/store', [PositionController::class, 'store']);
+                Route::put('/close/{position}', [PositionController::class, 'close']);
             });
         });
     });

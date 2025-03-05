@@ -11,16 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('trades', function (Blueprint $table) {
+        Schema::create('positions', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->uuid('user_id');
             $table->uuid('asset_id');
             $table->enum('asset_type', ['crypto', 'stocks']);
-            $table->enum('type', ['buy', 'sell']);
             $table->decimal('price', 18, 2)->default(0);
             $table->decimal('quantity', 18, 6)->default(0);
             $table->decimal('amount', 18, 2)->default(0);
-            $table->enum('status', ['open', 'close', 'hold']);
+            $table->enum('status', ['open', 'locked']);
             $table->string('entry')->nullable();
             $table->string('exit')->nullable();
             $table->string('leverage')->nullable();
@@ -48,6 +47,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('trades');
+        Schema::dropIfExists('positions');
     }
 };
