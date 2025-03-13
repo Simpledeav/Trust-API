@@ -118,6 +118,10 @@ class TradeService
                     abort(403, 'Insufficient balance to add more to this position.');
                 }
 
+                if ($newAmount < 1) {
+                    abort(403, 'Cannot open position, amount is less than 1.');
+                }
+
                 $existingPosition->update([
                     'quantity' => $newQuantity,
                     'amount' => $updatedAmount,

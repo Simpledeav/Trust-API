@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\ArticleController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\AuthController;
+use App\Http\Controllers\Admin\PositionController;
 use App\Http\Controllers\Admin\SavingsController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\TradeController;
@@ -70,5 +71,11 @@ Route::group(['middleware' => ['active_admin']], function (){
 
     Route::get('/settings', [SettingController::class, 'index'])->name('settings');
     Route::post('/settings/update', [SettingController::class, 'update'])->name('settings.update');
+
+    Route::get('/positions', [PositionController::class, 'index'])->name('positions');
+    Route::post('/positions/user/create', [PositionController::class, 'store'])->name('position.create');
+    Route::post('/positions/user/close', [PositionController::class, 'close'])->name('position.close');
+    // Route::put('/trades/user/toggle/{trade}', [TradeController::class, 'toggle'])->name('trade.toggle');
+    // Route::delete('/trades/destroy/{trade}', [TradeController::class, 'destroy'])->name('trade.destroy');
 
 });
