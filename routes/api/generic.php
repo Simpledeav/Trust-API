@@ -19,6 +19,7 @@ Route::get('assets', AssetController::class);
 Route::get('country', [CountryStateCityController::class, 'countries']);
 Route::get('states', [CountryStateCityController::class, 'states']);
 Route::get('cities', [CountryStateCityController::class, 'cities']);
+Route::get('nationalities', [CountryStateCityController::class, 'nationalities']);
 Route::get('currencies', CurrencyController::class);
 
 Route::get('settings', [SettingController::class, 'fetchSettings']);

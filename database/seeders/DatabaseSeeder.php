@@ -28,6 +28,7 @@ class DatabaseSeeder extends Seeder
             SavingsAccountSeeder::class, // php artisan db:seed --class=SavingsAccountSeeder  php artisan migrate:refresh --path=/database/migrations/2025_02_03_090958_create_savings_accounts_table.php
             AdminSeeder::class, // php artisan db:seed --class=AdminSeeder
             ArticleSeeder::class, // php artisan db:seed --class=ArticleSeeder  php artisan migrate:refresh --path=/database/migrations/2025_02_01_140812_create_transactions_table.php
+            NationalitiesSeeder::class, // php artisan db:seed --class=NationalitiesSeeder  php artisan migrate:refresh --path=/database/migrations/2025_02_01_140812_create_transactions_table.php
         ]);
     }
 }

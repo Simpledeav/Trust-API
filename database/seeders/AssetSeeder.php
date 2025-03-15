@@ -73,9 +73,7 @@ class AssetSeeder extends Seeder
             'RENUSD', 'OMGUSD', 'ENJUSD', 'ANKRUSD', 'CHZUSD', 'KSMUSD', 'STXUSD', 'GRTUSD', 'SNXUSD', 'RUNEUSD'
         ];
         
-        
-
-        $apiKey = 'ExYlr0LoPC6GqCmzuScjwq79Fn4Krx77';
+        $apiKey = 'U16Gq0PRKGgnTbltSa5423seAWtQNV0T';
         $batchSize = 100;
     
         $symbolChunks = array_chunk($symbols, $batchSize);

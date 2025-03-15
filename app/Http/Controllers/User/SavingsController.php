@@ -13,6 +13,7 @@ use Spatie\QueryBuilder\QueryBuilder;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\AllowedInclude;
 use App\Http\Requests\SavingsLedgerRequest;
+use App\Models\SavingsLedger as ModelsSavingsLedger;
 use App\Services\User\SavingsAccountService;
 use Symfony\Component\HttpFoundation\Response;
 use App\Spatie\QueryBuilder\IncludeSelectFields;
@@ -25,6 +26,49 @@ class SavingsController extends Controller
     public function __construct(SavingsService $savingsService)
     {
         $this->savingsService = $savingsService;
+    }
+
+    /**
+     * Display a listing of the resource.
+     */
+    public function index(Request $request): Response
+    {
+        $savingsHistory = QueryBuilder::for(
+            ModelsSavingsLedger::query()->where('user_id', $request->user()->id)
+        )
+            // Exclude fields directly in the select
+            ->select([
+                'id',
+                'user_id',
+                'savings_id',
+                'amount',
+                'type',
+                'method',
+                'comment',
+                'created_at',
+            ])
+            ->allowedFilters([
+                'type',
+                'method',
+                AllowedFilter::scope('creation_date'),
+                AllowedFilter::exact('amount'),
+                AllowedFilter::exact('savings_id'),
+            ])
+            ->with([
+                'savings' => function ($query) {
+                    $query->select(['id', 'savings_account_id'])
+                        ->with('savingsAccount:id,name,title');  // Include only name & title
+                }
+            ])
+            ->defaultSort('-created_at')
+            ->allowedSorts(['amount', 'type', 'method', 'created_at'])
+            ->paginate((int) $request->per_page)
+            ->withQueryString();
+
+        return ResponseBuilder::asSuccess()
+            ->withMessage('Savings Transactions fetched successfully')
+            ->withData(['savings_history' => $savingsHistory])
+            ->build();
     }
 
     /**

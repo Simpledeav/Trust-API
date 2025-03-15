@@ -7,6 +7,7 @@ use App\Models\State;
 use App\Models\Country;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Models\Nationalities;
 use Spatie\QueryBuilder\QueryBuilder;
 use Spatie\QueryBuilder\AllowedFilter;
 use Symfony\Component\HttpFoundation\Response;
@@ -74,6 +75,24 @@ class CountryStateCityController extends Controller
         return ResponseBuilder::asSuccess()
             ->withMessage('Cities fetched successfully.')
             ->withData(['cities' => $cities])
+            ->build();
+    }
+
+     /**
+     * Fetch all nationalities with filters.
+     */
+    public function nationalities(): Response
+    {
+        $nationalities = QueryBuilder::for(Nationalities::class)
+            ->allowedFilters([
+                'name',
+            ])
+            ->defaultSort('name')
+            ->get();
+
+        return ResponseBuilder::asSuccess()
+            ->withMessage('Nationalities fetched successfully.')
+            ->withData(['nationalities' => $nationalities])
             ->build();
     }
 }

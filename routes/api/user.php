@@ -3,19 +3,20 @@
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TradeController;
+use App\Http\Controllers\PositionController;
 use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\User\ArticleController;
+use App\Http\Controllers\User\PaymentController;
 use App\Http\Controllers\User\ProfileController;
 use App\Http\Controllers\User\SavingsController;
 use App\Http\Controllers\Generic\AssetController;
+use App\Http\Controllers\User\WatchlistController;
 use App\Http\Controllers\User\Auth\LoginController;
 use App\Http\Controllers\User\Auth\RegisterController;
 use App\Http\Controllers\Admin\SavingsAccountController;
-use App\Http\Controllers\PositionController;
 use App\Http\Controllers\User\Auth\VerificationController;
 use App\Http\Controllers\User\Auth\ResetPasswordController;
 use App\Http\Controllers\User\Auth\TwoFactorLoginController;
-use App\Http\Controllers\User\PaymentController;
 
 Route::middleware('throttle:3,1')->group(function () {
     Route::post('register', RegisterController::class);
@@ -83,6 +84,7 @@ Route::middleware('auth:api_user')->group(function () {
                 Route::post('/credit', [SavingsController::class, 'credit']);
                 Route::post('/debit', [SavingsController::class, 'debit']);
                 Route::get('/balance', [SavingsController::class, 'balance']);
+                Route::get('/history', [SavingsController::class, 'index']);
 
                 // ADMIN::::::
                 Route::get('/{id}', [SavingsAccountController::class, 'show']);
@@ -104,6 +106,14 @@ Route::middleware('auth:api_user')->group(function () {
                 Route::post('/store', [PositionController::class, 'store']);
                 Route::put('/close/{position}', [PositionController::class, 'close']);
             });
+
+            // Watchlist
+            Route::prefix('watchlist')->group(function () {
+                Route::get('/', [WatchlistController::class, 'index']);
+                Route::post('/store', [WatchlistController::class, 'store']);
+                Route::delete('/destroy/{assetId}', [WatchlistController::class, 'destroy']);
+            });
+
         });
     });
 });

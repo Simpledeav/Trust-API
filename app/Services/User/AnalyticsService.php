@@ -4,7 +4,11 @@ namespace App\Services\User;
 
 use Carbon\Carbon;
 use App\Models\Ledger;
+use App\Models\Savings;
+use App\Models\Position;
 use App\Models\Transaction;
+use App\Models\SavingsLedger;
+use Illuminate\Support\Facades\DB;
 
 class AnalyticsService
 {
@@ -44,10 +48,6 @@ class AnalyticsService
             $ledgerQuery->where('created_at', '>=', $timeFilters[$timeframe]);
         }
 
-        // Get total deposits (credits) and withdrawals (debits)
-        // $totalDeposited = (clone $ledgerQuery)->where('type', 'credit')->sum('amount');
-        // $totalWithdrawn = (clone $ledgerQuery)->where('type', 'debit')->sum('amount');
-
         $transactionQuery = Transaction::where('status', 'approved')
             ->where('user_id', $user->id)
             ->where('transactable_id', $user->wallet->id);
@@ -55,12 +55,46 @@ class AnalyticsService
         $totalDeposited = (clone $transactionQuery)->where('type', 'credit')->sum('amount');
         $totalWithdrawn = (clone $transactionQuery)->where('type', 'debit')->sum('amount');
 
+        // Savings Query
+        $savingsQuery = SavingsLedger::where('user_id', $user->id);
+
+        // Total Savings: Sum of contributions
+        $creditSavings = (clone $savingsQuery)->where('type', 'credit')->where('method', 'contribution')->sum('amount');
+        $debitSavings = (clone $savingsQuery)->where('type', 'debit')->where('method', 'contribution')->sum('amount');
+        $totalSavings = number_format(($creditSavings - $debitSavings), 2);
+
+        // Total Return: (credit - contribution + profit)
+        $creditTotalSavings = (clone $savingsQuery)->where('type', 'credit')->sum('amount');
+        $debitTotalSavings = (clone $savingsQuery)->where('type', 'debit')->sum('amount');
+        $totalReturn = number_format(($creditTotalSavings - $debitTotalSavings), 2);
+
+        // 24hr Amount Change: Compare current savings with savings 24 hours ago
+        $savingsLast24h = (clone $savingsQuery)
+            ->where('created_at', '>=', now()->subHours(24))
+            ->sum('amount');
+        
+        $savings24hrChange = number_format(($savingsLast24h), 2);
+
         // Get chart data in required format
         $chartData = $this->getChartData(clone $ledgerQuery, $timeframe);
 
+        // Get Trades data
+        $trades = Position::where('user_id', $user->id);
+        $openTrade = (clone $trades)->where('status', 'open')->sum('amount');
+        $total_investment = number_format(($totalSavings + $openTrade), 2);
+
+        //Get 24hr total_investments
+        $tradeLast24h = (clone $trades)->where('created_at', '>=', now()->subHours(24))->sum('amount');
+        $total_investment_24hr = number_format(($savings24hrChange + $tradeLast24h), 2);
+
         return [
-            'total_deposited' => $totalDeposited,
-            'total_withdrawn' => $totalWithdrawn,
+            'total_deposited' => number_format($totalDeposited, 2),
+            'total_withdrawn' => number_format($totalWithdrawn, 2),
+            'total_savings' => $totalSavings,
+            'total_savings_return' => $totalReturn,
+            'total_savings_24hr' => $savings24hrChange,
+            'total_investment' => $total_investment,
+            'total_investment_24hr' => $total_investment_24hr,
             'chart_data' => $chartData,
         ];
     }
