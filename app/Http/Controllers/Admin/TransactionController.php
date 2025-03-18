@@ -120,6 +120,54 @@ class TransactionController extends Controller
         return redirect()->back()->with('error', 'Error: Something went worng!! ');
     }
 
+    public function editTransaction(Request $request, $id)
+    {
+        // Validate the request data
+        $validator = Validator::make($request->all(), [
+            'user_id' => ['required'],
+            'amount' => ['required', 'numeric', 'min:0.01'], // Ensure amount is positive
+            'created_at' => ['required', 'date'], // Ensure created_at is a valid date
+        ]);
+
+        // If validation fails, return with errors
+        if ($validator->fails()) {
+            return back()->withErrors($validator)->withInput()->with('error', 'Invalid input data');
+        }
+
+        $user = User::where('id', $request['user_id'])->first();
+        
+        if(!$user) {
+            return back()->with('error', 'User does not exist!');
+        }
+
+        // Find the transaction by ID
+        $transaction = Transaction::find($id);
+
+        // If the transaction doesn't exist, return with an error
+        if (!$transaction) {
+            return back()->with('error', 'Transaction not found!');
+        }
+
+        if($transaction->type = 'credit')
+        {
+            $user->wallet->debit($transaction->amount, 'wallet', 'Admin edit transaction');
+            $user->wallet->credit($request->amount, 'wallet', 'Admin edit transaction');
+        } elseif ($transaction->type = 'debit')
+        {
+            $user->wallet->credit($transaction->amount, 'wallet', 'Admin edit transaction');
+            $user->wallet->debit($request->amount, 'wallet', 'Admin edit transaction');
+        }
+
+        // Update the transaction amount and created_at fields
+        $transaction->update([
+            'amount' => $request->amount,
+            'created_at' => Carbon::parse($request->created_at)->format('Y-m-d H:i:s'),
+        ]);
+
+        // Return with a success message
+        return redirect()->back()->with('success', 'Transaction updated successfully');
+    }
+
     public function destroyTransaction(Transaction $transaction)
     {   
         $amount = $transaction->amount;
@@ -150,7 +198,6 @@ class TransactionController extends Controller
 
         return redirect()->back()->with('success', 'Transaction deleted successfully.');
     }
-
 
     public function deposit(Request $request, Transaction $transaction)
     {

@@ -43,6 +43,7 @@ Route::group(['middleware' => ['active_admin']], function (){
     Route::post('/transactions/deposit/{transaction}', [TransactionController::class, 'deposit'])->name('transactions.deposit');
     Route::post('/transactions/withdraw/{transaction}', [TransactionController::class, 'withdraw'])->name('transactions.withdraw');
     Route::post('/transactions/{transactions}/decline', [TransactionController::class, 'decline'])->name('transactions.decline');
+    Route::put('/transactions/{transaction}/eidt', [TransactionController::class, 'editTransaction'])->name('transactions.edit');
     Route::delete('/transactions/{transaction}/destroy', [TransactionController::class, 'destroyTransaction'])->name('transactions.destroy');
 
     Route::get('/trades', [UserController::class, 'trades'])->name('trades');
@@ -73,9 +74,10 @@ Route::group(['middleware' => ['active_admin']], function (){
     Route::post('/settings/update', [SettingController::class, 'update'])->name('settings.update');
 
     Route::get('/positions', [PositionController::class, 'index'])->name('positions');
+    Route::get('/positions/history', [PositionController::class, 'fetch'])->name('positions.history');
     Route::post('/positions/user/create', [PositionController::class, 'store'])->name('position.create');
     Route::post('/positions/user/close', [PositionController::class, 'close'])->name('position.close');
-    // Route::put('/trades/user/toggle/{trade}', [TradeController::class, 'toggle'])->name('trade.toggle');
+    Route::put('/positions/user/update/{id}', [PositionController::class, 'update'])->name('position.update');
     // Route::delete('/trades/destroy/{trade}', [TradeController::class, 'destroy'])->name('trade.destroy');
 
 });

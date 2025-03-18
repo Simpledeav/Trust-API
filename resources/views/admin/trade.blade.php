@@ -59,8 +59,8 @@
                                     <th> <span class="f-light f-w-600">Asset</span></th>
                                     <th> <span class="f-light f-w-600">Amount </span></th>
                                     <th> <span class="f-light f-w-600">Type</span></th>
-                                    <th> <span class="f-light f-w-600">P/L</span></th>
-                                    <th> <span class="f-light f-w-600">Status</span></th>
+                                    <!-- <th> <span class="f-light f-w-600">P/L</span></th>
+                                    <th> <span class="f-light f-w-600">Status</span></th> -->
                                     <th> <span class="f-light f-w-600">Date</span></th>
                                     <th> <span class="f-light f-w-600">Action</span></th>
                                 </tr>
@@ -95,14 +95,14 @@
                                                 @if($trade->type == 'buy') BUY @else SELL @endif
                                             </span>
                                         </td>
-                                        <td> 
+                                        {{-- <td> 
                                             <p class="f-light @if($profit >= 0) text-success @else text-danger @endif">{{ number_format($profit, 2) }} USD</p>
                                         </td>
                                         <td> 
                                             <span class="badge @if($trade->status == 'open') badge-light-success  @elseif($trade->status == 'hold') badge-light-warning @else badge-light-danger @endif">
                                                 @if($trade->status == 'open') Open @elseif($trade->status == 'hold') Hold  @else Closed @endif
                                             </span>
-                                        </td>
+                                        </td> --}}
                                         <td> 
                                             <p class="f-light">{{ $trade['created_at']->format('d M, Y \a\t h:i A') }}</p>
                                         </td>

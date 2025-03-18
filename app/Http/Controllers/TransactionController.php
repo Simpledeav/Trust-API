@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Wallet;
 use App\Enums\ApiErrorCode;
 use App\Models\Transaction;
 use Illuminate\Http\Request;
@@ -71,13 +72,6 @@ class TransactionController extends Controller
             ->paginate((int) $request->per_page) // Paginate the results
             ->withQueryString(); // Retain query string for pagination links
 
-            //::;::::: ADMIN
-            // $user = $request->user();
-            // $user->wallet->credit(1000, 'wallet', 'Bonus reward');
-            // $user->wallet->debit(50, 'wallet', 'Bonus reward');
-            // $balance = $user->wallet->getBalance('wallet');
-            //::;::::: ADMIN
-
         return ResponseBuilder::asSuccess()
             ->withMessage('Transactions fetched successfully')
             ->withData([
@@ -117,10 +111,10 @@ class TransactionController extends Controller
                 ->setUserId($user->id)
                 ->setAmount($amount)
                 ->setTransactableId($wallet->id)
-                ->setTransactableType('App/Models/Wallet')
+                ->setTransactableType(Wallet::class)
                 ->setType($type)
-                ->setStatus('pending')
-                ->setSwapFrom(null)
+                ->setStatus('pending') 
+                ->setSwapFrom('wallet') 
                 ->setSwapTo(null)
                 ->setComment($request->comment),
             $user

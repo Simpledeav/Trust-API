@@ -16,6 +16,7 @@ class Trade extends Model
         'user_id',
         'asset_id',
         'asset_type',
+        'account',
         'type',
         'price',
         'quantity',
@@ -28,6 +29,8 @@ class Trade extends Model
         'tp',
         'sl',
         'extra',
+        'pl',
+        'pl_percentage',
         'created_at',
     ];
 

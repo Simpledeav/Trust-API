@@ -37,6 +37,7 @@ class ProfileController extends Controller
 
         // Define allowed includes and the fields to be selected
         $allowedIncludes = [
+            'currency' => ['id', 'name', 'symbol', 'sign'],
             'country' => ['id', 'name', 'phone_code'],
             'state' => ['id', 'name'],
             'city' => ['id', 'name'],

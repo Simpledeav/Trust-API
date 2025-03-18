@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', ' Positions')
+@section('title', ' Dashboard')
 
 @section('content')
     <div class="page-body">
@@ -9,7 +9,7 @@
             <div class="row">
             <div class="col-6">
                 <h4>
-                    Positions list</h4>
+                    History</h4>
             </div>
             <div class="col-6">
                 <ol class="breadcrumb">
@@ -18,7 +18,7 @@
                         <use href="../assets/svg/icon-sprite.svg#stroke-home"></use>
                     </svg></a></li>
                 <li class="breadcrumb-item">Dashboard </li>
-                <li class="breadcrumb-item active">Positions list</li>
+                <li class="breadcrumb-item active">Position list</li>
                 </ol>
             </div>
             </div>
@@ -36,7 +36,7 @@
                                 <div>
                                     <h4>Positions</h4>
                                 </div>
-                                <div class="d-flex align-items-center">
+                                <!-- <div class="d-flex align-items-center">
                                     <input class="form-control" id="inputEmail4" type="email" placeholder="Search...">
                                     <a class="btn btn-success w-100 mx-2" 
                                         href="#"
@@ -45,9 +45,9 @@
                                         data-action="Credit"
                                         data-url=""
                                     >
-                                        <i class="fa fa-plus"></i>Add Positions
+                                        <i class="fa fa-plus"></i>Add Trade
                                     </a>
-                                </div>
+                                </div> -->
                             </div>
                         </div>
                         <div class="table-responsive custom-scrollbar px-4">
@@ -58,12 +58,11 @@
                                     <th> <span class="f-light f-w-600">Name</span></th>
                                     <th> <span class="f-light f-w-600">Asset</span></th>
                                     <th> <span class="f-light f-w-600">Amount </span></th>
-                                    <th> <span class="f-light f-w-600">Quantity </span></th>
-                                    <th> <span class="f-light f-w-600">Account</span></th>
-                                    <th> <span class="f-light f-w-600">P/L</span></th>
-                                    <th> <span class="f-light f-w-600">Status</span></th>
+                                    <th> <span class="f-light f-w-600">Type</span></th>
+                                    <!-- <th> <span class="f-light f-w-600">P/L</span></th>
+                                    <th> <span class="f-light f-w-600">Status</span></th> -->
                                     <th> <span class="f-light f-w-600">Date</span></th>
-                                    <th> <span class="f-light f-w-600">Action</span></th>
+                                    <!-- <th> <span class="f-light f-w-600">Action</span></th> -->
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -74,7 +73,7 @@
                                         $extra = $trade->extra;
 
                                         $singleProfit = ($assetPrice * $quantity) - $trade->amount;
-                                        $profit = number_format($singleProfit + $trade->extra, 2);
+                                        $profit = $singleProfit + $trade->extra;
                                     @endphp
                                     <tr class="">
                                         <td>{{ $index +  1 }}</td>
@@ -92,23 +91,22 @@
                                             <p class="f-light fw-bold">{{ $trade->amount }} USD</p>
                                         </td>
                                         <td> 
-                                            <p class="f-light fw-bold">{{ $trade->quantity }}</p>
+                                            <span class="badge rounded-pill @if($trade->type == 'buy') badge-light-success @else badge-light-danger @endif">
+                                                @if($trade->type == 'buy') BUY @else SELL @endif
+                                            </span>
                                         </td>
-                                        <td> 
-                                            <p class="f-light fw-bold text-capitalize">{{ $trade->account }}</p>
-                                        </td>
-                                        <td> 
+                                        {{-- <td> 
                                             <p class="f-light @if($profit >= 0) text-success @else text-danger @endif">{{ number_format($profit, 2) }} USD</p>
                                         </td>
                                         <td> 
                                             <span class="badge @if($trade->status == 'open') badge-light-success  @elseif($trade->status == 'hold') badge-light-warning @else badge-light-danger @endif">
                                                 @if($trade->status == 'open') Open @elseif($trade->status == 'hold') Hold  @else Closed @endif
                                             </span>
-                                        </td>
+                                        </td> --}}
                                         <td> 
                                             <p class="f-light">{{ $trade['created_at']->format('d M, Y \a\t h:i A') }}</p>
                                         </td>
-                                        <td>
+                                        {{-- <td>
                                             <div class="btn-group">
                                                 <button class="btn btn-dark rounded-pill dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">Action</button>
                                                     <ul class="dropdown-menu dropdown-menu-dark dropdown-block">
@@ -117,7 +115,7 @@
                                                                 Edit
                                                             </a>
                                                         </li>
-                                                        {{-- @if($trade->status !== 'open')
+                                                        @if($trade->status !== 'open')
                                                             <li>
                                                                 <form action="{{ route('admin.trade.toggle', $trade->id) }}" method="POST" style="display: inline;">
                                                                     @csrf
@@ -146,20 +144,17 @@
                                                                 <button type="submit" class="dropdown-item text-danger fw-bold">Close</button>
                                                             </form>
                                                         </li>
-                                                        @endif --}}
+                                                        @endif
                                                         <li>
-                                                            <form action="{{ route('admin.position.close', $trade->id) }}" method="POST" style="display: inline;">
+                                                            <form action="{{ route('admin.trade.destroy', $trade->id) }}" method="POST" style="display: inline;">
                                                                 @csrf
-                                                                <input type="hidden" name="user_id" value="{{ $trade->user->id }}">
-                                                                <input type="hidden" name="asset_id" value="{{ $trade->asset->id }}">
-                                                                <input type="hidden" name="position_id" value="{{ $trade->id }}">
-                                                                <input type="hidden" name="quantity" value="{{ $trade->quantity }}">
-                                                                <button type="submit" class="dropdown-item text-white bg-danger fw-bold">Close</button>
+                                                                @method('DELETE')
+                                                                <button type="submit" class="dropdown-item text-white bg-danger fw-bold">Delete</button>
                                                             </form>
                                                         </li>
                                                     </ul>
                                             </div>
-                                        </td>
+                                        </td> --}}
                                     </tr>
 
                                     <!-- Edit Trade Modal -->
@@ -168,8 +163,8 @@
                                             <div class="modal-content">
                                                 <div class="modal-body">
                                                     <div class="modal-toggle-wrapper">
-                                                        <h4 class="text-center pb-2" id="modalTitle">Edit Position</h4>
-                                                        <form id="editTradeForm" action="{{ route('admin.position.update', $trade->id) }}" method="POST">
+                                                        <h4 class="text-center pb-2" id="modalTitle">Edit Trade</h4>
+                                                        <form id="editTradeForm" action="{{ route('admin.trade.update', $trade->id) }}" method="POST">
                                                             @csrf
                                                             @method('PUT')
                                                             <div class="col-md-12">
@@ -188,15 +183,12 @@
                                                             <div class="col-md-12">
                                                                 <div class="mb-3">
                                                                     <label class="form-label">Asset</label>
-                                                                    <input type="text" class="form-control mb-2" id="assetSearchs" placeholder="Asset Search Asist...">
-                                                                    <select class="form-select" id="assetSelects" required name="asset_id">
-                                                                        <option selected disabled value="">---- Select Asset ---</option>
-                                                                        
+                                                                    <select class="form-select" id="" required="" name="asset_id">
                                                                         @foreach($assets as $asset)
                                                                             @if($asset->id === $trade->asset->id)
-                                                                                <option selected value="{{ $asset->id }}" data-price="{{ $asset->price }}">{{ $asset->name }} ({{ $asset->symbol }})</option>
+                                                                                <option selected value="{{ $asset->id }}">{{ $asset->name }} ({{ $asset->symbol }})</option>
                                                                             @else
-                                                                                <option value="{{ $asset->id }}" data-price="{{ $asset->price }}">{{ $asset->name }} ({{ $asset->symbol }})</option>
+                                                                                <option value="{{ $asset->id }}">{{ $asset->name }} ({{ $asset->symbol }})</option>
                                                                             @endif
                                                                         @endforeach
                                                                     </select>
@@ -205,15 +197,31 @@
 
                                                             <div class="col-md-12">
                                                                 <div class="mb-3">
-                                                                    <label class="form-label">Quantity</label>
-                                                                    <input class="form-control" id="quantityInputs" type="text" placeholder="Enter quantity..." name="quantity" required  value="{{ $trade->quantity }}">
+                                                                    <label class="form-label">Amount</label>
+                                                                    <input class="form-control" type="number" placeholder="Enter amount..." name="amount" id="editAmount" value="{{ $trade->amount }}" required>
                                                                 </div>
                                                             </div>
 
                                                             <div class="col-md-12">
                                                                 <div class="mb-3">
-                                                                    <label class="form-label">Amount</label>
-                                                                    <input class="form-control" id="amountInputs" type="number" placeholder="---" name="amount" required disabled  value="{{ $trade->amount }}">
+                                                                    <label class="form-label">Type</label>
+                                                                    <select class="form-select" id="editType" required="" name="type">
+                                                                        <option selected="" disabled="" value="">Trade type...</option>
+                                                                        <option value="buy"  @if($trade->type == 'buy') selected @endif>BUY</option>
+                                                                        <option value="sell"  @if($trade->type == 'sell') selected @endif>SELL</option>
+                                                                    </select>
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="col-md-12">
+                                                                <div class="mb-3">
+                                                                    <label class="form-label">Account</label>
+                                                                    <select class="form-select" id="" required="" name="account">
+                                                                        <option selected="" disabled="" value="">---- Select Account ---</option>
+                                                                        <option value="wallet">Cash</option>
+                                                                        <option value="brokerage">Brokerage</option>
+                                                                        <option value="auto">Auto Investing</option>
+                                                                    </select>
                                                                 </div>
                                                             </div>
 
@@ -340,9 +348,28 @@
                 <div class="modal-body"> 
                     <div class="modal-toggle-wrapper"> 
                         <h4 class="text-center pb-2" id="modalTitle"></h4> 
-                        <form id="transactionForm" action="{{ route('admin.position.create') }}" method="POST">
+                        <form id="transactionForm" action="{{ route('admin.trade.create') }}" method="POST">
                             @csrf
-                            <h4 class="text-center my-1">Open a Position</h4>
+                            <h4 class="text-center my-1">Open a Trade</h4>
+                            {{-- <div class="col-md-12">
+                                <div class="mb-3">
+                                    <label class="form-label">Assets</label>
+                                    <div class="select-box">
+                                        <div class="options-container">
+                                            @foreach($assets as $asset)
+                                                <div class="selection-option">
+                                                    <input class="radio" id="asset_{{ $asset->name }}" type="radio" name="asset" value="{{ $asset->id }}"  {{ $loop->first ? 'checked' : '' }}>
+                                                    <label class="mb-0" for="asset_{{ $asset->name }}"> {{ $asset->name }} </label>
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                        <div class="selected-box">Select Asset</div>
+                                        <div class="search-box">
+                                            <input type="text" placeholder="Start Typing...">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div> --}}
 
                             <div class="col-md-12">
                                 <div class="mb-3">
@@ -359,13 +386,10 @@
                             <div class="col-md-12">
                                 <div class="mb-3">
                                     <label class="form-label">Asset</label>
-                                    <input type="text" class="form-control mb-2" id="assetSearch" placeholder="Asset Search Asist...">
-                                    <select class="form-select" id="assetSelect" required name="asset_id">
-                                        <option selected disabled value="">---- Select Asset ---</option>
+                                    <select class="form-select" id="" required="" name="asset_id">
+                                        <option selected="" disabled="" value="">---- Select Asset ---</option>
                                         @foreach($assets as $asset)
-                                            <option value="{{ $asset->id }}" data-price="{{ $asset->price }}">
-                                                {{ $asset->name }} ({{ $asset->symbol }})
-                                            </option>
+                                            <option value="{{ $asset->id }}">{{ $asset->name }} ({{ $asset->symbol }})</option>
                                         @endforeach
                                     </select>
                                 </div>
@@ -373,15 +397,19 @@
 
                             <div class="col-md-12">
                                 <div class="mb-3">
-                                    <label class="form-label">Quantity</label>
-                                    <input class="form-control" id="quantityInput" type="text" placeholder="Enter quantity..." name="quantity" required >
+                                    <label class="form-label">Amount</label>
+                                    <input class="form-control" type="number" placeholder="Enter amount..." name="amount" required>
                                 </div>
                             </div>
 
                             <div class="col-md-12">
                                 <div class="mb-3">
-                                    <label class="form-label">Amount</label>
-                                    <input class="form-control" id="amountInput" type="number" placeholder="Enter amount..." name="amount" required disabled>
+                                    <label class="form-label">Type</label>
+                                    <select class="form-select" id="" required="" name="type">
+                                        <option selected="" disabled="" value="">---- Select Type ---</option>
+                                        <option value="buy">BUY</option>
+                                        <option value="sell">SELL</option>
+                                    </select>
                                 </div>
                             </div>
 
@@ -401,20 +429,6 @@
                                 <div class="mb-3">
                                     <label class="form-label">Entry</label>
                                     <input class="form-control" type="number" placeholder="(Optional)" name="entry">
-                                </div>
-                            </div>
-
-                            <div class="col-md-12">
-                                <div class="mb-3">
-                                    <label class="form-label">Exit</label>
-                                    <input class="form-control" type="number" placeholder="(Optional)" name="exit">
-                                </div>
-                            </div>
-
-                            <div class="col-md-12">
-                                <div class="mb-3">
-                                    <label class="form-label">Interval</label>
-                                    <input class="form-control" type="number" placeholder="(Optional)" name="interval">
                                 </div>
                             </div>
 
@@ -468,17 +482,7 @@
 @endsection
 
 @section('scripts')
-<script>
-    document.getElementById('assetSearch').addEventListener('input', function () {
-        const search = this.value.toLowerCase();
-        const options = document.getElementById('assetSelect').options;
 
-        for (let i = 0; i < options.length; i++) {
-            const text = options[i].textContent.toLowerCase();
-            options[i].style.display = text.includes(search) ? '' : 'none';
-        }
-    });
-</script>
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             let now = new Date();
@@ -486,31 +490,6 @@
             document.getElementById("date").value = formattedDateTime;
         });
     </script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script>
-        $(document).ready(function () {
-            $('#assetSelect, #quantityInput').on('input change', function () {
-                const selectedAsset = $('#assetSelect option:selected');
-                const price = parseFloat(selectedAsset.data('price')) || 0;
-                const quantity = parseFloat($('#quantityInput').val()) || 0;
-                const amount = price * quantity;
-
-                $('#amountInput').val(amount.toFixed(2));
-            });
-        });
-
-        $(document).ready(function () {
-            $('#assetSelects, #quantityInputs').on('input change', function () {
-                const selectedAsset = $('#assetSelects option:selected');
-                const price = parseFloat(selectedAsset.data('price')) || 0;
-                const quantity = parseFloat($('#quantityInputs').val()) || 0;
-                const amount = price * quantity;
-
-                $('#amountInputs').val(amount.toFixed(2));
-            });
-        });
-    </script>
-
     <script src="{{ asset('admin/assets/js/js-datatables/simple-datatables@latest.js') }}"></script>
     <script src="{{ asset('admin/assets/js/custom-list-product.js') }}"></script>
     <script src="{{ asset('admin/assets/js/owlcarousel/owl.carousel.js') }}"></script>

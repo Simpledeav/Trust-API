@@ -106,6 +106,7 @@ class TransactionModelData
             'transactable_id' => $this->transactableId,
             'transactable_type' => $this->transactableType,
             'type' => $this->type,
+            'swap_from' => $this->swap_from,
             'status' => $this->status,
             'comment' => $this->comment,
         ];

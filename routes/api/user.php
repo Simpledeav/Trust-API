@@ -103,6 +103,7 @@ Route::middleware('auth:api_user')->group(function () {
             // Position
             Route::prefix('position')->group(function () {
                 Route::get('/', [PositionController::class, 'index']);
+                Route::get('/history', [PositionController::class, 'fetchTrades']);
                 Route::post('/store', [PositionController::class, 'store']);
                 Route::put('/close/{position}', [PositionController::class, 'close']);
             });

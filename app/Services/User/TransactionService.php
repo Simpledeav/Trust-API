@@ -29,7 +29,6 @@ class TransactionService
             $user->wallet->id,
             'App/Models/Wallet',
             'transfer',
-            // 'pending',
             'approved',
             $data->getComment(),
             $data->getSwapFrom(),

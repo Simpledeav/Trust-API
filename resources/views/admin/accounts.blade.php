@@ -86,81 +86,118 @@
                                 </tr>
 
                                 <div class="modal fade" id="editAccount{{ $account->slug }}" tabindex="-1" aria-labelledby="editAccount{{ $account->slug }}" aria-hidden="true">
-                                    <div class="modal-dialog modal-lg" role="document">
-                                        <div class="modal-content">
-                                            <div class="modal-body"> 
-                                                <div class="modal-toggle-wrapper"> 
-                                                    <h4 class="text-center pb-2" id="">Edit Account</h4> 
-                                                    <form id="transactionForm" action="{{ route('admin.account.savings.update', $account->id) }}" method="POST" enctype="multipart/form-data">
-                                                        @csrf
-                                                        @method('PUT')
-                                                        <div class="col-md-12">
-                                                            <div class="mb-3">
-                                                                <label class="form-label">Name</label>
-                                                                <input class="form-control" type="text" placeholder="Enter name..." name="name" required value="{{ $account->name }}">
-                                                            </div>
-                                                        </div>
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-body"> 
+                <div class="modal-toggle-wrapper"> 
+                    <h4 class="text-center pb-2" id="">Edit Account</h4> 
+                    <form id="transactionForm" action="{{ route('admin.account.savings.update', $account->id) }}" method="POST" enctype="multipart/form-data">
+                        @csrf
+                        @method('PUT')
+                        <div class="col-md-12">
+                            <div class="mb-3">
+                                <label class="form-label">Name</label>
+                                <input class="form-control" type="text" placeholder="Enter name..." name="name" required value="{{ $account->name }}">
+                            </div>
+                        </div>
 
-                                                        <div class="col-md-12">
-                                                            <div class="mb-3">
-                                                                <label class="form-label">Title</label>
-                                                                <input class="form-control" type="text" placeholder="Enter title..." name="title" required value="{{ $account->title }}">
-                                                            </div>
-                                                        </div>
+                        <div class="col-md-12">
+                            <div class="mb-3">
+                                <label class="form-label">Title</label>
+                                <input class="form-control" type="text" placeholder="Enter title..." name="title" required value="{{ $account->title }}">
+                            </div>
+                        </div>
 
-                                                        <div class="mb-3">
-                                                            <label class="form-label">Note</label>
-                                                            <textarea id="editor-{{ $account->slug }}" name="note" class="form-control"> {{ $account->note }} </textarea>
-                                                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Note</label>
+                            <textarea id="editor-{{ $account->slug }}" name="note" class="form-control">{{ $account->note }}</textarea>
+                        </div>
 
-                                                        <div class="col-md-12">
-                                                            <div class="mb-3">
-                                                                <label class="form-label">Countries</label>
-                                                                <select id="country-select-{{ $account->slug }}" name="countries_id[]" multiple required class="text-capitalize">
-                                                                    @foreach($countries as $country)
-                                                                        <option value="{{ $country->id }}" 
-                                                                            @if(in_array($country->id, json_decode($account->country_id, true) ?? [])) selected @endif>
-                                                                            {{ $country->name }}
-                                                                        </option>
-                                                                    @endforeach
-                                                                </select>
-                                                            </div>
-                                                        </div>
+                        <!-- Worldwide Checkbox -->
+                        <div class="col-md-12">
+                            <div class="mb-3">
+                                <label class="form-label">
+                                    <input type="checkbox" id="worldwideCheckbox-{{ $account->slug }}"> Worldwide
+                                </label>
+                            </div>
+                        </div>
 
-                                                        <div class="form-footer mt-4 d-flex">
-                                                            <button class="btn btn-success btn-block" type="submit">Submit</button>
-                                                            <button class="btn btn-danger btn-block mx-2" type="button" data-bs-dismiss="modal">Cancel</button>
-                                                        </div>
-                                                    </form>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+                        <!-- Countries Select Field -->
+                        <div class="col-md-12">
+                            <div class="mb-3">
+                                <label class="form-label">Countries</label>
+                                <select id="country-select-{{ $account->slug }}" name="countries_id[]" multiple required class="text-capitalize">
+                                    @foreach($countries as $country)
+                                        <option value="{{ $country->id }}" 
+                                            @if(in_array($country->id, json_decode($account->country_id, true) ?? [])) selected @endif>
+                                            {{ $country->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-footer mt-4 d-flex">
+                            <button class="btn btn-success btn-block" type="submit">Submit</button>
+                            <button class="btn btn-danger btn-block mx-2" type="button" data-bs-dismiss="modal">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
                                 <script src="https://cdn.jsdelivr.net/npm/tom-select"></script>
                                 <script src="https://cdn.ckeditor.com/4.16.2/standard/ckeditor.js"></script>
                                 <script>
-                                    new TomSelect("#country-select-{{ $account->slug }}", {
-                                        plugins: ['remove_button'],
-                                        maxItems: null,
-                                        placeholder: "Select Countries",
-                                    });
-                                    CKEDITOR.replace('editor-{{ $account->slug }}', {
-                                        toolbar: [
-                                            { name: 'document', items: ['Source', '-', 'Preview', 'Print'] },
-                                            { name: 'clipboard', items: ['Undo', 'Redo'] },
-                                            { name: 'editing', items: ['Find', 'Replace', '-', 'SelectAll'] },
-                                            { name: 'basicstyles', items: ['Bold', 'Italic', 'Underline', 'Strike'] },
-                                            { name: 'paragraph', items: ['NumberedList', 'BulletedList', '-', 'Blockquote'] },
-                                            // { name: 'insert', items: ['Image', 'Table', 'HorizontalRule', 'SpecialChar'] },
-                                            { name: 'styles', items: ['Format', 'Font', 'FontSize'] },
-                                            { name: 'colors', items: ['TextColor', 'BGColor'] },
-                                        ],
-                                        height: 300, // Adjust height
-                                        removePlugins: 'elementspath', // Removes element path display
-                                        resize_enabled: false // Disables resizing
-                                    });
-                                </script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Initialize TomSelect for the countries dropdown
+        const countrySelect = new TomSelect("#country-select-{{ $account->slug }}", {
+            plugins: ['remove_button'],
+            maxItems: null,
+            placeholder: "Select Countries",
+        });
+
+        // Add event listener to the Worldwide checkbox
+        const worldwideCheckbox = document.getElementById('worldwideCheckbox-{{ $account->slug }}');
+        worldwideCheckbox.addEventListener('change', function (e) {
+            const isChecked = e.target.checked;
+            const options = document.querySelectorAll('#country-select-{{ $account->slug }} option');
+
+            if (isChecked) {
+                // Select all countries
+                options.forEach(option => {
+                    option.selected = true;
+                });
+            } else {
+                // Deselect all countries
+                options.forEach(option => {
+                    option.selected = false;
+                });
+            }
+
+            // Refresh TomSelect to reflect changes
+            countrySelect.sync();
+        });
+
+        // Initialize CKEditor
+        CKEDITOR.replace('editor-{{ $account->slug }}', {
+            toolbar: [
+                { name: 'document', items: ['Source', '-', 'Preview', 'Print'] },
+                { name: 'clipboard', items: ['Undo', 'Redo'] },
+                { name: 'editing', items: ['Find', 'Replace', '-', 'SelectAll'] },
+                { name: 'basicstyles', items: ['Bold', 'Italic', 'Underline', 'Strike'] },
+                { name: 'paragraph', items: ['NumberedList', 'BulletedList', '-', 'Blockquote'] },
+                { name: 'styles', items: ['Format', 'Font', 'FontSize'] },
+                { name: 'colors', items: ['TextColor', 'BGColor'] },
+            ],
+            height: 300,
+            removePlugins: 'elementspath',
+            resize_enabled: false
+        });
+    });
+</script>
                             @endforeach
                             </tbody>
                         </table>
@@ -247,6 +284,16 @@
                                 <textarea id="editor" name="note" class="form-control"></textarea>
                             </div>
 
+                            <!-- Worldwide Checkbox -->
+                            <div class="col-md-12">
+                                <div class="mb-3">
+                                    <label class="form-label">
+                                        <input type="checkbox" id="worldwideCheckbox"> Worldwide
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Countries Select Field -->
                             <div class="col-md-12">
                                 <div class="mb-3">
                                     <label class="form-label">Countries</label>
@@ -268,32 +315,40 @@
             </div>
         </div>
     </div>
-    <!-- Credit Modal -->
+
+    <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/tom-select"></script>
     <script src="https://cdn.ckeditor.com/4.16.2/standard/ckeditor.js"></script>
     <script>
-        new TomSelect("#country-select", {
+        // Initialize TomSelect for the countries dropdown
+        const countrySelect = new TomSelect("#country-select", {
             plugins: ['remove_button'],
             maxItems: null,
             placeholder: "Select Countries",
         });
 
-        document.addEventListener('DOMContentLoaded', function () {
-            const transactionModal = document.getElementById('transactionModal');
-            const modalTitle = document.getElementById('modalTitle');
-            const transactionForm = document.getElementById('transactionForm');
-            
-            transactionModal.addEventListener('show.bs.modal', function (event) {
-                const button = event.relatedTarget;
-                const action = button.getAttribute('data-action');
-                const url = button.getAttribute('data-url');
-                
-                // Set modal title and form action dynamically
-                modalTitle.textContent = `${action}`;
-                transactionForm.action = url;
-            });
+        // Add event listener to the Worldwide checkbox
+        document.getElementById('worldwideCheckbox').addEventListener('change', function (e) {
+            const isChecked = e.target.checked;
+            const options = document.querySelectorAll('#country-select option');
+
+            if (isChecked) {
+                // Select all countries
+                options.forEach(option => {
+                    option.selected = true;
+                });
+            } else {
+                // Deselect all countries
+                options.forEach(option => {
+                    option.selected = false;
+                });
+            }
+
+            // Refresh TomSelect to reflect changes
+            countrySelect.sync();
         });
 
+        // Initialize CKEditor
         CKEDITOR.replace('editor', {
             toolbar: [
                 { name: 'document', items: ['Source', '-', 'Preview', 'Print'] },
@@ -301,13 +356,12 @@
                 { name: 'editing', items: ['Find', 'Replace', '-', 'SelectAll'] },
                 { name: 'basicstyles', items: ['Bold', 'Italic', 'Underline', 'Strike'] },
                 { name: 'paragraph', items: ['NumberedList', 'BulletedList', '-', 'Blockquote'] },
-                // { name: 'insert', items: ['Image', 'Table', 'HorizontalRule', 'SpecialChar'] },
                 { name: 'styles', items: ['Format', 'Font', 'FontSize'] },
                 { name: 'colors', items: ['TextColor', 'BGColor'] },
             ],
-            height: 300, // Adjust height
-            removePlugins: 'elementspath', // Removes element path display
-            resize_enabled: false // Disables resizing
+            height: 300,
+            removePlugins: 'elementspath',
+            resize_enabled: false
         });
     </script>
 @endsection

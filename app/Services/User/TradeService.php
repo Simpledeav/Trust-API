@@ -141,6 +141,7 @@ class TradeService
                     'user_id'    => $user->id,
                     'asset_id'   => $data['asset_id'],
                     'asset_type' => $asset->type,
+                    'account'        => $data['wallet'],
                     'price'      => $asset->price,
                     'quantity'   => $data['quantity'],
                     'amount'     => $newAmount,
@@ -154,8 +155,28 @@ class TradeService
                     'extra'      => 0,
                 ]);
 
-                $user->wallet->debit($newAmount, $wallet, 'Opened a new position');
-                $user->storeTransaction($newAmount, $trade->id, Position::class, 'debit', 'approved', "Opened a new position on {$asset->symbol} with {$data['quantity']} units", null, null, now());
+                // Store trades as position transaction history
+                Trade::create([
+                    'user_id'     => $user->id,
+                    'asset_id'    => $data['asset_id'],
+                    'asset_type'  => $asset->type,
+                    'type'        => 'buy',
+                    'account'        => $data['wallet'],
+                    'price'       => $asset->price,
+                    'quantity'    => $data['quantity'],
+                    'amount'      => $newAmount,
+                    'status'      => $data['status'] ?? 'open',
+                    'entry'       => $data['entry'] ?? null,
+                    'exit'        => $data['exit'] ?? null,
+                    'leverage'    => $data['leverage'] ?? null,
+                    'interval'    => $data['interval'] ?? null,
+                    'tp'          => $data['tp'] ?? null,
+                    'sl'          => $data['sl'] ?? null,
+                    'extra'       => 0,
+                ]);
+
+                // $user->wallet->debit($newAmount, $wallet, 'Opened a new position');
+                // $user->storeTransaction($newAmount, $trade->id, Position::class, 'debit', 'approved', "Opened a new position on {$asset->symbol} with {$data['quantity']} units", null, null, now());
 
                 return $trade;
             }
@@ -165,16 +186,9 @@ class TradeService
     public function closePosition(Position $position, $user, $request)
     {
         return DB::transaction(function () use ($position, $user, $request) {
-            // Find the asset safely
-            $asset = Asset::find($position->asset_id);
-
-            if (!$asset) {
-                return abort(403, 'Asset not found. Please contact support.');
-            }
-
-            $amount = ($asset->price * $request['quantity']);
-            $comment = "Closed position on " . $asset->name . " of " . $amount;
-
+            // Validate asset existence
+            $asset = Asset::findOrFail($position->asset_id);
+            
             // Ensure the position belongs to the authenticated user
             if ($user->id !== $position->user_id) {
                 abort(403, 'Unauthorized: This trade does not belong to you.');
@@ -192,37 +206,63 @@ class TradeService
             // Lock position row to prevent race conditions
             $position->lockForUpdate();
 
+            // Calculate amounts
+            $newPrice = $asset->price * $request['quantity'];
+            $amount = $newPrice - ($position->price * $request['quantity']) + $position['extra'];
+            $comment = "Closed position on {$asset->name} of {$amount}";
+
+            // Calculate amounts
+            $closingValue = $asset->price * $request['quantity']; // Current price × quantity
+            $openingValue = $position->price * $request['quantity']; // Position price × quantity
+            $pl = $closingValue - $openingValue + $position['extra']; // Profit/Loss
+            $plPercentage = ($pl / $openingValue) * 100; // Profit/Loss Percentage
+
+            // Handle wallet transactions
+            if ($amount !== 0) {
+                $transactionType = $amount > 0 ? 'credit' : 'debit';
+                $adjustedAmount = abs($amount);
+                $user->wallet->{$transactionType}($adjustedAmount, 'wallet', $comment);
+                if($adjustedAmount > 0.00)
+                    $user->storeTransaction($adjustedAmount, $position->id, Position::class, $transactionType, 'approved', $comment, null, null, now());
+            }
+
+            // Store trades as position transaction history
+            Trade::create([
+                'user_id'     => $user->id,
+                'asset_id'    => $position['asset_id'],
+                'asset_type'  => $asset->type,
+                'type'        => 'sell',
+                'price'       => $asset->price,
+                'quantity'    => $position['quantity'],
+                'account'    => 'wallet',
+                'amount'      => $closingValue,
+                'status'      => $position['status'] ?? 'open',
+                'entry'       => $position['entry'] ?? null,
+                'exit'        => $position['exit'] ?? null,
+                'leverage'    => $position['leverage'] ?? null,
+                'interval'    => $position['interval'] ?? null,
+                'tp'          => $position['tp'] ?? null,
+                'sl'          => $position['sl'] ?? null,
+                'extra'       => 0,
+                'pl'          => $pl,
+                'pl_percentage'=> $plPercentage,
+            ]);
+
+            // Close entire position
             if ($position->quantity === $request['quantity']) {
-                // If closing entire position, delete it
-                if ($amount > 0) {
-                    $user->wallet->credit($amount, 'wallet', $comment);
-                    $user->storeTransaction($amount, $position->id, Position::class, 'credit', 'approved', $comment, null, null, now());
-                }
-
                 $position->delete();
-
                 return 'Order closed successfully';
             }
 
+            // Close part of the position
             if ($position->quantity > $request['quantity']) {
-                // If closing part of the position, update it
                 $newQuantity = $position->quantity - $request['quantity'];
-                $newAmount = ($position->price * $newQuantity);
-
-                if ($amount > 0) {
-                    $user->wallet->credit($amount, 'wallet', $comment);
-                    $user->storeTransaction($amount, $position->id, Position::class, 'credit', 'approved', $comment, null, null, now());
-                }
-
-                $position->update([
-                    'quantity' => $newQuantity,
-                    'amount'   => $newAmount
-                ]);
-
+                $newAmount = $position->price * $newQuantity;
+                $position->update(['quantity' => $newQuantity, 'amount' => $newAmount]);
                 return $position;
             }
 
-            // If requested quantity is more than available, return error
+            // Requested quantity exceeds available position
             abort(400, 'Invalid quantity: You cannot close more than your available position.');
         });
     }

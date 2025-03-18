@@ -125,6 +125,13 @@
                                                                 </form>
                                                             </li>
                                                         @endif
+                                                        @if($transaction->transactable_id == $transaction->user->wallet->id)
+                                                        <li>
+                                                            <a href="#" class="dropdown-item fw-bold" data-bs-toggle="modal" data-bs-target="#editTransaction{{ $transaction->id }}">
+                                                                Edit
+                                                            </a>
+                                                        </li>
+                                                        @endif
                                                         <li>
                                                             <form action="{{ route('admin.transactions.destroy', $transaction->id) }}" method="POST" style="display: inline;">
                                                                 @csrf
@@ -135,7 +142,43 @@
                                                     </ul>
                                                 </div>
                                             </td>
+                                            <!-- Edit Trade Modal -->
+                                            <div class="modal fade" id="editTransaction{{$transaction->id}}" tabindex="-1" aria-labelledby="editTransaction{{$transaction->id}}" aria-hidden="true">
+                                                <div class="modal-dialog" role="document">
+                                                    <div class="modal-content">
+                                                        <div class="modal-body">
+                                                            <div class="modal-toggle-wrapper">
+                                                                <h4 class="text-center pb-2" id="modalTitle">Edit Transaction</h4>
+                                                                <form id="editTradeForm" action="{{ route('admin.transactions.edit', $transaction->id) }}" method="POST">
+                                                                    @csrf
+                                                                    @method('PUT')
 
+                                                                    <input type="hidden" name="user_id" value="{{ $transaction->user->id }}">
+
+                                                                    <div class="col-md-12">
+                                                                        <div class="mb-3">
+                                                                            <label class="form-label">Amount</label>
+                                                                            <input class="form-control" type="number" placeholder="Enter amount..." name="amount" id="editAmount" value="{{ $transaction->amount }}" required>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <div class="col-md-12">
+                                                                        <div class="mb-3">
+                                                                            <label class="form-label">Date</label>
+                                                                            <input class="form-control" type="datetime-local" name="created_at" id="dateEdit" required value="{{ $transaction->created_at }}">
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <div class="form-footer mt-4 d-flex">
+                                                                        <button class="btn btn-primary btn-block" type="submit">Update</button>
+                                                                        <button class="btn btn-danger btn-block mx-2" type="button" data-bs-dismiss="modal">Cancel</button>
+                                                                    </div>
+                                                                </form>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </tr>
                                     @endforeach
                                 </tbody>
@@ -293,7 +336,12 @@
                                 <div class="col-md-12">
                                     <div class="mb-3">
                                         <label class="form-label">Comment</label>
-                                        <input class="form-control" type="text" placeholder="Enter comment..." name="comment">
+                                        <!-- <input class="form-control" type="text" placeholder="Enter comment..." name="comment"> -->
+                                        <select class="form-select" id="" required="" name="comment">
+                                            <option selected="" disabled="" value="">--- Select Comment ---</option>
+                                            <option value="Wallet deposit">Wallet Deposit</option>
+                                            <option value="Wallet Withdrawal">Wallet Withdraw</option>
+                                        </select>
                                     </div>
                                 </div>
 

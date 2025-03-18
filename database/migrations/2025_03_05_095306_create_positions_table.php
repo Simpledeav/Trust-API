@@ -26,6 +26,7 @@ return new class extends Migration
             $table->string('interval')->nullable();
             $table->string('tp')->nullable();
             $table->string('sl')->nullable();
+            $table->enum('account', ['wallet', 'brokerage', 'auto']);
             $table->decimal('extra', 18, 2)->default(0);
             $table->timestamps();
 

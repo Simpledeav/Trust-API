@@ -16,6 +16,7 @@ class Position extends Model
         'user_id',
         'asset_id',
         'asset_type',
+        'account',
         'price',
         'quantity',
         'amount',

@@ -435,21 +435,25 @@
                       <use href="{{ asset('admin/assets/svg/icon-sprite.svg') }}#fill-user"></use>
                     </svg><span>Users</span></a>
                 </li>
-                <li class="sidebar-list"><i class="fa fa-thumb-tack"></i><a class="sidebar-link sidebar-title link-nav" href="{{ route('admin.trades') }}">
+                {{-- <li class="sidebar-list"><i class="fa fa-thumb-tack"></i><a class="sidebar-link sidebar-title link-nav" href="{{ route('admin.trades') }}">
                     <svg class="stroke-icon">
                       <use href="{{ asset('admin/assets/svg/icon-sprite.svg') }}#stroke-learning"></use>
                     </svg>
                     <svg class="fill-icon">
                       <use href="{{ asset('admin/assets/svg/icon-sprite.svg') }}#fill-learning"></use>
                     </svg><span>Trades</span></a>
-                </li>
-                <li class="sidebar-list"><i class="fa fa-thumb-tack"></i><a class="sidebar-link sidebar-title link-nav" href="{{ route('admin.positions') }}">
+                </li> --}}
+                <li class="sidebar-list"> <i class="fa fa-thumb-tack"> </i><a class="sidebar-link sidebar-title" href="{{ url('#') }}">
                     <svg class="stroke-icon">
                       <use href="{{ asset('admin/assets/svg/icon-sprite.svg') }}#stroke-learning"></use>
                     </svg>
                     <svg class="fill-icon">
                       <use href="{{ asset('admin/assets/svg/icon-sprite.svg') }}#fill-learning"></use>
                     </svg><span>Positions</span></a>
+                    <ul class="sidebar-submenu">
+                      <li><a href="{{ route('admin.positions') }}">All</a></li>
+                      <li><a href="{{ route('admin.positions.history') }}">History</a></li>
+                    </ul>
                 </li>
                 <li class="sidebar-list"> <i class="fa fa-thumb-tack"> </i><a class="sidebar-link sidebar-title" href="{{ url('#') }}">
                     <svg class="stroke-icon"> 
