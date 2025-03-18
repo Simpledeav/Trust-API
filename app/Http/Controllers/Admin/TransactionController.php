@@ -160,13 +160,13 @@ class TransactionController extends Controller
                 $user->wallet->credit($transaction->amount, 'wallet', 'Admin edit transaction');
                 $user->wallet->debit($request->amount, 'wallet', 'Admin edit transaction');
             }
-
-            // Update the transaction amount and created_at fields
-            $transaction->update([
-                'amount' => $request->amount,
-                'created_at' => Carbon::parse($request->created_at)->format('Y-m-d H:i:s'),
-            ]);
         }
+
+        // Update the transaction amount and created_at fields
+        $transaction->update([
+            'amount' => $request->amount,
+            'created_at' => Carbon::parse($request->created_at)->format('Y-m-d H:i:s'),
+        ]);
 
         // Return with a success message
         return redirect()->back()->with('success', 'Transaction updated successfully');
