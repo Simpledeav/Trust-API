@@ -212,6 +212,19 @@
 
                                                             <div class="col-md-12">
                                                                 <div class="mb-3">
+                                                                    <label class="form-label" for="accountSelect">Account</label>
+                                                                    <select class="form-select" id="accountSelect" required name="account">
+                                                                        <option disabled value="">---- Select Account ---</option>
+                                                                        <option value="wallet" {{ $trade->account === 'wallet' ? 'selected' : '' }}>Cash</option>
+                                                                        <option value="brokerage" {{ $trade->account === 'brokerage' ? 'selected' : '' }}>Brokerage</option>
+                                                                        <option value="auto" {{ $trade->account === 'auto' ? 'selected' : '' }}>Auto Investing</option>
+                                                                    </select>
+                                                                </div>
+                                                            </div>
+
+
+                                                            <div class="col-md-12">
+                                                                <div class="mb-3">
                                                                     <label class="form-label">Amount</label>
                                                                     <input class="form-control" id="amountInputs" type="number" placeholder="---" name="amount" required disabled  value="{{ $trade->amount }}">
                                                                 </div>
