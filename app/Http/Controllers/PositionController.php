@@ -144,6 +144,7 @@ class PositionController extends Controller
                         'price' => $post->asset->price,
                         'type' => $post->asset->type,
                     ]: null,
+                    'created_at' => $post->created_at,
                 ];
             });
 

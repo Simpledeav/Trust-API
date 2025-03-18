@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Models\User;
+use App\Models\Wallet;
 use App\Models\Transaction;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -70,7 +71,7 @@ class TransactionController extends Controller
 
             $user->wallet->credit($amount, $request->account, $comment);
 
-            $transaction = $user->storeTransaction($amount, $user->wallet->id, 'App/Models/Wallet', 'credit', 'approved', $comment, null, null, Carbon::parse($request->created_at)->format('Y-m-d H:i:s'));
+            $transaction = $user->storeTransaction($amount, $user->wallet->id, Wallet::class, 'credit', 'approved', $comment, null, null, Carbon::parse($request->created_at)->format('Y-m-d H:i:s'));
 
             if($transaction)
                 return redirect()->back()->with('success', 'Account credited successfully');
@@ -86,7 +87,7 @@ class TransactionController extends Controller
 
             $user->wallet->debit($amount, $request->account, $comment);
 
-            $transaction = $user->storeTransaction($amount, $user->wallet->id, 'App/Models/Wallet', 'debit', 'approved', $comment, null, null, Carbon::parse($request->created_at)->format('Y-m-d H:i:s'));
+            $transaction = $user->storeTransaction($amount, $user->wallet->id, Wallet::class, 'debit', 'approved', $comment, null, null, Carbon::parse($request->created_at)->format('Y-m-d H:i:s'));
 
             if($transaction)
                 return redirect()->back()->with('success', 'Account debited successfully');
@@ -110,7 +111,7 @@ class TransactionController extends Controller
             $user->wallet->debit($amount, $account, $comment);
             $user->wallet->credit($amount, $to, $comment);
 
-            $transaction = $user->storeTransaction($amount, $user->wallet->id, 'App/Models/Wallet', 'transfer', 'approved', $comment, null, null, Carbon::parse($request->created_at)->format('Y-m-d H:i:s'));
+            $transaction = $user->storeTransaction($amount, $user->wallet->id, Wallet::class, 'transfer', 'approved', $comment, null, null, Carbon::parse($request->created_at)->format('Y-m-d H:i:s'));
 
             if($transaction)
                 return redirect()->back()->with('success', 'Account transfer successful');
@@ -148,21 +149,24 @@ class TransactionController extends Controller
             return back()->with('error', 'Transaction not found!');
         }
 
-        if($transaction->type = 'credit')
+        if($transaction->status == 'approved')
         {
-            $user->wallet->debit($transaction->amount, 'wallet', 'Admin edit transaction');
-            $user->wallet->credit($request->amount, 'wallet', 'Admin edit transaction');
-        } elseif ($transaction->type = 'debit')
-        {
-            $user->wallet->credit($transaction->amount, 'wallet', 'Admin edit transaction');
-            $user->wallet->debit($request->amount, 'wallet', 'Admin edit transaction');
-        }
+            if($transaction->type = 'credit')
+            {
+                $user->wallet->debit($transaction->amount, 'wallet', 'Admin edit transaction');
+                $user->wallet->credit($request->amount, 'wallet', 'Admin edit transaction');
+            } elseif ($transaction->type = 'debit')
+            {
+                $user->wallet->credit($transaction->amount, 'wallet', 'Admin edit transaction');
+                $user->wallet->debit($request->amount, 'wallet', 'Admin edit transaction');
+            }
 
-        // Update the transaction amount and created_at fields
-        $transaction->update([
-            'amount' => $request->amount,
-            'created_at' => Carbon::parse($request->created_at)->format('Y-m-d H:i:s'),
-        ]);
+            // Update the transaction amount and created_at fields
+            $transaction->update([
+                'amount' => $request->amount,
+                'created_at' => Carbon::parse($request->created_at)->format('Y-m-d H:i:s'),
+            ]);
+        }
 
         // Return with a success message
         return redirect()->back()->with('success', 'Transaction updated successfully');
