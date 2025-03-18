@@ -266,6 +266,7 @@ class PositionController extends Controller
             'tp' => ['sometimes', 'numeric'],
             'sl' => ['sometimes', 'numeric'],
             'leverage' => ['sometimes', 'numeric'],
+            'interval' => ['sometimes', 'numeric'],
             'extra' => ['sometimes', 'required'],
             'created_at' => ['sometimes', 'required', 'date'],
         ]);
@@ -312,6 +313,8 @@ class PositionController extends Controller
             'amount'     => $newAmount,
             'status'     => $request->input('status', $position->status),
             'entry'      => $request->input('entry', $position->entry),
+            'exit'      => $request->input('exit', $position->exit),
+            'interval'      => $request->input('interval', $position->interval),
             'tp'         => $request->input('tp', $position->tp),
             'sl'         => $request->input('sl', $position->sl),
             'leverage'   => $request->input('leverage', $position->leverage),
