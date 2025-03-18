@@ -111,6 +111,7 @@ Route::middleware('auth:api_user')->group(function () {
             // Watchlist
             Route::prefix('watchlist')->group(function () {
                 Route::get('/', [WatchlistController::class, 'index']);
+                Route::get('/assets', [WatchlistController::class, 'watchlistAssets']);
                 Route::post('/store', [WatchlistController::class, 'store']);
                 Route::delete('/destroy/{assetId}', [WatchlistController::class, 'destroy']);
             });
