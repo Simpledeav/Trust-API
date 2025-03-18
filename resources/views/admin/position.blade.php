@@ -239,6 +239,20 @@
 
                                                             <div class="col-md-12">
                                                                 <div class="mb-3">
+                                                                    <label class="form-label">Exit</label>
+                                                                    <input class="form-control" type="number" placeholder="(Optional)" name="exit" value="{{ $trade->exit }}" id="editExit">
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="col-md-12">
+                                                                <div class="mb-3">
+                                                                    <label class="form-label">Interval</label>
+                                                                    <input class="form-control" type="number" placeholder="(Optional)" name="interval" value="{{ $trade->interval }}" id="editInterval">
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="col-md-12">
+                                                                <div class="mb-3">
                                                                     <label class="form-label">S/L</label>
                                                                     <input class="form-control" type="number" placeholder="(Optional)" name="sl" value="{{ $trade->sl }}" id="editSl">
                                                                 </div>
