@@ -47,7 +47,7 @@ class SavingsLedgerRequest extends FormRequest
                 }
             ],
             'amount' => 'required|numeric|min:0.01',
-            'method' => 'required|in:contribution,profit',
+            // 'method' => 'required|in:contribution,profit',
             'comment' => 'nullable|string|max:255',
         ];
     }

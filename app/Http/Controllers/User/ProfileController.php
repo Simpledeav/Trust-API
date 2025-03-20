@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\User;
 
 use Illuminate\Http\Request;
+use App\Models\SavingsLedger;
 use App\Http\Controllers\Controller;
 use App\Services\User\AnalyticsService;
 use App\Services\User\UserProfileService;
@@ -45,7 +46,7 @@ class ProfileController extends Controller
             'wallet' => ['id', 'balance', 'user_id'],
             'depositAccount' => ['id', 'user_id', 'wallet_name', 'wallet_address', 'bank_name', 'bank_account_number', 'bank_routing_number', 'bank_reference', 'bank_address'],
             'withdrawalAccount' => ['id', 'user_id', 'wallet_name', 'wallet_address', 'bank_name', 'bank_account_number', 'bank_routing_number', 'bank_reference', 'bank_address'],
-            'savings' => ['id', 'balance', 'user_id'],
+            'savings' => ['id', 'savings_account_id', 'user_id', 'balance'],
         ];
 
         // Get requested includes and filter only allowed ones
@@ -70,6 +71,34 @@ class ProfileController extends Controller
                 'brokerage' => $user->wallet->getBalance('brokerage'),
                 'auto' => $user->wallet->getBalance('auto'),
             ];
+        }
+
+        // Append savings account details and analysis data if savings is loaded
+        if ($user->relationLoaded('savings') && $user->savings) {
+            $user->savings->load(['savingsAccount' => function ($query) {
+                $query->select(['id', 'name', 'title', 'status']); // Select fields for savings account
+            }]);
+
+            // Calculate savings analysis data for each savings account
+            $user->savings->each(function ($savings) {
+                $savingsQuery = SavingsLedger::where('savings_id', $savings->id);
+
+                // Total Savings: Sum of contributions
+                $creditSavings = (clone $savingsQuery)->where('type', 'credit')->where('method', 'contribution')->sum('amount');
+                $debitSavings = (clone $savingsQuery)->where('type', 'debit')->where('method', 'contribution')->sum('amount');
+                $savings->total_savings = number_format(($creditSavings - $debitSavings), 2);
+
+                // Total Return: (credit - contribution + profit)
+                $creditTotalSavings = (clone $savingsQuery)->where('type', 'credit')->sum('amount');
+                $debitTotalSavings = (clone $savingsQuery)->where('type', 'debit')->sum('amount');
+                $savings->total_savings_return = number_format(($creditTotalSavings - $debitTotalSavings), 2);
+
+                // 24hr Amount Change: Compare current savings with savings 24 hours ago
+                $savingsLast24h = (clone $savingsQuery)
+                    ->where('created_at', '>=', now()->subHours(24))
+                    ->sum('amount');
+                $savings->total_savings_24hr = number_format($savingsLast24h, 2);
+            });
         }
 
         return ResponseBuilder::asSuccess()

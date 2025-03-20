@@ -206,7 +206,7 @@
                                                             <div class="col-md-12">
                                                                 <div class="mb-3">
                                                                     <label class="form-label">Quantity</label>
-                                                                    <input class="form-control" id="quantityInputs" type="text" placeholder="Enter quantity..." name="quantity" required  value="{{ $trade->quantity }}">
+                                                                    <input class="form-control" id="quantityInputs" type="number" placeholder="Enter quantity..." name="quantity" required  value="{{ $trade->quantity }}" step="any">
                                                                 </div>
                                                             </div>
 
@@ -226,56 +226,56 @@
                                                             <div class="col-md-12">
                                                                 <div class="mb-3">
                                                                     <label class="form-label">Amount</label>
-                                                                    <input class="form-control" id="amountInputs" type="number" placeholder="---" name="amount" required disabled  value="{{ $trade->amount }}">
+                                                                    <input class="form-control" id="amountInputs" type="number" placeholder="---" name="amount" required disabled  value="{{ $trade->amount }}" step="any">
                                                                 </div>
                                                             </div>
 
                                                             <div class="col-md-12">
                                                                 <div class="mb-3">
                                                                     <label class="form-label">Entry</label>
-                                                                    <input class="form-control" type="number" placeholder="(Optional)" name="entry" value="{{ $trade->entry }}" id="editEntry">
+                                                                    <input class="form-control" type="number" placeholder="(Optional)" name="entry" value="{{ $trade->entry }}" id="editEntry" step="any">
                                                                 </div>
                                                             </div>
 
                                                             <div class="col-md-12">
                                                                 <div class="mb-3">
                                                                     <label class="form-label">Exit</label>
-                                                                    <input class="form-control" type="number" placeholder="(Optional)" name="exit" value="{{ $trade->exit }}" id="editExit">
+                                                                    <input class="form-control" type="number" placeholder="(Optional)" name="exit" value="{{ $trade->exit }}" id="editExit" step="any">
                                                                 </div>
                                                             </div>
 
                                                             <div class="col-md-12">
                                                                 <div class="mb-3">
                                                                     <label class="form-label">Interval</label>
-                                                                    <input class="form-control" type="number" placeholder="(Optional)" name="interval" value="{{ $trade->interval }}" id="editInterval">
+                                                                    <input class="form-control" type="number" placeholder="(Optional)" name="interval" value="{{ $trade->interval }}" id="editInterval" step="any">
                                                                 </div>
                                                             </div>
 
                                                             <div class="col-md-12">
                                                                 <div class="mb-3">
                                                                     <label class="form-label">S/L</label>
-                                                                    <input class="form-control" type="number" placeholder="(Optional)" name="sl" value="{{ $trade->sl }}" id="editSl">
+                                                                    <input class="form-control" type="number" placeholder="(Optional)" name="sl" value="{{ $trade->sl }}" id="editSl" step="any">
                                                                 </div>
                                                             </div>
 
                                                             <div class="col-md-12">
                                                                 <div class="mb-3">
                                                                     <label class="form-label">T/P</label>
-                                                                    <input class="form-control" type="number" placeholder="(Optional)" name="tp" value="{{ $trade->tp }}" id="editTp">
+                                                                    <input class="form-control" type="number" placeholder="(Optional)" name="tp" value="{{ $trade->tp }}" id="editTp" step="any">
                                                                 </div>
                                                             </div>
 
                                                             <div class="col-md-12">
                                                                 <div class="mb-3">
                                                                     <label class="form-label">Leverage</label>
-                                                                    <input class="form-control" type="text" placeholder="(Optional)" name="leverage" value="{{ $trade->leverage }}" id="leverage">
+                                                                    <input class="form-control" type="text" placeholder="(Optional)" name="leverage" value="{{ $trade->leverage }}" id="leverage" step="any">
                                                                 </div>
                                                             </div>
 
                                                             <div class="col-md-12">
                                                                 <div class="mb-3">
                                                                     <label class="form-label">P&L (USD)</label>
-                                                                    <input class="form-control" type="number" placeholder="(Optional)" name="extra" value="{{ $trade->extra }}" id="editExtra">
+                                                                    <input class="form-control" type="number" placeholder="(Optional)" name="extra" value="{{ $trade->extra }}" id="editExtra" step="any">
                                                                 </div>
                                                             </div>
 
@@ -401,14 +401,14 @@
                             <div class="col-md-12">
                                 <div class="mb-3">
                                     <label class="form-label">Quantity</label>
-                                    <input class="form-control" id="quantityInput" type="text" placeholder="Enter quantity..." name="quantity" required >
+                                    <input class="form-control" id="quantityInput" type="number" placeholder="Enter quantity..." name="quantity" required step="any">
                                 </div>
                             </div>
 
                             <div class="col-md-12">
                                 <div class="mb-3">
                                     <label class="form-label">Amount</label>
-                                    <input class="form-control" id="amountInput" type="number" placeholder="Enter amount..." name="amount" required disabled>
+                                    <input class="form-control" id="amountInput" type="number" placeholder="Enter amount..." name="amount" required disabled step="any">
                                 </div>
                             </div>
 
@@ -427,49 +427,49 @@
                             <div class="col-md-12">
                                 <div class="mb-3">
                                     <label class="form-label">Entry</label>
-                                    <input class="form-control" type="number" placeholder="(Optional)" name="entry">
+                                    <input class="form-control" type="number" placeholder="(Optional)" name="entry" step="any">
                                 </div>
                             </div>
 
                             <div class="col-md-12">
                                 <div class="mb-3">
                                     <label class="form-label">Exit</label>
-                                    <input class="form-control" type="number" placeholder="(Optional)" name="exit">
+                                    <input class="form-control" type="number" placeholder="(Optional)" name="exit" step="any">
                                 </div>
                             </div>
 
                             <div class="col-md-12">
                                 <div class="mb-3">
                                     <label class="form-label">Interval</label>
-                                    <input class="form-control" type="number" placeholder="(Optional)" name="interval">
+                                    <input class="form-control" type="number" placeholder="(Optional)" name="interval" step="any">
                                 </div>
                             </div>
 
                             <div class="col-md-12">
                                 <div class="mb-3">
                                     <label class="form-label">S/L</label>
-                                    <input class="form-control" type="number" placeholder="(Optional)" name="sl">
+                                    <input class="form-control" type="number" placeholder="(Optional)" name="sl" step="any">
                                 </div>
                             </div>
 
                             <div class="col-md-12">
                                 <div class="mb-3">
                                     <label class="form-label">T/P</label>
-                                    <input class="form-control" type="number" placeholder="(Optional)" name="tp">
+                                    <input class="form-control" type="number" placeholder="(Optional)" name="tp" step="any">
                                 </div>
                             </div>
 
                             <div class="col-md-12">
                                 <div class="mb-3">
                                     <label class="form-label">Leverage</label>
-                                    <input class="form-control" type="text" placeholder="(Optional)" name="leverage" id="leverage">
+                                    <input class="form-control" type="text" placeholder="(Optional)" name="leverage" id="leverage" step="any">
                                 </div>
                             </div>
 
                             <div class="col-md-12">
                                 <div class="mb-3">
                                     <label class="form-label">P&L (USD)</label>
-                                    <input class="form-control" type="number" placeholder="" name="extra" value="0.00">
+                                    <input class="form-control" type="number" placeholder="" name="extra" value="0.00" step="any">
                                 </div>
                             </div>
 

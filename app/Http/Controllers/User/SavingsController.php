@@ -92,7 +92,7 @@ class SavingsController extends Controller
             $user = $request->user();
             $savingsAccount = $request->savings_account_id;
             $amount = $request->amount;
-            $method = $request->method;
+            $method = 'contribution';
             $comment = $request->comment;
 
             $balance = $this->savingsService->credit($user, $savingsAccount, $amount, $method, $comment);
@@ -117,7 +117,7 @@ class SavingsController extends Controller
             $user = $request->user();
             $savingsAccount = $request->savings_account_id;
             $amount = $request->amount;
-            $method = $request->method;
+            $method = 'contribution';
             $comment = $request->comment;
 
             $balance = $this->savingsService->debit($user, $savingsAccount, $amount, $method, $comment);
