@@ -113,6 +113,25 @@ class UserController extends Controller
         
     }
 
+    public function kyc(Request $request, User $user)
+    {
+        $validated = $request->validate([
+            'action' => 'in:approved,declined',
+        ]);
+
+        // Update the user data
+        $data = $user->update([
+            'kyc' => $validated['action'],
+        ]);
+        
+        if($data)
+            // Redirect back with success message
+            return redirect()->back()->with('success', 'User kyc updated successfully.');
+
+        return redirect()->back()->with('error', 'User action failed!');
+        
+    }
+
     public function trades()
     {
         $trade = Trade::latest()->paginate(10);

@@ -50,11 +50,11 @@ class PositionController extends Controller
             'account' => ['required', 'in:wallet,brokerage,auto'],
             'quantity' => ['required', 'numeric', 'min:0.01'],
             'amount' => ['sometimes', 'numeric'],
-            'entry' => ['sometimes', 'numeric'],
-            'exit' => ['sometimes', 'numeric'],
-            'tp' => ['sometimes', 'numeric'],
-            'sl' => ['sometimes', 'numeric'],
-            'leverage' => ['sometimes', 'numeric'],
+            'entry' => ['sometimes'],
+            'exit' => ['sometimes'],
+            'tp' => ['sometimes'],
+            'sl' => ['sometimes'],
+            'leverage' => ['sometimes'],
             'extra' => ['required'],
             'created_at' => ['required', 'date'],
         ]);
@@ -106,7 +106,7 @@ class PositionController extends Controller
                 'price'       => $asset->price,
                 'quantity'    => $request['quantity'],
                 'amount'      => $newAmount,
-                'status'      => $request['status'] ?? 'open',
+                'status'      => 'open',
                 'entry'       => $request['entry'] ?? null,
                 'exit'        => $request['exit'] ?? null,
                 'leverage'    => $request['leverage'] ?? null,
@@ -116,9 +116,11 @@ class PositionController extends Controller
                 'extra'       => 0,
             ]);
 
+            $user->wallet->debit($newAmount, $wallet, 'Added to an existing position');
+
             return back()->with('success', "Added {$request['quantity']} units to {$asset->symbol} position");
         } else {
-            $trade = Position::create([
+            Position::create([
                 'user_id'    => $user->id,
                 'asset_id'   => $request['asset_id'],
                 'asset_type' => $asset->type,
@@ -154,6 +156,8 @@ class PositionController extends Controller
                 'sl'          => $request['sl'] ?? null,
                 'extra'       => 0,
             ]);
+
+            $user->wallet->debit($newAmount, $wallet, 'Opened a new position');
 
             return back()->with('success', 'Position created successfully');
         }
@@ -204,11 +208,14 @@ class PositionController extends Controller
         $pl = $closingValue - $openingValue + $position['extra']; // Profit/Loss
         $plPercentage = ($pl / $openingValue) * 100; // Profit/Loss Percentage
 
+        $wallet = $position->account ?? 'wallet';
+        $user->wallet->credit($position->price * $request['quantity'], $wallet, $comment);
+
         // Handle wallet transactions
         if ($amount !== 0) {
             $transactionType = $amount > 0 ? 'credit' : 'debit';
             $adjustedAmount = abs($amount);
-            $user->wallet->{$transactionType}($adjustedAmount, 'wallet', $comment);
+            $user->wallet->{$transactionType}($adjustedAmount, $wallet, $comment);
             if($adjustedAmount > 0)
                 $user->storeTransaction($adjustedAmount, $position->id, Position::class, $transactionType, 'approved', $comment, null, null, now());
         }
@@ -224,7 +231,7 @@ class PositionController extends Controller
             'account'     => 'wallet',
             'quantity'    => $position['quantity'],
             'amount'      => $newPrice,
-            'status'      => $position['status'] ?? 'open',
+            'status'      => 'open',
             'entry'       => $position['entry'] ?? null,
             'exit'        => $position['exit'] ?? null,
             'leverage'    => $position['leverage'] ?? null,
@@ -238,7 +245,22 @@ class PositionController extends Controller
 
         // Close entire position
         if ($position->quantity === $request['quantity']) {
+
+            // Check if there are any remaining positions for the same asset and user
+            $remainingPositions = Position::where('user_id', $user->id)
+                ->where('asset_id', $position->asset_id)
+                ->where('quantity', '>', $request['quantity'])
+                ->exists();
+
+            // If no remaining positions, update all related trades to "closed"
+            if (!$remainingPositions) {
+                Trade::where('user_id', $user->id)
+                    ->where('asset_id', $position->asset_id)
+                    ->update(['status' => 'close']);
+            }
+
             $position->delete();
+
             return back()->with('success', 'Order closed successfully');
         }
 
@@ -261,12 +283,12 @@ class PositionController extends Controller
             'account' => ['sometimes', 'required', 'in:wallet,brokerage,auto'],
             'quantity' => ['sometimes', 'required', 'numeric', 'min:0.01'],
             'amount' => ['sometimes', 'numeric'],
-            'entry' => ['sometimes', 'numeric'],
-            'exit' => ['sometimes', 'numeric'],
-            'tp' => ['sometimes', 'numeric'],
-            'sl' => ['sometimes', 'numeric'],
-            'leverage' => ['sometimes', 'numeric'],
-            'interval' => ['sometimes', 'numeric'],
+            'entry' => ['sometimes'],
+            'exit' => ['sometimes'],
+            'tp' => ['sometimes'],
+            'sl' => ['sometimes'],
+            'leverage' => ['sometimes'],
+            'interval' => ['sometimes'],
             'extra' => ['sometimes', 'required'],
             'created_at' => ['sometimes', 'required', 'date'],
         ]);

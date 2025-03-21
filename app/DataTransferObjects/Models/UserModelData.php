@@ -91,12 +91,14 @@ class UserModelData
     private string|null $nationality = null;
     private string|null $experience = null;
     private bool|null $employed = null;
+    private string|null $id_type = null;
     private string|null $id_number = null;
-    private string|null $front_id = null;
-    private string|null $back_id = null;
+    private UploadedFile|null $front_id = null;
+    private UploadedFile|null $back_id = null;
     private string|null $currecnyId = null;
     private string|null $stateId = null;
     private string|null $city = null;
+
 
     /**
      * Get the country ID.
@@ -502,6 +504,29 @@ class UserModelData
     }
 
     /**
+     * Get the ID type.
+     *
+     * @return string|null
+     */
+    public function getIdtype(): ?string
+    {
+        return $this->id_type;
+    }
+
+    /**
+     * Set the ID type.
+     *
+     * @param string|null $idNumber The ID number.
+     *
+     * @return self
+     */
+    public function setIdType(?string $idType): self
+    {
+        $this->id_type = $idType;
+        return $this;
+    }
+
+    /**
      * Get the ID number.
      *
      * @return string|null
@@ -525,48 +550,50 @@ class UserModelData
     }
 
     /**
-     * Get the front ID image URL.
+     * Get the frontId.
      *
-     * @return string|null
+     * @return \Illuminate\Http\UploadedFile|null
      */
-    public function getFrontId(): ?string
+    public function getFrontId(): UploadedFile|null
     {
         return $this->front_id;
     }
 
     /**
-     * Set the front ID image URL.
+     * Set the frontId.
      *
-     * @param string|null $frontId The front ID image URL.
+     * @param \Illuminate\Http\UploadedFile|null $frontId The frontId.
      *
      * @return self
      */
-    public function setFrontId(?string $frontId): self
+    public function setFrontId(UploadedFile|null $frontId): self
     {
         $this->front_id = $frontId;
+
         return $this;
     }
 
     /**
-     * Get the back ID image URL.
+     * Get the frontId.
      *
-     * @return string|null
+     * @return \Illuminate\Http\UploadedFile|null
      */
-    public function getBackId(): ?string
+    public function getBackId(): UploadedFile|null
     {
         return $this->back_id;
     }
 
     /**
-     * Set the back ID image URL.
+     * Set the backId.
      *
-     * @param string|null $backId The back ID image URL.
+     * @param \Illuminate\Http\UploadedFile|null $backId The backId.
      *
      * @return self
      */
-    public function setBackId(?string $backId): self
+    public function setBackId(UploadedFile|null $backId): self
     {
         $this->back_id = $backId;
+
         return $this;
     }
 

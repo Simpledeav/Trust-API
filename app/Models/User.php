@@ -13,6 +13,7 @@ use App\Traits\ActivityLogTrait;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Support\Facades\DB;
 use App\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Support\Facades\Storage;
 use App\Contracts\Auth\MustSatisfyTwoFa;
 use Illuminate\Notifications\Notifiable;
 use App\Traits\EmailVerificationCodeTrait;
@@ -60,6 +61,7 @@ class User extends Authenticatable implements
         'experience',
         'employed',
         'status',
+        'id_type',
         'id_number',
         'kyc',
         'front_id',
@@ -95,6 +97,12 @@ class User extends Authenticatable implements
         'blocked_at' => 'datetime',
     ];
 
+    /**
+     * Append the accessor attributes to the model's array form.
+     *
+     * @var array
+     */
+    protected $appends = ['front_id', 'back_id'];
 
     /**
      * Get the user's avatar.
@@ -105,6 +113,30 @@ class User extends Authenticatable implements
     {
         return Attribute::make(
             get: fn ($value) => asset($value),
+        );
+    }
+
+    /**
+     * Get the full URL for the front_id.
+     *
+     * @return \Illuminate\Database\Eloquent\Casts\Attribute
+     */
+    protected function frontId(): Attribute
+    {
+        return Attribute::make(
+            get: fn ($value, $attributes) => $attributes['front_id'] ? asset($attributes['front_id']) : null,
+        );
+    }
+
+    /**
+     * Get the full URL for the back_id.
+     *
+     * @return \Illuminate\Database\Eloquent\Casts\Attribute
+     */
+    protected function backId(): Attribute
+    {
+        return Attribute::make(
+            get: fn ($value, $attributes) => $attributes['back_id'] ? asset($attributes['back_id']) : null,
         );
     }
 

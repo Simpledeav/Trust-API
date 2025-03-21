@@ -79,6 +79,17 @@
                                                 @if($user->kyc == 'approved') Approved @elseif($user->kyc == 'pending') Pending @else Declined @endif
                                             </span>
                                         </div>
+
+                                        <div class="mb-3 d-flex">
+                                            <label class="form-label">ID</label>
+                                            <span class="mx-2 px-4 badge badge-light-primary">
+                                                @if($user->id_type)
+                                                    {{ $user->id_type }} - {{ $user->id_number }} 
+                                                @else
+                                                    ---- - 000-000-000
+                                                @endif
+                                            </span>
+                                        </div>
                                     </div>
                                     <div class="col-5">
                                         <div class="revenuegrowth-details my-3"> 
@@ -123,16 +134,26 @@
                                             <div class="d-flex">
                                                 <div class="m-1">
                                                     <span class="f-light">Front ID:</span>
-                                                    <img class="rounded" style="width: 200px;" src="$user->front_id" alt="front id">
+                                                    <img class="rounded" style="width: 200px;" src="{{$user->front_id}}" alt="front id">
                                                 </div>
                                                 <div class="m-1">
                                                     <span class="f-light">Back ID:</span>
-                                                    <img class="rounded" style="width: 200px;" src="$user->back_id" alt="back id">
+                                                    <img class="rounded" style="width: 200px;" src="{{$user->back_id}}" alt="back id">
                                                 </div>
                                             </div>
                                             <div class="form-footer mt-4 d-flex">
-                                                <button class="btn f-light badge badge-light-success">Approve</button>
-                                                <button class="btn f-light badge badge-light-danger">Decline</button>
+                                                <form action="{{ route('admin.users.kyc', $user->id) }}" method="post">
+                                                    @csrf
+                                                    @method('PUT')
+                                                    <input type="hidden" name="action" value="approved">
+                                                    <button class="btn f-light badge badge-light-success" type="submit">Approve</button>
+                                                </form>
+                                                <form action="{{ route('admin.users.kyc', $user->id) }}" method="post">
+                                                    @csrf
+                                                    @method('PUT')
+                                                    <input type="hidden" name="action" value="declined">
+                                                    <button class="btn f-light badge badge-light-danger mx-2" type="submit">Decline</button>
+                                                </form>
                                             </div>
                                         @endif
                                     </div>

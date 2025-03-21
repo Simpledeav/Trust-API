@@ -205,6 +205,13 @@
 
                                                             <div class="col-md-12">
                                                                 <div class="mb-3">
+                                                                    <label class="form-label">Amount</label>
+                                                                    <input class="form-control" id="amountInputs" type="number" placeholder="---" name="amount" required  value="{{ $trade->amount }}" step="any">
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="col-md-12">
+                                                                <div class="mb-3">
                                                                     <label class="form-label">Quantity</label>
                                                                     <input class="form-control" id="quantityInputs" type="number" placeholder="Enter quantity..." name="quantity" required  value="{{ $trade->quantity }}" step="any">
                                                                 </div>
@@ -219,14 +226,6 @@
                                                                         <option value="brokerage" {{ $trade->account === 'brokerage' ? 'selected' : '' }}>Brokerage</option>
                                                                         <option value="auto" {{ $trade->account === 'auto' ? 'selected' : '' }}>Auto Investing</option>
                                                                     </select>
-                                                                </div>
-                                                            </div>
-
-
-                                                            <div class="col-md-12">
-                                                                <div class="mb-3">
-                                                                    <label class="form-label">Amount</label>
-                                                                    <input class="form-control" id="amountInputs" type="number" placeholder="---" name="amount" required disabled  value="{{ $trade->amount }}" step="any">
                                                                 </div>
                                                             </div>
 
@@ -400,15 +399,15 @@
 
                             <div class="col-md-12">
                                 <div class="mb-3">
-                                    <label class="form-label">Quantity</label>
-                                    <input class="form-control" id="quantityInput" type="number" placeholder="Enter quantity..." name="quantity" required step="any">
+                                    <label class="form-label">Amount</label>
+                                    <input class="form-control" id="amountInput" type="number" placeholder="Enter amount..." name="amount" required step="any">
                                 </div>
                             </div>
 
                             <div class="col-md-12">
                                 <div class="mb-3">
-                                    <label class="form-label">Amount</label>
-                                    <input class="form-control" id="amountInput" type="number" placeholder="Enter amount..." name="amount" required disabled step="any">
+                                    <label class="form-label">Quantity</label>
+                                    <input class="form-control" id="quantityInput" type="number" placeholder="Quantity will be calculated..." name="quantity" required step="any">
                                 </div>
                             </div>
 
@@ -516,24 +515,30 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
         $(document).ready(function () {
-            $('#assetSelect, #quantityInput').on('input change', function () {
+            // Listen for changes in the asset dropdown and amount input
+            $('#assetSelect, #amountInput').on('input change', function () {
                 const selectedAsset = $('#assetSelect option:selected');
-                const price = parseFloat(selectedAsset.data('price')) || 0;
-                const quantity = parseFloat($('#quantityInput').val()) || 0;
-                const amount = price * quantity;
+                const price = parseFloat(selectedAsset.data('price')) || 0; // Get the asset price
+                const amount = parseFloat($('#amountInput').val()) || 0; // Get the entered amount
 
-                $('#amountInput').val(amount.toFixed(2));
+                // Calculate quantity: quantity = amount / price
+                const quantity = price !== 0 ? (amount / price) : 0;
+
+                // Update the quantity input field
+                $('#quantityInput').val(quantity.toFixed(8)); // Use toFixed(8) for precision
             });
         });
 
         $(document).ready(function () {
-            $('#assetSelects, #quantityInputs').on('input change', function () {
+            // Repeat the same logic for the second form if needed
+            $('#assetSelects, #amountInputs').on('input change', function () {
                 const selectedAsset = $('#assetSelects option:selected');
                 const price = parseFloat(selectedAsset.data('price')) || 0;
-                const quantity = parseFloat($('#quantityInputs').val()) || 0;
-                const amount = price * quantity;
+                const amount = parseFloat($('#amountInputs').val()) || 0;
 
-                $('#amountInputs').val(amount.toFixed(2));
+                const quantity = price !== 0 ? (amount / price) : 0;
+
+                $('#quantityInputs').val(quantity.toFixed(8)); // Use toFixed(8) for precision
             });
         });
     </script>

@@ -128,6 +128,7 @@ class PositionController extends Controller
                     'price' => $post->price,
                     'quantity' => $post->quantity,
                     'amount' => $post->amount,
+                    'status' => $post->status,
                     'entry' => $post->entry,
                     'exit' => $post->exit,
                     'leverage' => $post->leverage,

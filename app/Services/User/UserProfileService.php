@@ -5,11 +5,12 @@ declare(strict_types=1);
 namespace App\Services\User;
 
 use App\Models\User;
+use App\Helpers\FileHelper;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use App\Exceptions\ExpectationFailedException;
 use App\DataTransferObjects\Models\UserModelData;
-use Illuminate\Support\Facades\Storage;
-use App\Helpers\FileHelper;
 
 class UserProfileService
 {
@@ -39,7 +40,7 @@ class UserProfileService
         $data = [
             'country_id' => $userModelData->getCountryId() ?? $user->country_id,
             'state_id' => $userModelData->getStateId() ?? $user->state_id,
-            'city_id' => $userModelData->getCityId() ?? $user->city_id,
+            // 'city_id' => $userModelData->getCityId() ?? $user->city_id,
             'first_name' => $userModelData->getFirstname() ?? $user->first_name,
             'last_name' => $userModelData->getLastname() ?? $user->last_name,
             'username' => $userModelData->getUsername() ?? $user->username,
@@ -73,11 +74,52 @@ class UserProfileService
         DB::transaction(fn () => $user->delete($reason));
     }
 
-    private function saveFileAndReturnPath(\Illuminate\Http\UploadedFile $file, string $filename = null, string $path = 'assets/img'): string
+    public function storeKycInfo(User $user, UserModelData $userModelData): User
     {
-        $filename = $filename ?? time() . rand(1111, 9999) .'.'. $file->getClientOriginalExtension();
-        $file->move($path, $filename);
 
-        return $path . '/' . $filename;
+        // Handle file uploads for front_id and back_id
+        $frontIdPath = $this->uploadFile($userModelData->getFrontId(), 'kyc/front_ids');
+        $backIdPath = $this->uploadFile($userModelData->getBackId(), 'kyc/back_ids');
+
+        // Update the user's KYC information
+        $user->update([
+            'id_type' => $userModelData->getIdtype() ?? $user->id_type,
+            'id_number' => $userModelData->getIdNumber() ?? $user->id_number,
+            'front_id' => $frontIdPath,
+            'back_id' => $backIdPath,
+            'kyc' => 'pending',
+        ]);
+
+        return $user->refresh();
     }
+
+    /**
+     * Helper function to upload a file and return its storage path.
+     *
+     * @param UploadedFile $file
+     * @param string $directory
+     * @return string
+     */
+    private function uploadFile(UploadedFile $file, string $directory): string
+    {
+        // // Generate a unique filename
+        // $filename = uniqid() . '.' . $file->getClientOriginalExtension();
+
+        // // Store the file in the specified directory
+        // $path = $file->storeAs($directory, $filename, 'public');
+
+        // // Return the full public URL or storage path
+        // return Storage::url($path);
+
+        $path = $file->storeAs($directory, (uniqid() . '.' . $file->extension()));
+
+        throw_if($path === false, ExpectationFailedException::class, 'ID could not be uploaded');
+
+        $avatar = Storage::url($path);
+        $avatar = FileHelper::saveFileAndReturnPath($file);
+
+        return $avatar;
+
+    }
+
 }

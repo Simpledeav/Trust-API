@@ -127,8 +127,28 @@ class TradeService
                     'amount' => $updatedAmount,
                 ]);
 
+                 // Store trades as position transaction history
+                Trade::create([
+                    'user_id'     => $user->id,
+                    'asset_id'    => $data['asset_id'],
+                    'asset_type'  => $asset->type,
+                    'type'        => 'buy',
+                    'account'        => $data['wallet'],
+                    'price'       => $asset->price,
+                    'quantity'    => $data['quantity'],
+                    'amount'      => $newAmount,
+                    'status'      => 'open',
+                    'entry'       => $data['entry'] ?? null,
+                    'exit'        => $data['exit'] ?? null,
+                    'leverage'    => $data['leverage'] ?? null,
+                    'interval'    => $data['interval'] ?? null,
+                    'tp'          => $data['tp'] ?? null,
+                    'sl'          => $data['sl'] ?? null,
+                    'extra'       => 0,
+                ]);
+
                 $user->wallet->debit($newAmount, $wallet, 'Added to an existing position');
-                $user->storeTransaction($newAmount, $existingPosition->id, Position::class, 'debit', 'approved', "Added {$data['quantity']} units to {$asset->symbol} position", null, null, now());
+                // $user->storeTransaction($newAmount, $existingPosition->id, Position::class, 'debit', 'approved', "Added {$data['quantity']} units to {$asset->symbol} position", null, null, now());
 
                 return $existingPosition;
             } else {
@@ -165,7 +185,7 @@ class TradeService
                     'price'       => $asset->price,
                     'quantity'    => $data['quantity'],
                     'amount'      => $newAmount,
-                    'status'      => $data['status'] ?? 'open',
+                    'status'      => 'open',
                     'entry'       => $data['entry'] ?? null,
                     'exit'        => $data['exit'] ?? null,
                     'leverage'    => $data['leverage'] ?? null,
@@ -175,7 +195,7 @@ class TradeService
                     'extra'       => 0,
                 ]);
 
-                // $user->wallet->debit($newAmount, $wallet, 'Opened a new position');
+                $user->wallet->debit($newAmount, $wallet, 'Opened a new position');
                 // $user->storeTransaction($newAmount, $trade->id, Position::class, 'debit', 'approved', "Opened a new position on {$asset->symbol} with {$data['quantity']} units", null, null, now());
 
                 return $trade;
@@ -217,11 +237,14 @@ class TradeService
             $pl = $closingValue - $openingValue + $position['extra']; // Profit/Loss
             $plPercentage = ($pl / $openingValue) * 100; // Profit/Loss Percentage
 
+            $wallet = $position->account ?? 'wallet';
+            $user->wallet->credit($position->price * $request['quantity'], $wallet, $comment);
+
             // Handle wallet transactions
             if ($amount !== 0) {
                 $transactionType = $amount > 0 ? 'credit' : 'debit';
                 $adjustedAmount = abs($amount);
-                $user->wallet->{$transactionType}($adjustedAmount, 'wallet', $comment);
+                $user->wallet->{$transactionType}($adjustedAmount, $wallet, $comment);
                 if($adjustedAmount > 0.00)
                     $user->storeTransaction($adjustedAmount, $position->id, Position::class, $transactionType, 'approved', $comment, null, null, now());
             }
@@ -236,7 +259,7 @@ class TradeService
                 'quantity'    => $request['quantity'],
                 'account'    => 'wallet',
                 'amount'      => $closingValue,
-                'status'      => $position['status'] ?? 'open',
+                'status'      => 'open',
                 'entry'       => $position['entry'] ?? null,
                 'exit'        => $position['exit'] ?? null,
                 'leverage'    => $position['leverage'] ?? null,
@@ -250,7 +273,22 @@ class TradeService
 
             // Close entire position
             if ($position->quantity === $request['quantity']) {
+
+                // Check if there are any remaining positions for the same asset and user
+                $remainingPositions = Position::where('user_id', $user->id)
+                    ->where('asset_id', $position->asset_id)
+                    ->where('quantity', '>', $request['quantity'])
+                    ->exists();
+
+                // If no remaining positions, update all related trades to "closed"
+                if (!$remainingPositions) {
+                    Trade::where('user_id', $user->id)
+                        ->where('asset_id', $position->asset_id)
+                        ->update(['status' => 'close']);
+                }
+                
                 $position->delete();
+
                 return 'Order closed successfully';
             }
 

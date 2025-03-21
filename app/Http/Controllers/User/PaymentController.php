@@ -22,6 +22,7 @@ class PaymentController extends Controller
 
     public function updatePayment(Request $request, string $type = 'user'): Response
     {
+
         $request->validate([
             'wallet_name' => 'nullable|string',
             'wallet_address' => 'nullable|string',
@@ -49,5 +50,8 @@ class PaymentController extends Controller
                 ->withMessage('Error updating account!')
                 ->build();
         }
+
+        // $request->user()->storePayment('user', []);
+        // $request->user()->storePayment('admin', []);
     }
 }

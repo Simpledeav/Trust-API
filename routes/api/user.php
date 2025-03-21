@@ -60,6 +60,7 @@ Route::middleware('auth:api_user')->group(function () {
 
             //Profile
             Route::patch('profile', [ProfileController::class, 'updateProfile']);
+            Route::patch('profile/kyc', [ProfileController::class, 'updateKYC']);
             Route::delete('profile', [ProfileController::class, 'destroy']);
             Route::post('/profile/bank', [PaymentController::class, 'updatePayment']);
 

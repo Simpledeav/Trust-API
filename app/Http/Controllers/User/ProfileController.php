@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\User;
 
+use App\Models\Position;
+use App\Models\Transaction;
 use Illuminate\Http\Request;
 use App\Models\SavingsLedger;
 use App\Http\Controllers\Controller;
@@ -11,6 +13,7 @@ use App\Services\User\ProfileTwoFaService;
 use App\Services\User\ProfilePasswordService;
 use Symfony\Component\HttpFoundation\Response;
 use App\Http\Requests\User\ProfileUpdateRequest;
+use App\Http\Requests\User\UpdateUserKycRequest;
 use App\DataTransferObjects\Models\UserModelData;
 use App\Http\Requests\User\UpdatePasswordRequest;
 use MarcinOrlowski\ResponseBuilder\ResponseBuilder;
@@ -66,10 +69,107 @@ class ProfileController extends Controller
 
         // Append additional balances to the wallet object if wallet is loaded
         if ($user->relationLoaded('wallet') && $user->wallet) {
-            $user->wallet->additional_balances = [
-                'cash' => $user->wallet->getBalance('wallet'),
-                'brokerage' => $user->wallet->getBalance('brokerage'),
-                'auto' => $user->wallet->getBalance('auto'),
+            // Helper function to calculate 24hr P&L and percentage change
+            $calculate24hrPL = function ($accountType) use ($user) {
+                // Fetch transactions for the last 24 hours
+                $transactionsLast24h = Transaction::where('user_id', $user->id)
+                    ->where('swap_from', $accountType)
+                    ->where('created_at', '>=', now()->subHours(24))
+                    ->get();
+
+                // Calculate net P&L
+                $creditLast24h = $transactionsLast24h->where('type', 'credit')->where('status', 'approved')->sum('amount');
+                $debitLast24h = $transactionsLast24h->where('type', 'debit')->where('status', 'approved')->sum('amount');
+                $netPL = $creditLast24h - $debitLast24h;
+
+                // Fetch balance 24 hours ago
+                $balance24hAgo = Transaction::where('user_id', $user->id)
+                    ->where('swap_from', $accountType)
+                    ->where('status', 'approved')
+                    ->where('created_at', '<', now()->subHours(24))
+                    ->sum('amount');
+
+                // Calculate percentage change
+                $percentageChange = $balance24hAgo != 0
+                    ? ($netPL / $balance24hAgo) * 100
+                    : 0;
+
+                return [
+                    'balance' => number_format($user->wallet->getBalance($accountType), 2),
+                    '24hr_pl' => number_format($netPL, 2),
+                    '24hr_pl_percentage' => number_format($percentageChange, 2),
+                ];
+            };
+
+            // Helper function to calculate total value for brokerage and auto accounts
+            $calculateTotalValue = function ($accountType) use ($user) {
+                // Fetch open positions for the account
+                $positions = Position::where('user_id', $user->id)
+                    ->where('account', $accountType)
+                    ->where('status', 'open')
+                    ->get();
+
+                // Calculate total value of positions
+                $totalPositionsValue = $positions->sum(function ($position) {
+                    return $position->quantity * $position->asset->price + $position->extra;
+                });
+
+                // Total value = balance + positions value
+                return $user->wallet->getBalance($accountType) + $totalPositionsValue;
+            };
+            
+            // Helper function to calculate 24hr P&L and percentage change for brokerage and auto accounts
+            $calculate24hrPLForPositions = function ($accountType) use ($user) {
+                // Fetch active positions for the account in the last 24 hours
+                $positionsLast24h = Position::where('user_id', $user->id)
+                    ->where('account', $accountType)
+                    ->where('status', 'open')
+                    ->where('created_at', '>=', now()->subHours(24))
+                    ->get();
+
+                // Calculate total P&L for positions in the last 24 hours
+                $totalPL = $positionsLast24h->sum(function ($position) {
+                    // Calculate profit/loss: (current price - opening price) * quantity + extra
+                    $currentPrice = $position->asset->price;
+                    $openingPrice = $position->price;
+                    $quantity = $position->quantity;
+                    $extra = $position->extra;
+
+                    return ($currentPrice - $openingPrice) * $quantity + $extra;
+                });
+
+                // Fetch the total value of the account (balance + positions value)
+                $totalValue = $user->wallet->getBalance($accountType) + $positionsLast24h->sum(function ($position) {
+                    return $position->quantity * $position->asset->price + $position->extra;
+                });
+
+                // Calculate percentage change
+                $percentageChange = $totalValue != 0
+                    ? ($totalPL / $totalValue) * 100
+                    : 0;
+
+                return [
+                    '24hr_pl' => number_format($totalPL, 2),
+                    '24hr_pl_percentage' => number_format($percentageChange, 2),
+                ];
+            };
+
+            // Build wallet response
+            // $user->wallet->cash = $calculate24hrPL('wallet');
+            $user->wallet->cash = [
+                'balance' => number_format($user->wallet->getBalance('wallet'), 2),
+            ];
+            $user->wallet->brokerage = [
+                'balance' => number_format($user->wallet->getBalance('brokerage'), 2),
+                'total' => number_format($calculateTotalValue('brokerage'), 2),
+                '24hr_pl' => $calculate24hrPLForPositions('brokerage')['24hr_pl'],
+                '24hr_pl_percentage' => $calculate24hrPLForPositions('brokerage')['24hr_pl_percentage'],
+            ];
+            $user->wallet->auto = [
+                'balance' => number_format($user->wallet->getBalance('auto'), 2),
+                'total' => number_format($calculateTotalValue('auto'), 2),
+                '24hr_pl' => $calculate24hrPLForPositions('auto')['24hr_pl'],
+                '24hr_pl_percentage' => $calculate24hrPLForPositions('auto')['24hr_pl_percentage'],
             ];
         }
 
@@ -94,10 +194,35 @@ class ProfileController extends Controller
                 $savings->total_savings_return = number_format(($creditTotalSavings - $debitTotalSavings), 2);
 
                 // 24hr Amount Change: Compare current savings with savings 24 hours ago
-                $savingsLast24h = (clone $savingsQuery)
+                $creditLast24h = (clone $savingsQuery)
+                    ->where('type', 'credit')
                     ->where('created_at', '>=', now()->subHours(24))
                     ->sum('amount');
+                $debitLast24h = (clone $savingsQuery)
+                    ->where('type', 'debit')
+                    ->where('created_at', '>=', now()->subHours(24))
+                    ->sum('amount');
+                $savingsLast24h = $creditLast24h - $debitLast24h; // Net change
                 $savings->total_savings_24hr = number_format($savingsLast24h, 2);
+
+                // Calculate 24hr Percentage Change
+                $savingsBalance24hAgo = (clone $savingsQuery)
+                    ->where('created_at', '<', now()->subHours(24))
+                    ->where('created_at', '>=', now()->subHours(48)) // Ensure we're looking at the previous 24-hour window
+                    ->sum('amount');
+
+                $totalSavingsReturn = number_format(($creditTotalSavings - $debitTotalSavings), 2);
+                $totalSavings24hr = number_format($savingsLast24h, 2);
+
+                $savingsBalance24hPerctent = number_format(($totalSavings24hr / $totalSavingsReturn) * 100, 2);
+
+                // Calculate percentage change
+                if ($savingsBalance24hPerctent == 0) {
+                    // If there was no savings 24 hours ago, percentage change is 0%
+                    $savings->total_savings_24hr_percentage = 0;
+                } else {
+                    $savings->total_savings_24hr_percentage = $savingsBalance24hPerctent;
+                }
             });
         }
 
@@ -206,6 +331,28 @@ class ProfileController extends Controller
 
         return ResponseBuilder::asSuccess()
             ->withMessage('Profile updated successfully')
+            ->withData([
+                'user' => $user,
+            ])
+            ->build();
+    }
+
+    public function updateKYC(UpdateUserKycRequest $request, UserProfileService $userProfileService): Response
+    {
+        /** @var \App\Models\User $user */
+        $user = $request->user();
+
+        $user = $userProfileService->storeKycInfo(
+            $user,
+            (new UserModelData())
+                ->setIdType($request->id_type)
+                ->setIdNumber($request->id_number)
+                ->setFrontId($request->file('front_id'))
+                ->setBackId($request->file('back_id')),
+        );
+
+        return ResponseBuilder::asSuccess()
+            ->withMessage('KYC updated successfully')
             ->withData([
                 'user' => $user,
             ])
