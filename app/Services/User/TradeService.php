@@ -6,6 +6,7 @@ use App\Models\Asset;
 use App\Models\Trade;
 use App\Models\Position;
 use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\NotificationController as Notifications;
 
 class TradeService
 {
@@ -270,6 +271,8 @@ class TradeService
                 'pl'          => $pl,
                 'pl_percentage'=> $plPercentage,
             ]);
+
+            Notifications::sendPositionClosedNotification($user, $position, $position->asset, $wallet, $request['quantity'], $pl, $plPercentage);
 
             // Close entire position
             if ($position->quantity === $request['quantity']) {

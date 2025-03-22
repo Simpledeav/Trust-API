@@ -14,6 +14,7 @@ use App\Http\Requests\User\ClosePositionRequest;
 use App\Http\Requests\User\StorePositionRequest;
 use App\Spatie\QueryBuilder\IncludeSelectFields;
 use MarcinOrlowski\ResponseBuilder\ResponseBuilder;
+use App\Http\Controllers\NotificationController as Notifications;
 
 class PositionController extends Controller
 {
@@ -174,6 +175,8 @@ class PositionController extends Controller
             $request->validated(),
             $request->user()
         );
+
+        Notifications::sendPositionOpenedNotification($request->user(), $position, $position->asset, $request->wallet);
 
         return ResponseBuilder::asSuccess()
             ->withHttpCode(Response::HTTP_CREATED)

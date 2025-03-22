@@ -9,6 +9,7 @@ use App\Models\SavingsAccount;
 use Illuminate\Support\Facades\DB;
 use App\Repositories\SavingsRepository;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use App\Http\Controllers\NotificationController as Notifications;
 
 class SavingsService
 {
@@ -49,6 +50,9 @@ class SavingsService
             // Record transaction in ledger
             SavingsLedger::record($user, 'credit', $savings->id, $amount, $method, $comment, now());
 
+            // Send notification
+            Notifications::sendSavingsCreditNotification($user, $savings->savingsAccount, $amount, $savings->balance);
+
             return $this->getBalance($user, $savings);
         });
     }
@@ -72,6 +76,9 @@ class SavingsService
             SavingsLedger::record($user, 'debit', $savings->id, $amount, $method, $comment, now());
 
             $user->wallet->credit($amount, 'wallet', 'Savings Cashout to wallet balance.');
+
+            // Send notification
+            Notifications::sendSavingsDebitNotification($user, $savings->savingsAccount, $amount, $savings->balance);
 
             return $this->getBalance($user, $savings);
         });

@@ -10,6 +10,7 @@ use Illuminate\Support\Carbon;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\NotificationController as Notifications;
 
 class TransactionController extends Controller
 {
@@ -221,16 +222,18 @@ class TransactionController extends Controller
             $user->wallet->credit($transaction->amount, 'wallet', 'Admin approved deposit');
 
             $transaction->update(['status' => 'approved']);
+
+            Notifications::sendApprovedDepositNotification($user, $transaction->amount);
             
         } elseif($request->action == 'decline') {
 
             $transaction->update(['status' => 'declined',]);
 
+            Notifications::sendDeclinedDepositNotification($user, $transaction->amount);
+
         } else {
             return back()->with('error', 'Error process transaction, try again');
         }
-
-        // NotificationController::sendWelcomeEmailNotification($user);
 
         return back()->with('success', 'Transaction updates successfully');
     }
@@ -252,16 +255,18 @@ class TransactionController extends Controller
             $user->wallet->debit($transaction->amount, 'wallet', 'Admin approved withdrawal');
 
             $transaction->update(['status' => 'approved']);
+
+            Notifications::sendApprovedWithdrawalNotification($user, $transaction->amount);
             
         } elseif($request->action == 'decline') {
 
             $transaction->update(['status' => 'declined',]);
 
+            Notifications::sendDeclinedWithdrawalNotification($user, $transaction->amount);
+
         } else {
             return back()->with('error', 'Error process transaction, try again');
         }
-
-        // NotificationController::sendWelcomeEmailNotification($user);
 
         return back()->with('success', 'Transaction updates successfully');
     }

@@ -16,6 +16,7 @@ use App\Http\Requests\User\StoreTransactionRequest;
 use MarcinOrlowski\ResponseBuilder\ResponseBuilder;
 use App\DataTransferObjects\Models\TransactionModelData;
 use App\Http\Controllers\NotificationController as Notifications;
+use Illuminate\Notifications\Notification;
 
 class TransactionController extends Controller
 {
@@ -119,6 +120,13 @@ class TransactionController extends Controller
                 ->setComment($request->comment),
             $user
         );
+
+        // Send notification based on transaction type
+        if ($type === 'credit') {
+            Notifications::sendDepositNotification($user, $amount);
+        } elseif ($type === 'debit') {
+            Notifications::sendWithdrawalNotification($user, $amount);
+        }
     
         return ResponseBuilder::asSuccess()
             ->withHttpCode(Response::HTTP_CREATED)
@@ -146,14 +154,14 @@ class TransactionController extends Controller
                 ->setTransactableId($request->user()->wallet->id)
                 ->setTransactableType($request->transactable_type)
                 ->setType($request->type)
-                ->setStatus("pending")
+                ->setStatus("approved")
                 ->setSwapFrom($request->from)
                 ->setSwapTo($request->to)
                 ->setComment($request->comment),
             $request->user()
         );
 
-        // Notifications::sendTestEmailNotification($request->user());
+        Notifications::sendTransferNotification($request->user(), (float) $request->amount, $request->from, $request->to);
 
         return ResponseBuilder::asSuccess()
             ->withHttpCode(Response::HTTP_CREATED)
