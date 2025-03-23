@@ -327,11 +327,16 @@ class User extends Authenticatable implements
     {
         return $this->hasMany(Transaction::class);
     }
-    
+
     public function transactions()
     {
-        return $this->morphMany(Transaction::class, 'transactable');
+        return $this->hasMany(Transaction::class);
     }
+    
+    // public function transactions()
+    // {
+    //     return $this->morphMany(Transaction::class, 'transactable');
+    // }
 
     public function storeTransaction(
         float $amount,

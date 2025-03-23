@@ -65,4 +65,9 @@ class Wallet extends Model
         return Ledger::balance($this, $account);
     }
 
+    public function transactions()
+    {
+        return $this->morphMany(Transaction::class, 'transactable');
+    }
+
 }
