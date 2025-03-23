@@ -188,10 +188,9 @@
                                                             <div class="col-md-12">
                                                                 <div class="mb-3">
                                                                     <label class="form-label">Asset</label>
-                                                                    <input type="text" class="form-control mb-2" id="assetSearchs" placeholder="Asset Search Asist...">
-                                                                    <select class="form-select" id="assetSelects" required name="asset_id">
+                                                                    <input type="text" class="form-control mb-2" id="assetSearchs{{$trade->id}}" placeholder="Asset Search Asist...">
+                                                                    <select class="form-select" id="assetSelects{{$trade->id}}" required name="asset_id">
                                                                         <option selected disabled value="">---- Select Asset ---</option>
-                                                                        
                                                                         @foreach($assets as $asset)
                                                                             @if($asset->id === $trade->asset->id)
                                                                                 <option selected value="{{ $asset->id }}" data-price="{{ $asset->price }}">{{ $asset->name }} ({{ $asset->symbol }})</option>
@@ -206,17 +205,16 @@
                                                             <div class="col-md-12">
                                                                 <div class="mb-3">
                                                                     <label class="form-label">Amount</label>
-                                                                    <input class="form-control" id="amountInputs" type="number" placeholder="---" name="amount" required  value="{{ $trade->amount }}" step="any">
+                                                                    <input class="form-control" id="amountInputs{{$trade->id}}" type="number" placeholder="---" name="amount" required value="{{ $trade->amount }}" step="any">
                                                                 </div>
                                                             </div>
 
                                                             <div class="col-md-12">
                                                                 <div class="mb-3">
                                                                     <label class="form-label">Quantity</label>
-                                                                    <input class="form-control" id="quantityInputs" type="number" placeholder="Enter quantity..." name="quantity" required  value="{{ $trade->quantity }}" step="any">
+                                                                    <input class="form-control" id="quantityInputs{{$trade->id}}" type="number" placeholder="Enter quantity..." name="quantity" required value="{{ $trade->quantity }}" step="any">
                                                                 </div>
                                                             </div>
-
                                                             <div class="col-md-12">
                                                                 <div class="mb-3">
                                                                     <label class="form-label" for="accountSelect">Account</label>
@@ -295,6 +293,40 @@
                                             </div>
                                         </div>
                                     </div>
+                                    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+                                    <script>
+                                        $(document).ready(function () {
+                                            // Function to calculate quantity
+                                            function calculateQuantity() {
+                                                const selectedAsset = $('#assetSelects{{$trade->id}} option:selected');
+                                                const price = parseFloat(selectedAsset.data('price')) || 0;
+                                                const amount = parseFloat($('#amountInputs{{$trade->id}}').val()) || 0;
+
+                                                const quantity = price !== 0 ? (amount / price) : 0;
+                                                
+                                                $('#quantityInputs{{$trade->id}}').val(quantity.toFixed(8)); // Use toFixed(8) for precision
+                                            }
+
+                                            // Bind events to the asset select and amount input
+                                            $('#assetSelects{{$trade->id}}').on('change', calculateQuantity);
+                                            $('#amountInputs{{$trade->id}}').on('input', calculateQuantity);
+
+
+                                            // Initial calculation in case there are pre-filled values
+                                            calculateQuantity();
+                                        });
+                                    </script>
+                                    <script>
+                                        document.getElementById('assetSearchs{{$trade->id}}').addEventListener('input', function () {
+                                            const search = this.value.toLowerCase();
+                                            const options = document.getElementById('assetSelects{{$trade->id}}').options;
+
+                                            for (let i = 0; i < options.length; i++) {
+                                                const text = options[i].textContent.toLowerCase();
+                                                options[i].style.display = text.includes(search) ? '' : 'none';
+                                            }
+                                        });
+                                    </script>
                                 @endforeach
                                 </tbody>
                             </table>
@@ -494,17 +526,17 @@
 @endsection
 
 @section('scripts')
-<script>
-    document.getElementById('assetSearch').addEventListener('input', function () {
-        const search = this.value.toLowerCase();
-        const options = document.getElementById('assetSelect').options;
+    <script>
+        document.getElementById('assetSearch').addEventListener('input', function () {
+            const search = this.value.toLowerCase();
+            const options = document.getElementById('assetSelect').options;
 
-        for (let i = 0; i < options.length; i++) {
-            const text = options[i].textContent.toLowerCase();
-            options[i].style.display = text.includes(search) ? '' : 'none';
-        }
-    });
-</script>
+            for (let i = 0; i < options.length; i++) {
+                const text = options[i].textContent.toLowerCase();
+                options[i].style.display = text.includes(search) ? '' : 'none';
+            }
+        });
+    </script>
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             let now = new Date();
@@ -526,19 +558,6 @@
 
                 // Update the quantity input field
                 $('#quantityInput').val(quantity.toFixed(8)); // Use toFixed(8) for precision
-            });
-        });
-
-        $(document).ready(function () {
-            // Repeat the same logic for the second form if needed
-            $('#assetSelects, #amountInputs').on('input change', function () {
-                const selectedAsset = $('#assetSelects option:selected');
-                const price = parseFloat(selectedAsset.data('price')) || 0;
-                const amount = parseFloat($('#amountInputs').val()) || 0;
-
-                const quantity = price !== 0 ? (amount / price) : 0;
-
-                $('#quantityInputs').val(quantity.toFixed(8)); // Use toFixed(8) for precision
             });
         });
     </script>

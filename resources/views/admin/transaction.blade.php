@@ -324,7 +324,7 @@
                                 <div class="col-md-12">
                                     <div class="mb-3">
                                         <label class="form-label">Method</label>
-                                        <select class="form-select" id="" required="" name="type">
+                                        <select class="form-select" id="methodSelect" required="" name="type">
                                             <option selected="" disabled="" value="">--- Select Method ---</option>
                                             <option value="credit">Deposit</option>
                                             <option value="debit">Withdraw</option>
@@ -336,11 +336,11 @@
                                 <div class="col-md-12">
                                     <div class="mb-3">
                                         <label class="form-label">Comment</label>
-                                        <!-- <input class="form-control" type="text" placeholder="Enter comment..." name="comment"> -->
-                                        <select class="form-select" id="" required="" name="comment">
-                                            <option selected="" disabled="" value="">--- Select Comment ---</option>
-                                            <option value="Wallet deposit">Wallet Deposit</option>
-                                            <option value="Wallet Withdrawal">Wallet Withdraw</option>
+                                        <select class="form-select" id="commentSelect" required name="comment">
+                                            <option data-method="credit" value="Wallet deposit via (bank deposit)">Bank Deposit</option>
+                                            <option data-method="credit" value="Wallet deposit via (cryptocurrency)">Crypto Deposit</option>
+                                            <option data-method="debit" value="Wallet withdrawal via (bank deposit)">Bank Withdraw</option>
+                                            <option data-method="debit" value="Wallet withdrawal via (cryptocurrency)">Crypto Withdraw</option>
                                         </select>
                                     </div>
                                 </div>
@@ -367,6 +367,33 @@
 @endsection
 
 @section('scripts')
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            // Cache the comment dropdown and its options
+            const $commentSelect = $('#commentSelect');
+            const $commentOptions = $commentSelect.find('option');
+
+            // Listen for changes in the Method dropdown
+            $('#methodSelect').on('change', function () {
+                const selectedMethod = $(this).val(); // Get the selected method value
+
+                // Clear the comment dropdown and add the default option
+                $commentSelect.empty().append('<option selected disabled value="">--- Select Comment ---</option>');
+
+                // Filter and append options based on the selected method
+                $commentOptions.each(function () {
+                    const $option = $(this);
+                    if ($option.data('method') === selectedMethod || $option.prop('disabled')) {
+                        $commentSelect.append($option.clone());
+                    }
+                });
+            });
+
+            // Trigger the change event initially to set the correct options
+            $('#methodSelect').trigger('change');
+        });
+    </script>
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             let now = new Date();
