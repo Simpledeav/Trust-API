@@ -39,62 +39,57 @@ class AnalyticsService
             throw new \InvalidArgumentException('Invalid timeframe. Allowed values: 1d, 7d, 30d, 1yr, all.');
         }
 
-        // Base query with user and approved status
-        $ledgerQuery = Transaction::where('status', 'approved')
-            ->where('user_id', $user->id);
-
-        // Apply timeframe filter
-        if ($timeFilters[$timeframe]) {
-            $ledgerQuery->where('created_at', '>=', $timeFilters[$timeframe]);
-        }
-
+        // Base queries
         $transactionQuery = Transaction::where('status', 'approved')
             ->where('user_id', $user->id)
             ->where('transactable_id', $user->wallet->id);
 
+        $savingsQuery = SavingsLedger::where('user_id', $user->id);
+        $tradesQuery = Position::where('user_id', $user->id);
+
+        // Apply timeframe filter to ledger query if needed
+        $ledgerQuery = Transaction::where('status', 'approved')
+            ->where('user_id', $user->id);
+        
+        if ($timeFilters[$timeframe]) {
+            $ledgerQuery->where('created_at', '>=', $timeFilters[$timeframe]);
+        }
+
+        // Calculate raw values first (without formatting)
         $totalDeposited = (clone $transactionQuery)->where('type', 'credit')->sum('amount');
         $totalWithdrawn = (clone $transactionQuery)->where('type', 'debit')->sum('amount');
 
-        // Savings Query
-        $savingsQuery = SavingsLedger::where('user_id', $user->id);
-
-        // Total Savings: Sum of contributions
+        // Savings calculations
         $creditSavings = (clone $savingsQuery)->where('type', 'credit')->where('method', 'contribution')->sum('amount');
         $debitSavings = (clone $savingsQuery)->where('type', 'debit')->where('method', 'contribution')->sum('amount');
-        $totalSavings = number_format(($creditSavings - $debitSavings), 2);
+        $rawTotalSavings = $creditSavings - $debitSavings;
 
-        // Total Return: (credit - contribution + profit)
         $creditTotalSavings = (clone $savingsQuery)->where('type', 'credit')->sum('amount');
         $debitTotalSavings = (clone $savingsQuery)->where('type', 'debit')->sum('amount');
-        $totalReturn = number_format(($creditTotalSavings - $debitTotalSavings), 2);
+        $rawTotalReturn = $creditTotalSavings - $debitTotalSavings;
 
-        // 24hr Amount Change: Compare current savings with savings 24 hours ago
         $savingsLast24h = (clone $savingsQuery)
             ->where('created_at', '>=', now()->subHours(24))
             ->sum('amount');
-        
-        $savings24hrChange = number_format(($savingsLast24h), 2);
 
-        // Get chart data in required format
+        // Trades calculations
+        $openTrade = (clone $tradesQuery)->where('status', 'open')->sum('amount');
+        $rawTotalInvestment = $rawTotalSavings + $openTrade;
+
+        $tradeLast24h = (clone $tradesQuery)->where('created_at', '>=', now()->subHours(24))->sum('amount');
+        $rawTotalInvestment24hr = $savingsLast24h + $tradeLast24h;
+
+        // Get chart data
         $chartData = $this->getChartData(clone $ledgerQuery, $timeframe);
-
-        // Get Trades data
-        $trades = Position::where('user_id', $user->id);
-        $openTrade = (clone $trades)->where('status', 'open')->sum('amount');
-        $total_investment = number_format(($totalSavings + $openTrade), 2);
-
-        //Get 24hr total_investments
-        $tradeLast24h = (clone $trades)->where('created_at', '>=', now()->subHours(24))->sum('amount');
-        $total_investment_24hr = number_format(($savings24hrChange + $tradeLast24h), 2);
 
         return [
             'total_deposited' => number_format($totalDeposited, 2),
             'total_withdrawn' => number_format($totalWithdrawn, 2),
-            'total_savings' => $totalSavings,
-            'total_savings_return' => $totalReturn,
-            'total_savings_24hr' => $savings24hrChange,
-            'total_investment' => $total_investment,
-            'total_investment_24hr' => $total_investment_24hr,
+            'total_savings' => number_format($rawTotalSavings, 2),
+            'total_savings_return' => number_format($rawTotalReturn, 2),
+            'total_savings_24hr' => number_format($savingsLast24h, 2),
+            'total_investment' => number_format($rawTotalInvestment, 2),
+            'total_investment_24hr' => number_format($rawTotalInvestment24hr, 2),
             'chart_data' => $chartData,
         ];
     }
