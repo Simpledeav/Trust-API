@@ -211,17 +211,17 @@ class ProfileController extends Controller
                     ->where('created_at', '>=', now()->subHours(48)) // Ensure we're looking at the previous 24-hour window
                     ->sum('amount');
 
-                $totalSavingsReturn = number_format(($creditTotalSavings - $debitTotalSavings), 2);
-                $totalSavings24hr = number_format($savingsLast24h, 2);
+                $totalSavingsReturn = ($creditTotalSavings - $debitTotalSavings);
+                // $totalSavings24hr = number_format($savingsLast24h, 2);
 
-                $savingsBalance24hPerctent = number_format(($totalSavings24hr / $totalSavingsReturn) * 100, 2);
+                $savingsBalance24hPerctent = ($savingsLast24h / $totalSavingsReturn) * 100;
 
                 // Calculate percentage change
                 if ($savingsBalance24hPerctent == 0) {
                     // If there was no savings 24 hours ago, percentage change is 0%
                     $savings->total_savings_24hr_percentage = 0;
                 } else {
-                    $savings->total_savings_24hr_percentage = $savingsBalance24hPerctent;
+                    $savings->total_savings_24hr_percentage = number_format($savingsBalance24hPerctent, 2);
                 }
             });
         }
