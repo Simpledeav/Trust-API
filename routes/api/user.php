@@ -79,7 +79,7 @@ Route::middleware('auth:api_user')->group(function () {
 
             // Savings
             Route::prefix('savings-accounts')->group(function () {
-                Route::get('/', [SavingsAccountController::class, 'index']);
+                Route::get('/', [SavingsController::class, 'fetch']);
                 Route::post('/store', [SavingsController::class, 'store']);
 
                 Route::post('/credit', [SavingsController::class, 'credit']);

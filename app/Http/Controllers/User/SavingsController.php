@@ -71,6 +71,32 @@ class SavingsController extends Controller
             ->build();
     }
 
+    public function fetch(Request $request): Response
+    {
+        // Get the IDs of savings accounts the user already has
+        $userSavingsAccountIds = $request->user()->savings()
+            ->pluck('savings_account_id')
+            ->toArray();
+
+        $accounts = QueryBuilder::for(SavingsAccount::class)
+            ->whereNotIn('id', $userSavingsAccountIds)  // Exclude accounts user already has
+            ->allowedFilters([
+                'name',
+                'status',
+                AllowedFilter::exact('rate'),
+                AllowedFilter::scope('country_id'),
+            ])
+            ->allowedSorts(['name', 'rate', 'created_at'])
+            ->defaultSort('name')
+            ->paginate((int) $request->per_page)
+            ->withQueryString();
+
+        return ResponseBuilder::asSuccess()
+            ->withMessage('Available savings accounts fetched successfully')
+            ->withData(['accounts' => $accounts])
+            ->build();
+    }
+
     /**
      * Display a listing of savings accounts.
      */

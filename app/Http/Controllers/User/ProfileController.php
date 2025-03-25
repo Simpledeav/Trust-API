@@ -214,8 +214,13 @@ class ProfileController extends Controller
                 $totalSavingsReturn = ($creditTotalSavings - $debitTotalSavings);
                 // $totalSavings24hr = number_format($savingsLast24h, 2);
 
-                $savingsBalance24hPerctent = ($savingsLast24h / $totalSavingsReturn) * 100;
-
+                if ($totalSavingsReturn  === 0)
+                {
+                    $savingsBalance24hPerctent = 0;
+                } else {
+                    $savingsBalance24hPerctent = ($savingsLast24h / $totalSavingsReturn) * 100;
+                }
+                 
                 // Calculate percentage change
                 if ($savingsBalance24hPerctent == 0) {
                     // If there was no savings 24 hours ago, percentage change is 0%
