@@ -118,7 +118,7 @@ class AssetSeeder extends Seeder
             'CLVUSD', 'DFIUSD', 'FUNUSD', 'GUSD', 'MULTIUSD', 'NESTUSD', 'PLAUSD', 'PROMUSD', 'SUKUUSD', 'VELOUSD'
         ];
         
-        $apiKey = 'U16Gq0PRKGgnTbltSa5423seAWtQNV0T';
+        $apiKey = env('ASSET_KEY');;
         $batchSize = 100;
         
         // Process symbols in batches with their types

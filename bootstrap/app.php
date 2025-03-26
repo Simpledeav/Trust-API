@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Foundation\Application;
 use App\Http\Middleware\RoleMiddleware;
 use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Support\Facades\Schedule;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -52,4 +53,13 @@ return Application::configure(basePath: dirname(__DIR__))
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
+    })
+    ->withSchedule(function (\Illuminate\Console\Scheduling\Schedule $schedule) {
+
+        $schedule->command('assets:update')
+             ->everyFiveMinutes()
+             ->withoutOverlapping()
+             ->onOneServer()
+             ->runInBackground();
+
     })->create();
