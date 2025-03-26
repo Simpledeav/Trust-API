@@ -30,7 +30,7 @@ class SavingsAccountSeeder extends Seeder
         
         foreach ($accounts as $account) {
             // "Savings Balance" should have all country IDs
-            if ($account['slug'] === 'savings-balance') {
+            if ($account['slug'] === 'savings-balance' & $account['slug'] === 'sep-ira') {
                 $countryIds = $allCountryIds;
             } else {
                 // Other accounts should have random country IDs
