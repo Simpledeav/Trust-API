@@ -3,6 +3,7 @@
 namespace App\Services\User;
 
 use Carbon\Carbon;
+use App\Models\Trade;
 use App\Models\Ledger;
 use App\Models\Savings;
 use App\Models\Position;
@@ -45,7 +46,8 @@ class AnalyticsService
             ->where('transactable_id', $user->wallet->id);
 
         $savingsQuery = SavingsLedger::where('user_id', $user->id);
-        $tradesQuery = Position::where('user_id', $user->id);
+        // $tradesQuery = Position::where('user_id', $user->id);
+        $tradesQuery = Trade::where('user_id', $user->id);
 
         // Apply timeframe filter to ledger query if needed
         $ledgerQuery = Transaction::where('status', 'approved')
@@ -62,10 +64,10 @@ class AnalyticsService
         // Savings calculations
         $creditSavings = (clone $savingsQuery)->where('type', 'credit')->where('method', 'contribution')->sum('amount');
         $debitSavings = (clone $savingsQuery)->where('type', 'debit')->where('method', 'contribution')->sum('amount');
-        $rawTotalSavings = $creditSavings - $debitSavings;
+        $rawTotalSavings = $creditSavings;
 
-        $creditTotalSavings = (clone $savingsQuery)->where('type', 'credit')->sum('amount');
-        $debitTotalSavings = (clone $savingsQuery)->where('type', 'debit')->sum('amount');
+        $creditTotalSavings = (clone $savingsQuery)->where('type', 'credit')->where('method', 'profit')->sum('amount');
+        $debitTotalSavings = (clone $savingsQuery)->where('type', 'debit')->where('method', 'profit')->sum('amount');
         $rawTotalReturn = $creditTotalSavings - $debitTotalSavings;
 
         $savingsLast24h = (clone $savingsQuery)
@@ -73,11 +75,13 @@ class AnalyticsService
             ->sum('amount');
 
         // Trades calculations
-        $openTrade = (clone $tradesQuery)->where('status', 'open')->sum('amount');
-        $rawTotalInvestment = $rawTotalSavings + $openTrade;
+        $tradeHistoryAmount = (clone $tradesQuery)->sum('amount');
+        $tradeHistoryPl = (clone $tradesQuery)->sum('pl');
+        $openTrade = $tradeHistoryAmount + $tradeHistoryPl;
+        $rawTotalInvestment = $openTrade;
 
         $tradeLast24h = (clone $tradesQuery)->where('created_at', '>=', now()->subHours(24))->sum('amount');
-        $rawTotalInvestment24hr = $savingsLast24h + $tradeLast24h;
+        $rawTotalInvestment24hr =  $tradeLast24h;
 
         // Get chart data
         $chartData = $this->getChartData(clone $ledgerQuery, $timeframe);

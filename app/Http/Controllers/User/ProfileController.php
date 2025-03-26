@@ -186,11 +186,11 @@ class ProfileController extends Controller
                 // Total Savings: Sum of contributions
                 $creditSavings = (clone $savingsQuery)->where('type', 'credit')->where('method', 'contribution')->sum('amount');
                 $debitSavings = (clone $savingsQuery)->where('type', 'debit')->where('method', 'contribution')->sum('amount');
-                $savings->total_savings = number_format(($creditSavings - $debitSavings), 2);
+                $savings->total_savings = number_format(($creditSavings), 2);
 
                 // Total Return: (credit - contribution + profit)
-                $creditTotalSavings = (clone $savingsQuery)->where('type', 'credit')->sum('amount');
-                $debitTotalSavings = (clone $savingsQuery)->where('type', 'debit')->sum('amount');
+                $creditTotalSavings = (clone $savingsQuery)->where('type', 'credit')->where('method', 'profit')->sum('amount');
+                $debitTotalSavings = (clone $savingsQuery)->where('type', 'debit')->where('method', 'profit')->sum('amount');
                 $savings->total_savings_return = number_format(($creditTotalSavings - $debitTotalSavings), 2);
 
                 // 24hr Amount Change: Compare current savings with savings 24 hours ago
@@ -216,9 +216,9 @@ class ProfileController extends Controller
 
                 if ($totalSavingsReturn  === 0)
                 {
-                    $savingsBalance24hPerctent = 0;
+                    $savingsBalance24hPerctent = number_format(0, 2);
                 } else {
-                    $savingsBalance24hPerctent = ($savingsLast24h / $totalSavingsReturn) * 100;
+                    $savingsBalance24hPerctent = ($totalSavingsReturn / $savingsLast24h) * 100;
                 }
                  
                 // Calculate percentage change
