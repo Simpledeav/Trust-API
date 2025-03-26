@@ -71,6 +71,12 @@ class PositionController extends Controller
             ->paginate((int) $request->per_page) 
             ->withQueryString();
 
+            // Add order_type to each position
+            $positions->getCollection()->transform(function ($position) {
+                $position->order_type = 'buy';
+                return $position;
+            });
+
         return ResponseBuilder::asSuccess()
             ->withMessage('Positions fetched successfully')
             ->withData([
