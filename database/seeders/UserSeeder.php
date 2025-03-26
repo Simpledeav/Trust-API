@@ -62,5 +62,43 @@ class UserSeeder extends Seeder
 
         // Generate additional fake users
         // User::factory()->count(10)->create();
+
+        $second = User::create([
+            'id' => Str::uuid(),
+            'country_id' => $state->country_id,
+            'state_id' => $state->id,
+            'city' => "Lagos City",
+            'currency_id' => $currency->id,
+            'first_name' => 'Holly',
+            'last_name' => 'Molly',
+            'username' => 'hollymolly',
+            'email' => 'hollymolly@example.com',
+            'phone' => '+1234567890',
+            'address' => '123 Main Street',
+            'zipcode' => '12345',
+            'ssn' => '123-45-6789',
+            'dob' => now()->subYears(30),
+            'nationality' => 'American',
+            'experience' => '5 years',
+            'employed' => 'Yes',
+            'status' => 'active',
+            'kyc' => 'pending',
+            'id_number' => 'A1234567',
+            'front_id' => '',
+            'back_id' => '',
+            'email_verified_at' => now(),
+            'password' => Hash::make('password'),
+            'blocked_at' => null,
+        ]);
+
+        Wallet::create([
+            'id' => Str::uuid(),
+            'user_id' => $user->id,
+            'balance' => 0, // Default balance
+        ]);
+
+        $second->storePayment('admin', []);
+        $second->storePayment('user', []);
     }
+
 }
