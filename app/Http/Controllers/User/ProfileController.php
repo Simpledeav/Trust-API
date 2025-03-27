@@ -157,7 +157,8 @@ class ProfileController extends Controller
             // Build wallet response
             // $user->wallet->cash = $calculate24hrPL('wallet');
             $user->wallet->cash = [
-                'balance' => number_format($user->wallet->getBalance('wallet'), 2),
+                'balance' => number_format($user->wallet->getBalance('wallet') + $calculateTotalValue('brokerage') + $calculateTotalValue('auto'), 2),
+                'total_networth' => number_format($user->wallet->getBalance('wallet'), 2),
             ];
             $user->wallet->brokerage = [
                 'balance' => number_format($user->wallet->getBalance('brokerage'), 2),
