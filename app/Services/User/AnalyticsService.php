@@ -75,15 +75,24 @@ class AnalyticsService
             ->where('created_at', '>=', now()->subHours(24))
             ->sum('amount');
 
-        // Trades calculations
-        $rawTotalInvestment = (clone $tradesQuery)
-            ->where('type', 'buy')
-            ->sum('amount');
-
         // Get all positions with their assets
         $positions = (clone $positionQuery)
             ->with('asset')
             ->get();
+
+        // Trades calculations
+        $rawTotalBuy = (clone $tradesQuery)
+            ->where('type', 'buy')
+            ->sum('amount');
+
+        $rawTotalPl = (clone $tradesQuery)
+            ->where('type', 'sell')
+            ->sum('pl');
+
+        $totalExtra = $positions
+            ->sum('extra');
+
+        $rawTotalInvestment = $rawTotalBuy + $rawTotalPl + $totalExtra;
 
         // Calculate total extra from all positions
         $totalExtra = $positions

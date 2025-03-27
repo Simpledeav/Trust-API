@@ -17,7 +17,7 @@ return new class extends Migration
             $table->uuid('asset_id');
             $table->enum('asset_type', ['crypto', 'stocks']);
             $table->decimal('price', 18, 2)->default(0);
-            $table->decimal('quantity', 18, 6)->default(0);
+            $table->decimal('quantity', 18, 8)->default(0);
             $table->decimal('amount', 18, 2)->default(0);
             $table->enum('status', ['open', 'locked']);
             $table->string('entry')->nullable();
