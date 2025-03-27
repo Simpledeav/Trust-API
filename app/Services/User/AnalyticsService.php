@@ -97,6 +97,8 @@ class AnalyticsService
             ->where('created_at', '>=', now()->subHours(24))
             ->sum('extra');
 
+        $rawTotalInvestment = $rawTotalBuy + $rawTotalPl + $totalExtra;
+
         // Get trades from last 24 hours with their assets
         $tradesLast24h = (clone $tradesQuery)
             ->where('created_at', '>=', now()->subHours(24))
@@ -108,8 +110,6 @@ class AnalyticsService
             $currentValue = $trade->quantity * $trade->asset->price;
             return $currentValue - $trade->amount;
         }) + $totalExtra;
-
-        $rawTotalInvestment = $rawTotalBuy + $rawTotalPl + $totalExtra + $rawTotalInvestment24hr;
 
         // Get chart data
         $chartData = $this->getChartData(clone $ledgerQuery, $timeframe);
