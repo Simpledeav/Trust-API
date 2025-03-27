@@ -24,6 +24,7 @@ class AnalyticsService
     /**
      * Get analytics data for the user.
      */
+
     public function getUserAnalytics($user, string $timeframe = 'all'): array
     {
         // Allowed timeframes
@@ -47,6 +48,7 @@ class AnalyticsService
 
         $savingsQuery = SavingsLedger::where('user_id', $user->id);
         $tradesQuery = Trade::where('user_id', $user->id);
+        $positionQuery = Position::where('user_id', $user->id);
 
         // Apply timeframe filter to ledger query if needed
         $ledgerQuery = Transaction::where('status', 'approved')
@@ -73,24 +75,32 @@ class AnalyticsService
             ->where('created_at', '>=', now()->subHours(24))
             ->sum('amount');
 
-        // Trades calculations - UPDATED
-        // Total investment: sum of all buy trades
+        // Trades calculations
         $rawTotalInvestment = (clone $tradesQuery)
             ->where('type', 'buy')
             ->sum('amount');
 
-        // 24-hour change: sum of (current value - invested amount) for trades in last 24h
-        $tradesLast24h = (clone $tradesQuery)
-            ->where('created_at', '>=', now()->subHours(24))
-            ->with('asset') // Assuming there's a relationship to get current price
+        // Get all positions with their assets
+        $positions = (clone $positionQuery)
+            ->with('asset')
             ->get();
 
+        // Calculate total extra from all positions
+        $totalExtra = $positions
+            ->where('created_at', '>=', now()->subHours(24))
+            ->sum('extra');
+
+        // Get trades from last 24 hours with their assets
+        $tradesLast24h = (clone $tradesQuery)
+            ->where('created_at', '>=', now()->subHours(24))
+            ->with('asset')
+            ->get();
+
+        // Calculate 24-hour P&L: (current value - invested amount) + extra from positions
         $rawTotalInvestment24hr = $tradesLast24h->sum(function($trade) {
-            // Calculate current value (quantity * current price)
-            $currentValue = $trade->quantity * $trade->asset->price; // Adjust based on your asset structure
-            // Return profit (current value - invested amount)
-            return $currentValue - $trade->amount + $trade->pl;
-        });
+            $currentValue = $trade->quantity * $trade->asset->price;
+            return $currentValue - $trade->amount;
+        }) + $totalExtra;
 
         // Get chart data
         $chartData = $this->getChartData(clone $ledgerQuery, $timeframe);
