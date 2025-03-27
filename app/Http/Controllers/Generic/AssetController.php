@@ -48,21 +48,37 @@ class AssetController extends Controller
             ->allowedFilters([
                 'symbol', 'name', 'type', 'exchange', 'status', 'tradeable',
                 AllowedFilter::exact('id'),
-                AllowedFilter::scope('min_price'),
-                AllowedFilter::scope('max_price'),
-                AllowedFilter::scope('market_cap_range'),
-                AllowedFilter::scope('volume_range')
+                AllowedFilter::scope('price_max', 'max_price'),
+                AllowedFilter::scope('price_min', 'min_price'),
+                AllowedFilter::scope('market_cap_min', 'marketCapMin'),
+                AllowedFilter::scope('market_cap_max', 'marketCapMax'),
+                AllowedFilter::scope('volume_min', 'volumeMin'),
+                AllowedFilter::scope('volume_max', 'volumeMax'),
+                AllowedFilter::callback('symbol', function ($query, $value) {
+                    $query->where('symbol', 'like', "%{$value}%");
+                }),
+                AllowedFilter::callback('name', function ($query, $value) {
+                    $query->where('name', 'like', "%{$value}%");
+                }),
+            ])
+            ->allowedSorts([
+                'price', 'market_cap', 'volume', 'changes_percentage', 'symbol', 'name'
             ])
             ->allowedIncludes([
                 AllowedInclude::custom('related_assets', new IncludeSelectFields([
                     'id', 'symbol', 'name', 'price', 'type'
                 ])),
-            ])
-            ->defaultSort('symbol');
+            ]);
 
-        $assets = $request->do_not_paginate
+        // Apply default sort if no sort is specified
+        if (!$request->has('sort')) {
+            $assets->defaultSort('symbol');
+        }
+
+        // Handle pagination
+        $assets = $request->boolean('do_not_paginate', false)
             ? $assets->get()
-            : $assets->paginate((int) $request->per_page)->withQueryString();
+            : $assets->paginate((int) $request->input('per_page', 20))->withQueryString();
 
         return ResponseBuilder::asSuccess()
             ->withMessage('Assets fetched successfully.')
