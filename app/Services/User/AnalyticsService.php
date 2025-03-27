@@ -89,7 +89,7 @@ class AnalyticsService
             // Calculate current value (quantity * current price)
             $currentValue = $trade->quantity * $trade->asset->price; // Adjust based on your asset structure
             // Return profit (current value - invested amount)
-            return $currentValue - $trade->amount;
+            return $currentValue - $trade->amount + $trade->pl;
         });
 
         // Get chart data
