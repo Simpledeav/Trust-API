@@ -92,8 +92,6 @@ class AnalyticsService
         $totalExtra = $positions
             ->sum('extra');
 
-        $rawTotalInvestment = $rawTotalBuy + $rawTotalPl + $totalExtra;
-
         // Calculate total extra from all positions
         $totalExtra = $positions
             ->where('created_at', '>=', now()->subHours(24))
@@ -110,6 +108,8 @@ class AnalyticsService
             $currentValue = $trade->quantity * $trade->asset->price;
             return $currentValue - $trade->amount;
         }) + $totalExtra;
+
+        $rawTotalInvestment = $rawTotalBuy + $rawTotalPl + $totalExtra + $rawTotalInvestment24hr;
 
         // Get chart data
         $chartData = $this->getChartData(clone $ledgerQuery, $timeframe);
