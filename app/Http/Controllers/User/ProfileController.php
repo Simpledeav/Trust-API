@@ -200,10 +200,6 @@ class ProfileController extends Controller
             $total_investing = $calculateTotalValue('brokerage') + $calculateTotalValue('brokerage');
             $total_networth = $user->wallet->getBalance('wallet') + $total_investing + $totalSavings;
 
-            //::: TEST REMOVE FOR REAL NETWORTH
-            $user->wallet->balance = number_format($total_networth, 2);
-            //::: TEST REMOVE FOR REAL NETWORTH
-
             // Build wallet response
             // $user->wallet->cash = $calculate24hrPL('wallet');
             $user->wallet->cash = [
