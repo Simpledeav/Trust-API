@@ -273,7 +273,7 @@ class AnalyticsService
             }])
             ->get()
             ->sum(function($position) {
-                return ($position->quantity * ($position->asset->price ?? 0)) + $position->extra;
+                return ($position->quantity * ($position->asset->price ?? 0)) + $position->extra - $position->amount;
             });
         
         // 3. Calculate total savings (savings ledger up to that time)
@@ -288,8 +288,9 @@ class AnalyticsService
             ->sum('amount');
         
         $totalSavings = $creditSavings - $debitSavings;
+        $total_networth = $cashBalance + $totalInvestment + $totalSavings;
         
-        return $cashBalance + $totalInvestment + $totalSavings;
+        return number_format($total_networth, 2);
     }
 
     /**
