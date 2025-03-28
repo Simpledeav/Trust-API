@@ -115,16 +115,16 @@ class AnalyticsService
         //     ->get();
 
         // Calculate 24-hour P&L: (current value - invested amount) + extra from positions
-        // $rawTotalInvestment24hr = $positions->sum(function($trade) {
-        //     $currentValue = $trade->quantity * $trade->asset->price;
-        //     return $currentValue - $trade->amount + $trade->extra;
-        // });
+        $rawTotalInvestment24hr = $positions->sum(function($trade) {
+            $currentValue = $trade->quantity * $trade->asset->price;
+            return $currentValue - $trade->amount + $trade->extra;
+        });
 
         //:::: Incase it comes to todays PL for all possitions
-        $rawTotalInvestment24hr = $positions->sum(function($trade) {
-            $currentValue = ($trade->asset->change * $trade->quantity)+ $trade->extra;
-            return $currentValue ;
-        });
+        // $rawTotalInvestment24hr = $positions->sum(function($trade) {
+        //     $currentValue = ($trade->asset->change * $trade->quantity)+ $trade->extra;
+        //     return $currentValue ;
+        // });
 
         // Get chart data
         $chartData = $this->getChartData(clone $ledgerQuery, $timeframe);
