@@ -10,6 +10,7 @@ use App\Models\User;
 use Illuminate\Auth\Events\Verified;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
+use App\Http\Controllers\NotificationController as Notifications;
 
 class EmailVerificationService
 {
@@ -46,6 +47,9 @@ class EmailVerificationService
         $user->markEmailAsVerified();
 
         $emailVerificationCode->delete();
+
+        // Fire welcome email
+        Notifications::sendTestEmailNotification($user);
 
         event(new Verified($user));
     }

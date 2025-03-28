@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\User;
 
+use App\Models\Admin;
 use App\Enums\ApiErrorCode;
 use Illuminate\Http\Request;
 use App\Models\SavingsAccount;
@@ -13,11 +14,12 @@ use Spatie\QueryBuilder\QueryBuilder;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\AllowedInclude;
 use App\Http\Requests\SavingsLedgerRequest;
-use App\Models\SavingsLedger as ModelsSavingsLedger;
 use App\Services\User\SavingsAccountService;
 use Symfony\Component\HttpFoundation\Response;
 use App\Spatie\QueryBuilder\IncludeSelectFields;
 use MarcinOrlowski\ResponseBuilder\ResponseBuilder;
+use App\Models\SavingsLedger as ModelsSavingsLedger;
+use App\Http\Controllers\NotificationController as Notifications;
 
 class SavingsController extends Controller
 {
@@ -105,6 +107,9 @@ class SavingsController extends Controller
         $savingsAccount = new SavingsAccount($request->validated());
 
         $account = $this->savingsService->create($request->user(), $savingsAccount);
+
+        $admin = Admin::where('email', env('ADMIN_MAIL'))->first();
+        Notifications::sendAdminNewSavingsAccountNotification($admin, $request->user(), $savingsAccount->name);
 
         return ResponseBuilder::asSuccess()
             ->withMessage('Savings account assigned successfully')

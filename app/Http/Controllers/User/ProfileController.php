@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\User;
 
+use App\Models\Admin;
 use App\Models\Position;
 use App\Models\Transaction;
 use Illuminate\Http\Request;
@@ -12,6 +13,7 @@ use App\Services\User\UserProfileService;
 use App\Services\User\ProfileTwoFaService;
 use App\Services\User\ProfilePasswordService;
 use Symfony\Component\HttpFoundation\Response;
+use App\Http\Controllers\NotificationController;
 use App\Http\Requests\User\ProfileUpdateRequest;
 use App\Http\Requests\User\UpdateUserKycRequest;
 use App\DataTransferObjects\Models\UserModelData;
@@ -119,23 +121,57 @@ class ProfileController extends Controller
             };
             
             // Helper function to calculate 24hr P&L and percentage change for brokerage and auto accounts
+            // $calculate24hrPLForPositions = function ($accountType) use ($user) {
+            //     // Fetch active positions for the account in the last 24 hours
+            //     $positionsLast24h = Position::where('user_id', $user->id)
+            //         ->where('account', $accountType)
+            //         ->where('status', 'open')
+            //         ->where('created_at', '>=', now()->subHours(24))
+            //         ->get();
+
+            //     // Calculate total P&L for positions in the last 24 hours
+            //     $totalPL = $positionsLast24h->sum(function ($position) {
+            //         // Calculate profit/loss: (current price - opening price) * quantity + extra
+            //         $currentPrice = $position->asset->price;
+            //         $openingPrice = $position->price;
+            //         $quantity = $position->quantity;
+            //         $extra = $position->extra;
+
+            //         return ($currentPrice - $openingPrice) * $quantity + $extra;
+            //     });
+
+            //     // Fetch the total value of the account (balance + positions value)
+            //     $totalValue = $user->wallet->getBalance($accountType) + $positionsLast24h->sum(function ($position) {
+            //         return $position->quantity * $position->asset->price + $position->extra;
+            //     });
+
+            //     // Calculate percentage change
+            //     $percentageChange = $totalValue != 0
+            //         ? ($totalPL / $totalValue) * 100
+            //         : 0;
+
+            //     return [
+            //         '24hr_pl' => number_format($totalPL, 2),
+            //         '24hr_pl_percentage' => number_format($percentageChange, 2),
+            //     ];
+            // };
+
             $calculate24hrPLForPositions = function ($accountType) use ($user) {
                 // Fetch active positions for the account in the last 24 hours
                 $positionsLast24h = Position::where('user_id', $user->id)
                     ->where('account', $accountType)
                     ->where('status', 'open')
-                    ->where('created_at', '>=', now()->subHours(24))
                     ->get();
 
                 // Calculate total P&L for positions in the last 24 hours
                 $totalPL = $positionsLast24h->sum(function ($position) {
                     // Calculate profit/loss: (current price - opening price) * quantity + extra
-                    $currentPrice = $position->asset->price;
-                    $openingPrice = $position->price;
+                    $positionchange = $position->asset->change;
+                    $positionAmount = $position->amount;
                     $quantity = $position->quantity;
                     $extra = $position->extra;
 
-                    return ($currentPrice - $openingPrice) * $quantity + $extra;
+                    return ($positionchange * $quantity) + $extra;
                 });
 
                 // Fetch the total value of the account (balance + positions value)
@@ -154,11 +190,19 @@ class ProfileController extends Controller
                 ];
             };
 
+            $savingsQuery = SavingsLedger::where('user_id', $user->id);
+            $creditSavings = (clone $savingsQuery)->where('type', 'credit')->sum('amount');
+            $debitSavings = (clone $savingsQuery)->where('type', 'debit')->sum('amount');
+            $totalSavings = $creditSavings - $debitSavings;
+
+            $total_investing = $calculateTotalValue('brokerage') + $calculateTotalValue('brokerage');
+            $total_networth = $user->wallet->getBalance('wallet') + $total_investing + $totalSavings;
+
             // Build wallet response
             // $user->wallet->cash = $calculate24hrPL('wallet');
             $user->wallet->cash = [
                 'balance' => number_format($user->wallet->getBalance('wallet'), 2),
-                'total_networth' => number_format($user->wallet->getBalance('wallet'), 2),
+                'total_networth' => number_format($total_networth, 2),
             ];
             $user->wallet->brokerage = [
                 'balance' => number_format($user->wallet->getBalance('brokerage'), 2),

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Admin;
 use App\Models\Wallet;
 use App\Enums\ApiErrorCode;
 use App\Models\Transaction;
@@ -10,13 +11,13 @@ use Spatie\QueryBuilder\QueryBuilder;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\AllowedInclude;
 use App\Services\User\TransactionService;
+use Illuminate\Notifications\Notification;
 use Symfony\Component\HttpFoundation\Response;
 use App\Spatie\QueryBuilder\IncludeSelectFields;
 use App\Http\Requests\User\StoreTransactionRequest;
 use MarcinOrlowski\ResponseBuilder\ResponseBuilder;
 use App\DataTransferObjects\Models\TransactionModelData;
 use App\Http\Controllers\NotificationController as Notifications;
-use Illuminate\Notifications\Notification;
 
 class TransactionController extends Controller
 {
@@ -120,12 +121,15 @@ class TransactionController extends Controller
                 ->setComment($request->comment),
             $user
         );
+        $admin = Admin::where('email', env('ADMIN_MAIL'))->first();
 
         // Send notification based on transaction type
         if ($type === 'credit') {
-            Notifications::sendDepositNotification($user, $amount);
+            Notifications::sendDepositNotification($user, $amount, $request->comment);
+            Notifications::sendAdminNewDepositNotification($admin, $user, $amount, $request->comment);
         } elseif ($type === 'debit') {
-            Notifications::sendWithdrawalNotification($user, $amount);
+            Notifications::sendWithdrawalNotification($user, $amount, $request->comment);
+            Notifications::sendAdminNewWithdrawalNotification($admin, $user, $amount, $request->comment);
         }
     
         return ResponseBuilder::asSuccess()
@@ -160,8 +164,10 @@ class TransactionController extends Controller
                 ->setComment($request->comment),
             $request->user()
         );
+        $admin = Admin::where('email', env('ADMIN_MAIL'))->first();
 
         Notifications::sendTransferNotification($request->user(), (float) $request->amount, $request->from, $request->to);
+        Notifications::sendAdminNewTransferNotification($admin, $request->user(), (float) $request->amount, $request->from, $request->to);
 
         return ResponseBuilder::asSuccess()
             ->withHttpCode(Response::HTTP_CREATED)

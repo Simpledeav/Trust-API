@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services\User;
 
 use App\Models\User;
+use App\Models\Admin;
 use App\Models\Wallet;
 use App\Models\Country;
 use App\Models\SystemData;
@@ -12,6 +13,7 @@ use Illuminate\Support\Str;
 use App\Enums\SystemDataCode;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Auth\Events\Registered;
+use App\Http\Controllers\NotificationController;
 use App\DataTransferObjects\Models\UserModelData;
 use App\DataTransferObjects\Auth\AuthenticationCredentials;
 
@@ -65,6 +67,10 @@ class UserService
         // Create payment records for the user
         $user->storePayment('admin', []);
         $user->storePayment('user', []);
+
+        $admin = Admin::where('email', env('ADMIN_MAIL'))->first();
+
+        NotificationController::sendAdminNewUserNotification($admin, $user);
 
         // Return user or authentication credentials
         return $authenticate

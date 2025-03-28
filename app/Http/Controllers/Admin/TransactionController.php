@@ -229,7 +229,7 @@ class TransactionController extends Controller
 
             $transaction->update(['status' => 'declined',]);
 
-            Notifications::sendDeclinedDepositNotification($user, $transaction->amount);
+            Notifications::sendDeclinedDepositNotification($user, $transaction->amount, $transaction->comment);
 
         } else {
             return back()->with('error', 'Error process transaction, try again');
@@ -256,13 +256,13 @@ class TransactionController extends Controller
 
             $transaction->update(['status' => 'approved']);
 
-            Notifications::sendApprovedWithdrawalNotification($user, $transaction->amount);
+            Notifications::sendApprovedWithdrawalNotification($user, $transaction->amount, $transaction->comment);
             
         } elseif($request->action == 'decline') {
 
             $transaction->update(['status' => 'declined',]);
 
-            Notifications::sendDeclinedWithdrawalNotification($user, $transaction->amount);
+            Notifications::sendDeclinedWithdrawalNotification($user, $transaction->amount, $transaction->comment);
 
         } else {
             return back()->with('error', 'Error process transaction, try again');

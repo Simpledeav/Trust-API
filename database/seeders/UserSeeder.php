@@ -11,6 +11,7 @@ use Illuminate\Support\Str;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use Faker\Factory as Faker;
 
 class UserSeeder extends Seeder
 {
@@ -19,86 +20,93 @@ class UserSeeder extends Seeder
      */
     public function run()
     {
+        $faker = Faker::create();
+        $num = 3;
+
+        // Get random location and currency
         $state = State::inRandomOrder()->first();
         $city = City::inRandomOrder()->first();
         $currency = Currency::inRandomOrder()->first();
-        
-        $user = User::create([
-            'id' => Str::uuid(),
-            'country_id' => $state->country_id,
-            'state_id' => $state->id,
-            'city' => "Lagos City",
-            'currency_id' => $currency->id,
-            'first_name' => 'John',
-            'last_name' => 'Doe',
-            'username' => 'johndoe',
-            'email' => 'johndoe@example.com',
-            'phone' => '+1234567890',
-            'address' => '123 Main Street',
-            'zipcode' => '12345',
-            'ssn' => '123-45-6789',
-            'dob' => now()->subYears(30),
-            'nationality' => 'American',
-            'experience' => '5 years',
-            'employed' => 'Yes',
-            'status' => 'active',
-            'kyc' => 'approved',
-            'id_number' => 'A1234567',
-            'front_id' => 'path/to/front_id.jpg',
-            'back_id' => 'path/to/back_id.jpg',
-            'email_verified_at' => now(),
-            'password' => Hash::make('password'),
-            'blocked_at' => null,
-        ]);
 
-        Wallet::create([
-            'id' => Str::uuid(),
-            'user_id' => $user->id,
-            'balance' => 0, // Default balance
-        ]);
+        // Create admin user
+        // $admin = User::create([
+        //     'id' => Str::uuid(),
+        //     'country_id' => $state->country_id,
+        //     'state_id' => $state->id,
+        //     'city' => 'Louis Hert',
+        //     'currency_id' => $currency->id,
+        //     'first_name' => 'John',
+        //     'last_name' => 'Doe',
+        //     'username' => 'johndoe',
+        //     'email' => 'johndoe@example.com',
+        //     'phone' => $faker->phoneNumber,
+        //     'address' => $faker->streetAddress,
+        //     'zipcode' => $faker->postcode,
+        //     'ssn' => $faker->numerify('###-##-####'),
+        //     'dob' => $faker->dateTimeBetween('-60 years', '-18 years'),
+        //     'nationality' => $faker->country,
+        //     'experience' => $faker->randomElement(['1 year', '2 years', '5 years', '10+ years']),
+        //     'employed' => $faker->randomElement(['Yes', 'No']),
+        //     'status' => 'active',
+        //     'kyc' => 'approved',
+        //     'id_number' => $faker->bothify('??######'),
+        //     'front_id' => null,
+        //     'back_id' => null,
+        //     'email_verified_at' => now(),
+        //     'password' => Hash::make('password'),
+        //     'blocked_at' => null,
+        // ]);
 
-        $user->storePayment('admin', []);
-        $user->storePayment('user', []);
+        // Wallet::create([
+        //     'id' => Str::uuid(),
+        //     'user_id' => $admin->id,
+        //     'balance' => 10000, // Admin gets higher balance
+        // ]);
 
-        // Generate additional fake users
-        // User::factory()->count(10)->create();
+        // Create regular users with fake data
+        for ($i = 0; $i < $num; $i++) {
+            $firstName = $faker->firstName;
+            $lastName = $faker->lastName;
+            
+            $user = User::create([
+                'id' => Str::uuid(),
+                'country_id' => $state->country_id,
+                'state_id' => $state->id,
+                'city' => 'Lousi Street',
+                'currency_id' => $currency->id,
+                'first_name' => $firstName,
+                'last_name' => $lastName,
+                'username' => strtolower($firstName . $lastName),
+                'email' => strtolower($firstName . '.' . $lastName) . '@example.com',
+                'phone' => $faker->phoneNumber,
+                'address' => $faker->streetAddress,
+                'zipcode' => $faker->postcode,
+                'ssn' => $faker->numerify('###-##-####'),
+                'dob' => $faker->dateTimeBetween('-60 years', '-18 years'),
+                'nationality' => $faker->country,
+                'experience' => $faker->randomElement(['1 year', '2 years', '5 years', '10+ years']),
+                'employed' => $faker->randomElement(['Yes', 'No']),
+                'status' => 'active',
+                'kyc' => 'pending',
+                'id_number' => $faker->bothify('??######'),
+                'front_id' => $faker->randomElement(['path/to/front_id.jpg', '']),
+                'back_id' => $faker->randomElement(['path/to/back_id.jpg', '']),
+                'email_verified_at' => now(),
+                'password' => Hash::make('password'),
+                'blocked_at' => $faker->randomElement([null, now()->subDays(rand(1, 30))]),
+            ]);
 
-        $second = User::create([
-            'id' => Str::uuid(),
-            'country_id' => $state->country_id,
-            'state_id' => $state->id,
-            'city' => "Lagos City",
-            'currency_id' => $currency->id,
-            'first_name' => 'Holly',
-            'last_name' => 'Molly',
-            'username' => 'hollymolly',
-            'email' => 'hollymolly@example.com',
-            'phone' => '+1234567890',
-            'address' => '123 Main Street',
-            'zipcode' => '12345',
-            'ssn' => '123-45-6789',
-            'dob' => now()->subYears(30),
-            'nationality' => 'American',
-            'experience' => '5 years',
-            'employed' => 'Yes',
-            'status' => 'active',
-            'kyc' => 'pending',
-            'id_number' => 'A1234567',
-            'front_id' => '',
-            'back_id' => '',
-            'email_verified_at' => now(),
-            'password' => Hash::make('password'),
-            'blocked_at' => null,
-        ]);
+            Wallet::create([
+                'id' => Str::uuid(),
+                'user_id' => $user->id,
+                'balance' => $faker->numberBetween(0, 10000),
+            ]);
 
-        Wallet::create([
-            'id' => Str::uuid(),
-            'user_id' => $user->id,
-            'balance' => 0, // Default balance
-        ]);
+            // Store payment methods (adjust according to your storePayment method)
+            $user->storePayment('admin', []);
+            $user->storePayment('user', []);
+        }
 
-        $second->storePayment('admin', []);
-        $second->storePayment('user', []);
+        $this->command->info('Successfully created 1 admin and '. $num .' regular users with fake data!');
     }
-
 }

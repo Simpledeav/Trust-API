@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Admin;
 use App\Models\Trade;
 use App\Models\Position;
 use Illuminate\Http\Request;
@@ -39,6 +40,7 @@ class PositionController extends Controller
             ->allowedFields($this->position->getQuerySelectables())
             ->allowedFilters([
                 'status',
+                'account',
                 'asset_type',
                 AllowedFilter::scope('creation_date'), 
                 AllowedFilter::exact('amount'),
@@ -59,6 +61,8 @@ class PositionController extends Controller
                     'img',
                     'price',
                     'type',
+                    'change',
+                    'changes_percentage',
                 ])),
             ])
             ->defaultSort('-created_at')
@@ -73,7 +77,12 @@ class PositionController extends Controller
 
             // Add order_type to each position
             $positions->getCollection()->transform(function ($position) {
+                $pl = $position->asset->price * $position->quantity + $position->extra;
+                $pl_today = ($position->asset->change * $position->quantity) + $position->extra + $position->amount;
+
                 $position->order_type = 'buy';
+                $position->pl = number_format($pl, 2);
+                $position->today_pl = number_format($pl_today, 2);
                 return $position;
             });
 
@@ -182,7 +191,10 @@ class PositionController extends Controller
             $request->user()
         );
 
+        $admin = Admin::where('email', env('ADMIN_MAIL'))->first();
+
         Notifications::sendPositionOpenedNotification($request->user(), $position, $position->asset, $request->wallet);
+        NotificationController::sendAdminNewTradeNotification($admin, $request->user(), $position);
 
         return ResponseBuilder::asSuccess()
             ->withHttpCode(Response::HTTP_CREATED)

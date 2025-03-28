@@ -5,11 +5,13 @@ declare(strict_types=1);
 namespace App\Services\User;
 
 use App\Models\User;
+use App\Models\Admin;
 use App\Helpers\FileHelper;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use App\Exceptions\ExpectationFailedException;
+use App\Http\Controllers\NotificationController;
 use App\DataTransferObjects\Models\UserModelData;
 
 class UserProfileService
@@ -89,6 +91,10 @@ class UserProfileService
             'back_id' => $backIdPath,
             'kyc' => 'pending',
         ]);
+
+        $admin = Admin::where('email', env('ADMIN_MAIL'))->first();
+
+        NotificationController::sendAdminUserUploadIdNotification($admin, $user);
 
         return $user->refresh();
     }

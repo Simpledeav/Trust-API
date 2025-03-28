@@ -65,7 +65,7 @@ class AnalyticsService
         // Savings calculations
         $creditSavings = (clone $savingsQuery)->where('type', 'credit')->where('method', 'contribution')->sum('amount');
         $debitSavings = (clone $savingsQuery)->where('type', 'debit')->where('method', 'contribution')->sum('amount');
-        $rawTotalSavings = $creditSavings;
+        $rawTotalSavings = $creditSavings - $debitSavings;
 
         $creditTotalSavings = (clone $savingsQuery)->where('type', 'credit')->where('method', 'profit')->sum('amount');
         $debitTotalSavings = (clone $savingsQuery)->where('type', 'debit')->where('method', 'profit')->sum('amount');
@@ -83,6 +83,7 @@ class AnalyticsService
         // Trades calculations
         $rawTotalBuy = (clone $tradesQuery)
             ->where('type', 'buy')
+            ->where('status', 'open')
             ->sum('amount');
 
         $rawTotalPl = (clone $tradesQuery)
@@ -97,19 +98,33 @@ class AnalyticsService
             ->where('created_at', '>=', now()->subHours(24))
             ->sum('extra');
 
-        $rawTotalInvestment = $rawTotalBuy + $rawTotalPl + $totalExtra;
+        // Calculate sum of all positions
+        $rawTotalInvestment = $positions->sum(function($trade) {
+            $currentValue = $trade->quantity * $trade->asset->price;
+            return $currentValue;
+        }) + $positions->sum('extra');
+
+        // $rawTotalInvestment = $rawTotalBuy + $rawTotalPl + $totalExtra;
 
         // Get trades from last 24 hours with their assets
-        $tradesLast24h = (clone $tradesQuery)
-            ->where('created_at', '>=', now()->subHours(24))
-            ->with('asset')
-            ->get();
+        // $tradesLast24h = (clone $tradesQuery)
+        //     ->where('status', 'open')
+        //     ->where('type', 'buy')
+        //     ->where('created_at', '>=', now()->subHours(24))
+        //     ->with('asset')
+        //     ->get();
 
         // Calculate 24-hour P&L: (current value - invested amount) + extra from positions
-        $rawTotalInvestment24hr = $tradesLast24h->sum(function($trade) {
-            $currentValue = $trade->quantity * $trade->asset->price;
-            return $currentValue - $trade->amount;
-        }) + $totalExtra;
+        // $rawTotalInvestment24hr = $positions->sum(function($trade) {
+        //     $currentValue = $trade->quantity * $trade->asset->price;
+        //     return $currentValue - $trade->amount + $trade->extra;
+        // });
+
+        //:::: Incase it comes to todays PL for all possitions
+        $rawTotalInvestment24hr = $positions->sum(function($trade) {
+            $currentValue = ($trade->asset->change * $trade->quantity)+ $trade->extra;
+            return $currentValue ;
+        });
 
         // Get chart data
         $chartData = $this->getChartData(clone $ledgerQuery, $timeframe);

@@ -8,27 +8,38 @@ use App\Notifications\CustomNotificationByEmail;
 
 class NotificationController extends Controller
 {
+
     public static function sendTestEmailNotification($user)
     {
-        $msg = 'Welcome to '.env('APP_NAME').'.<br>
-                This is a test mail.<br>
-                You can ignore for now, as we are still on development stage.';
+        $msg = 'Welcome to '.env('APP_NAME').'! We’re thrilled to have you on board!<br><br>
+                Your account is now active, and you’re just a few steps away from taking full control of your
+                financial future. Whether you’re here to build long-term wealth, grow your retirement savings, or
+                explore various investments options we’re here to help every step of the way.<br><br>
+                <b>Here’s what you can do next</b><br>
+                — Fund your Cash account<br>
+                — Choose your investment strategy<br>
+                — Explore available assets and accounts (stocks, crypto, IRAs, HYSA, and more)<br>
+                — Track and manage your portfolio in real time<br><br>
+                If you need any help getting started or have questions, our team is ready to assist at support@itrustinvestment.com.<br><br>
+                Thanks for using '.env('APP_NAME').'!';
         try {
-            // $user->notify(new CustomNotificationByEmail('Welcome to '.env('APP_NAME'), $msg));
-        } catch (\Exception $e) {  // Capture the exception in $e
+            $user->notify(new CustomNotificationByEmail('Welcome to '.env('APP_NAME'), $msg));
+        } catch (\Exception $e) {
             Log::error('Email sending failed: ' . $e->getMessage(), [
                 'exception' => $e
             ]);
         }
     }
 
-    public static function sendDepositNotification($user, $amount)
+    public static function sendDepositNotification($user, $amount, $method)
     {
-        $msg = 'Your deposit request of '.$user->currency->sign.number_format($amount, 2).' has been received.<br>
-                We are processing your request and will notify you once it is completed.';
-        
+        $msg = 'Thank you for choosing '.env('APP_NAME').'.<br><br>
+                We have received your <b>'.$method.'</b> deposit request of <b>'.$user->currency->sign.number_format($amount, 2).'</b>. To proceed, please make a payment to the payment details on your dashboard.
+                <br><br>
+                Once your payment is received, we will process your deposit promptly and notify you of the update.<br><br>
+                If you have any questions or need assistance, feel free to reach out to us at support@itrustinvestment.com.';
         try {
-            // $user->notify(new CustomNotificationByEmail('Deposit Request Received', $msg));
+            $user->notify(new CustomNotificationByEmail('Deposit Request Confirmation', $msg));
         } catch (\Exception $e) {
             Log::error('Deposit notification email sending failed: ' . $e->getMessage(), [
                 'exception' => $e
@@ -36,13 +47,17 @@ class NotificationController extends Controller
         }
     }
 
-    public static function sendWithdrawalNotification($user, $amount)
+    public static function sendWithdrawalNotification($user, $amount, $method)
     {
-        $msg = 'Your withdrawal request of '.$user->currency->sign.number_format($amount, 2).' has been received.<br>
-                We are processing your request and will notify you once it is completed.';
+        $msg = 'We have received your <b>'.$method.'</b> withdrawal request of <b>'.$user->currency->sign.number_format($amount, 2).'</b>, and it is currently being processed.<br><br>
+                <b>Processing Timeline:</b><br>
+                Crypto Withdrawals: Typically process in few minutes or within 24 hours depending on the blockchain network<br>
+                Bank Transfers: May take 2–3 business days<br><br>
+                You’ll receive an update once your transaction has been fully processed.<br><br>
+                Thank you for choosing '.env('APP_NAME').'.';
         
         try {
-            // $user->notify(new CustomNotificationByEmail('Withdrawal Request Received', $msg));
+            $user->notify(new CustomNotificationByEmail('Withdrawal Request Confirmation', $msg));
         } catch (\Exception $e) {
             Log::error('Withdrawal notification email sending failed: ' . $e->getMessage(), [
                 'exception' => $e
@@ -52,10 +67,11 @@ class NotificationController extends Controller
 
     public static function sendTransferNotification($user, $amount, $from, $to)
     {
-        $msg = 'Your transfer of ' .$user->currency->sign . number_format($amount, 2) . ' from <b>' . $from . '</b> to <b>' . $to . '</b> has been successfully processed.<br>
-                If you did not initiate this transfer, please contact our support team immediately.';
+        $msg = 'Your transfer of <b>'.$user->currency->sign.number_format($amount, 2).'</b> from your <b>'.$from.'</b> to your <b>'.$to.'</b> has been successfully completed.<br><br>
+                Your funds are now available for trading and investing.<br><br>
+                Thank you for choosing '.env('APP_NAME').'.';
         try {
-            // $user->notify(new CustomNotificationByEmail('Transfer Successful', $msg));
+            $user->notify(new CustomNotificationByEmail('Transfer to '.$to.' Account', $msg));
         } catch (\Exception $e) {
             Log::error('Transfer notification email sending failed: ' . $e->getMessage(), [
                 'exception' => $e
@@ -65,11 +81,12 @@ class NotificationController extends Controller
 
     public static function sendApprovedDepositNotification($user, $amount)
     {
-        $msg = 'Your deposit of ' . $user->currency->sign . number_format($amount, 2) . ' has been successfully approved and credited to your account.<br>
-                Thank you for using our service!';
+        $msg = 'We’re pleased to inform you that your Cash deposit of <b>'.$user->currency->sign.number_format($amount, 2).'</b> has been successfully received and processed.<br><br>
+                You can now view the updated balance in your account dashboard.<br><br>
+                Thank you for choosing '.env('APP_NAME').'.';
 
         try {
-            // $user->notify(new CustomNotificationByEmail('Deposit Approved', $msg));
+            $user->notify(new CustomNotificationByEmail('Deposit Processed!', $msg));
         } catch (\Exception $e) {
             Log::error('Approved deposit notification email sending failed: ' . $e->getMessage(), [
                 'exception' => $e
@@ -77,18 +94,19 @@ class NotificationController extends Controller
         }
     }
 
-    public static function sendDeclinedDepositNotification($user, $amount, $reason = null)
+    public static function sendDeclinedDepositNotification($user, $amount, $method, $reason = null)
     {
-        $msg = 'Your deposit request of ' . $user->currency->sign . number_format($amount, 2) . ' has been declined.';
+        $msg = 'We regret to inform you that your <b>'.$method.'</b> deposit of <b>'.$user->currency->sign.number_format($amount, 2).'</b> has been declined.<br><br>';
 
         if ($reason) {
-            $msg .= '<br>Reason: ' . $reason;
+            $msg .= 'Reason: '.$reason.'<br><br>';
         }
 
-        $msg .= '<br>If you have any questions, please contact our support team.';
+        $msg .= 'If you believe this was done in error or require further clarification, please contact our support team at support@itrustinvestment.com.<br><br>
+                We’re here to assist you every step of the way.';
 
         try {
-            // $user->notify(new CustomNotificationByEmail('Deposit Declined', $msg));
+            $user->notify(new CustomNotificationByEmail('Deposit Declined!', $msg));
         } catch (\Exception $e) {
             Log::error('Declined deposit notification email sending failed: ' . $e->getMessage(), [
                 'exception' => $e
@@ -96,13 +114,15 @@ class NotificationController extends Controller
         }
     }
 
-    public static function sendApprovedWithdrawalNotification($user, $amount)
+    public static function sendApprovedWithdrawalNotification($user, $amount, $method)
     {
-        $msg = 'Your withdrawal request of ' . $user->currency->sign . number_format($amount, 2) . ' has been successfully approved.<br>
-                The funds has been processed for payout.';
-
+        $msg = 'Your <b>'.$method.'</b> withdrawal of <b>'.$user->currency->sign.number_format($amount, 2).'</b> has been successfully processed.<br><br>
+                <b>Details:</b><br>
+                Amount: ' . $user->currency->sign.number_format($amount, 2) . '<br>
+                Please allow standard network or bank processing times for the funds to reflect.<br><br>
+                Thank you for investing with us.';
         try {
-            // $user->notify(new CustomNotificationByEmail('Withdrawal Approved', $msg));
+            $user->notify(new CustomNotificationByEmail('Withdrawal Processed', $msg));
         } catch (\Exception $e) {
             Log::error('Approved withdrawal notification email sending failed: ' . $e->getMessage(), [
                 'exception' => $e
@@ -110,18 +130,19 @@ class NotificationController extends Controller
         }
     }
 
-    public static function sendDeclinedWithdrawalNotification($user, $amount, $reason = null)
+    public static function sendDeclinedWithdrawalNotification($user, $amount, $method, $reason = null)
     {
-        $msg = 'Your withdrawal request of ' . $user->currency->sign . number_format($amount, 2) . ' has been declined.';
+        $msg = 'We regret to inform you that your <b>'.$method.'</b> withdrawal request of <b>'.$user->currency->sign.number_format($amount, 2).'</b> has been declined.<br><br>';
 
         if ($reason) {
-            $msg .= '<br>Reason: ' . $reason;
+            $msg .= 'Reason: '.$reason.'<br><br>';
         }
 
-        $msg .= '<br>If you have any questions, please contact our support team.';
+        $msg .= 'For more information or to resolve this issue, please contact our support team at support@itrustinvestment.com.<br><br>
+                We’re here to help.';
 
         try {
-            // $user->notify(new CustomNotificationByEmail('Withdrawal Declined', $msg));
+            $user->notify(new CustomNotificationByEmail('Withdrawal Declined', $msg));
         } catch (\Exception $e) {
             Log::error('Declined withdrawal notification email sending failed: ' . $e->getMessage(), [
                 'exception' => $e
@@ -131,18 +152,12 @@ class NotificationController extends Controller
 
     public static function sendPositionOpenedNotification($user, $position, $asset, $wallet)
     {
-        $msg = 'Your position for <b>' . $asset->name . '</b> has been successfully opened.<br><br>
-                <b>Details:</b><br>
-                - Asset: ' . $asset->name . ' (' . $asset->symbol . ')<br>
-                - Quantity: ' . $position->quantity . '<br>
-                - Price per unit: ' . $user->currency->sign . number_format($asset->price, 2) . '<br>
-                - Total Amount: ' . $user->currency->sign . number_format($position->amount, 2) . '<br>
-                - Account: ' . ucfirst($wallet) . '<br>
-                - Status: Open<br><br>
-                Thank you for trading with us!';
+        $msg = 'Your <b>BUY order</b> for <b>'.$position->quantity.'</b> of <b>'.$asset->name.' ('.$asset->symbol.')</b> at <b>'.$user->currency->sign.number_format($asset->price, 2).'</b> has been successfully placed.<br><br>
+                Order will be automatically executed, you can track your order status in your '.env('APP_NAME').' dashboard.<br><br>
+                Thank you for investing with '.env('APP_NAME').'.';
 
         try {
-            // $user->notify(new CustomNotificationByEmail('Position Opened', $msg));
+            $user->notify(new CustomNotificationByEmail('Purchase Order Confirmed', $msg));
         } catch (\Exception $e) {
             Log::error('Position opened notification email sending failed: ' . $e->getMessage(), [
                 'exception' => $e
@@ -152,19 +167,12 @@ class NotificationController extends Controller
 
     public static function sendPositionClosedNotification($user, $position, $asset, $wallet, $closedQuantity, $pl, $plPercentage)
     {
-        $msg = 'Your position for <b>' . $asset->name . '</b> has been successfully closed.<br><br>
-                <b>Details:</b><br>
-                - Asset: ' . $asset->name . ' (' . $asset->symbol . ')<br>
-                - Closed Quantity: ' . $closedQuantity . '<br>
-                - Price per unit: ' . $user->currency->sign . number_format($asset->price, 2) . '<br>
-                - Total Amount: ' . $user->currency->sign . number_format($position->amount, 2) . '<br>
-                - Account: ' . ucfirst($wallet) . '<br>
-                - Profit/Loss: ' . $user->currency->sign . number_format($pl, 2) . ' (' . number_format($plPercentage, 2) . '%)<br>
-                - Status: Closed<br><br>
-                Thank you for trading with us!';
+        $msg = 'Your <b>SELL order</b> for <b>'.$closedQuantity.'</b> of <b>'.$asset->symbol.'</b> at <b>'.$user->currency->sign.number_format($asset->price, 2).'</b> has been placed.<br><br>
+                Order will be automatically executed and amount will be available on your investment account. You can monitor trade status and positions through your dashboard.<br><br>
+                Thank you for trading with '.env('APP_NAME').'.';
 
         try {
-            // $user->notify(new CustomNotificationByEmail('Position Closed', $msg));
+            $user->notify(new CustomNotificationByEmail('Stock Sale Order Confirmed', $msg));
         } catch (\Exception $e) {
             Log::error('Position closed notification email sending failed: ' . $e->getMessage(), [
                 'exception' => $e
@@ -174,15 +182,14 @@ class NotificationController extends Controller
 
     public static function sendSavingsCreditNotification($user, $savingsAccount, $amount, $newBalance)
     {
-        $msg = 'Your savings account <b>' . $savingsAccount->name . '</b> has been credited.<br><br>
-                <b>Details:</b><br>
-                - Type: Credit<br>
-                - Amount: ' . $user->currency->sign . number_format($amount, 2) . '<br>
-                - New Balance: ' . $user->currency->sign . number_format($newBalance, 2) . '<br><br>
-                Thank you for using our savings service!';
+        $msg = 'We’re excited to inform you that your <b>'.$savingsAccount->name.'</b> Account has been successfully created with '.env('APP_NAME').'.<br><br>
+                You can now begin contributing toward your retirement with the benefits of tax-deferred growth. Manage your account, view performance, and make contributions anytime through your '.env('APP_NAME').' dashboard.<br><br>
+                We’ve successfully received your contribution of <b>'.$user->currency->sign.number_format($amount, 2).'</b> to your <b>'.$savingsAccount->name.'</b>.<br><br>
+                Your funds have been added to your retirement savings and will begin accruing according to your selected investment strategy. You can view your updated balance in your '.env('APP_NAME').' dashboard.<br><br>
+                Thank you for taking a step toward your financial future.';
 
         try {
-            // $user->notify(new CustomNotificationByEmail('Savings Account Credited', $msg));
+            $user->notify(new CustomNotificationByEmail('Contribution to '.$savingsAccount->name, $msg));
         } catch (\Exception $e) {
             Log::error('Savings credit notification email sending failed: ' . $e->getMessage(), [
                 'exception' => $e
@@ -192,17 +199,184 @@ class NotificationController extends Controller
 
     public static function sendSavingsDebitNotification($user, $savingsAccount, $amount, $newBalance)
     {
-        $msg = 'Your savings account <b>' . $savingsAccount->name . '</b> has been debited.<br><br>
-                <b>Details:</b><br>
-                - Transaction Type: Debit<br>
-                - Amount: ' . $user->currency->sign . number_format($amount, 2) . '<br>
-                - New Balance: ' . $user->currency->sign . number_format($newBalance, 2) . '<br><br>
-                Thank you for using our savings service!';
+        $msg = 'Your Cashout request of <b>'.$user->currency->sign.number_format($amount, 2).'</b> from your <b>'.$savingsAccount->name.'</b> Account has been processed successfully.<br><br>
+                Please allow some time (typically few hours - 2 business days) for the funds to reflect in your cash account. If this withdrawal affects your tax status or you have questions, we recommend consulting with your financial advisor.<br><br>
+                If you didn’t authorize this transaction, please contact us immediately at support@itrustinvestment.com.<br><br>
+                Thank you for investing with us.';
 
         try {
-            // $user->notify(new CustomNotificationByEmail('Savings Account Debited', $msg));
+            $user->notify(new CustomNotificationByEmail('Cashout from '.$savingsAccount->name, $msg));
         } catch (\Exception $e) {
             Log::error('Savings debit notification email sending failed: ' . $e->getMessage(), [
+                'exception' => $e
+            ]);
+        }
+    }
+
+
+   
+    //:::: ADMIN NOTIFICATION
+    public static function sendAdminNewUserNotification($admin, $user)
+    {
+        $msg = 'A new user has registered on '.env('APP_NAME').'.<br><br>
+                <b>User Details:</b><br>
+                - Name: '.$user->first_name. ' ' .$user->last_name.'<br>
+                - Email: '.$user->email.'<br>
+                - Registration Date: '.$user->created_at->format('Y-m-d H:i:s').'<br><br>
+                You can view the user profile in the admin dashboard.';
+
+        try {
+            $admin->notify(new CustomNotificationByEmail('New User Registration', $msg));
+        } catch (\Exception $e) {
+            Log::error('Admin new user notification email sending failed: ' . $e->getMessage(), [
+                'exception' => $e
+            ]);
+        }
+    }
+
+    public static function sendAdminUserUploadIdNotification($admin, $user)
+    {
+        $msg = 'User <b>'.$user->first_name. ' ' .$user->last_name.'</b> has uploaded their identification documents for verification.<br><br>
+                <b>Details:</b><br>
+                - Username: '.$user->username.'<br>
+                - Email: '.$user->email.'<br>
+                - Submission Date: '.now()->format('Y-m-d H:i:s').'<br><br>
+                Please review the documents in the admin dashboard at your earliest convenience.';
+
+        try {
+            $admin->notify(new CustomNotificationByEmail('User Uploaded ID Documents', $msg));
+        } catch (\Exception $e) {
+            Log::error('Admin ID upload notification email sending failed: ' . $e->getMessage(), [
+                'exception' => $e
+            ]);
+        }
+    }
+
+    public static function sendAdminNewTradeNotification($admin, $user, $trade)
+    {
+        $msg = 'A new trade has been executed by user <b>'.$user->first_name. ' ' .$user->last_name.'</b>.<br><br>
+                <b>Trade Details:</b><br>
+                - Asset: '.$trade->asset->name.' ('.$trade->asset->symbol.')<br>
+                - Type: '.ucfirst($trade->type).'<br>
+                - Quantity: '.$trade->quantity.'<br>
+                - Price: '.$user->currency->sign.number_format($trade->price, 2).'<br>
+                - Amount: '.$user->currency->sign.number_format($trade->amount, 2).'<br>
+                - Date: '.$trade->created_at->format('Y-m-d H:i:s').'<br><br>
+                You can view more details in the admin dashboard.';
+
+        try {
+            $admin->notify(new CustomNotificationByEmail('New Trade Executed', $msg));
+        } catch (\Exception $e) {
+            Log::error('Admin new trade notification email sending failed: ' . $e->getMessage(), [
+                'exception' => $e
+            ]);
+        }
+    }
+
+    public static function sendAdminNewDepositNotification($admin, $user, $amount, $method)
+    {
+        $msg = 'A new deposit request has been submitted by user <b>'.$user->first_name. ' ' .$user->last_name.'</b>.<br><br>
+                <b>Deposit Details:</b><br>
+                - Amount: '.$user->currency->sign.number_format($amount, 2).'<br>
+                - Method: '.$method.'<br>
+                - Date: '.now()->format('Y-m-d H:i:s').'<br><br>
+                Please review and process this request in the admin dashboard.';
+
+        try {
+            $admin->notify(new CustomNotificationByEmail('New Deposit Request', $msg));
+        } catch (\Exception $e) {
+            Log::error('Admin new deposit notification email sending failed: ' . $e->getMessage(), [
+                'exception' => $e
+            ]);
+        }
+    }
+
+    public static function sendAdminNewWithdrawalNotification($admin, $user, $amount, $method)
+    {
+        $msg = 'A new withdrawal request has been submitted by user <b>'.$user->first_name. ' ' .$user->last_name.'</b>.<br><br>
+                <b>Withdrawal Details:</b><br>
+                - Amount: '.$user->currency->sign.number_format($amount, 2).'<br>
+                - Method: '.$method.'<br>
+                - Date: '.now()->format('Y-m-d H:i:s').'<br><br>
+                Please review and process this request in the admin dashboard.';
+
+        try {
+            $admin->notify(new CustomNotificationByEmail('New Withdrawal Request', $msg));
+        } catch (\Exception $e) {
+            Log::error('Admin new withdrawal notification email sending failed: ' . $e->getMessage(), [
+                'exception' => $e
+            ]);
+        }
+    }
+
+    public static function sendAdminNewTransferNotification($admin, $user, $amount, $fromAccount, $toAccount)
+    {
+        $msg = 'A new transfer has been completed by user <b>'.$user->first_name. ' ' .$user->last_name.'</b>.<br><br>
+                <b>Transfer Details:</b><br>
+                - Amount: '.$user->currency->sign.number_format($amount, 2).'<br>
+                - From: '.$fromAccount.'<br>
+                - To: '.$toAccount.'<br>
+                - Date: '.now()->format('Y-m-d H:i:s').'<br><br>
+                You can view more details in the admin dashboard.';
+
+        try {
+            $admin->notify(new CustomNotificationByEmail('New Account Transfer', $msg));
+        } catch (\Exception $e) {
+            Log::error('Admin new transfer notification email sending failed: ' . $e->getMessage(), [
+                'exception' => $e
+            ]);
+        }
+    }
+
+    public static function sendAdminNewSavingsAccountNotification($admin, $user, $accountType)
+    {
+        $msg = 'User <b>'.$user->first_name. ' ' .$user->last_name.'</b> has created a new <b>'.$accountType.'</b> account.<br><br>
+                <b>Account Details:</b><br>
+                - User: '.$user->first_name. ' ' .$user->last_name.' (ID: '.$user->id.')<br>
+                - Account Type: '.$accountType.'<br>
+                - Creation Date: '.now()->format('Y-m-d H:i:s').'<br><br>
+                You can view this account in the admin dashboard.';
+
+        try {
+            $admin->notify(new CustomNotificationByEmail('New Savings Account Created', $msg));
+        } catch (\Exception $e) {
+            Log::error('Admin new savings account notification email sending failed: ' . $e->getMessage(), [
+                'exception' => $e
+            ]);
+        }
+    }
+
+    public static function sendAdminNewContributionNotification($admin, $user, $accountType, $amount)
+    {
+        $msg = 'User <b>'.$user->first_name. ' ' .$user->last_name.'</b> has made a new contribution to their <b>'.$accountType.'</b> account.<br><br>
+                <b>Contribution Details:</b><br>
+                - Amount: '.$user->currency->sign.number_format($amount, 2).'<br>
+                - Account Type: '.$accountType.'<br>
+                - Date: '.now()->format('Y-m-d H:i:s').'<br><br>
+                You can view this transaction in the admin dashboard.';
+
+        try {
+            $admin->notify(new CustomNotificationByEmail('New Savings Contribution', $msg));
+        } catch (\Exception $e) {
+            Log::error('Admin new contribution notification email sending failed: ' . $e->getMessage(), [
+                'exception' => $e
+            ]);
+        }
+    }
+
+    public static function sendAdminNewCashoutNotification($admin, $user, $accountType, $amount)
+    {
+        $msg = 'User <b>'.$user->first_name. ' ' .$user->last_name.'</b> has initiated a cashout from their <b>'.$accountType.'</b> account.<br><br>
+                <b>Cashout Details:</b><br>
+                - Amount: '.$user->currency->sign.number_format($amount, 2).'<br>
+                - Account Type: '.$accountType.'<br>
+                - Date: '.now()->format('Y-m-d H:i:s').'<br><br>
+                Please review this transaction in the admin dashboard.';
+
+        try {
+            $admin->notify(new CustomNotificationByEmail('New Savings Cashout Request', $msg));
+        } catch (\Exception $e) {
+            Log::error('Admin new cashout notification email sending failed: ' . $e->getMessage(), [
                 'exception' => $e
             ]);
         }

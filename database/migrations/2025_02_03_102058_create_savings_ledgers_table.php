@@ -17,7 +17,7 @@ return new class extends Migration
             $table->uuid('savings_id');
             $table->decimal('amount', 18, 2)->default(0);
             $table->enum('type', ['debit', 'credit']);
-            $table->enum('method', ['contribution', 'profit']);
+            $table->enum('method', ['contribution', 'interest']);
             $table->decimal('balance', 18, 2)->default(0);
             $table->decimal('old_balance', 18, 2)->default(0);
             $table->string('comment')->nullable();

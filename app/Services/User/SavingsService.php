@@ -3,6 +3,7 @@
 namespace App\Services\User;
 
 use App\Models\User;
+use App\Models\Admin;
 use App\Models\Savings;
 use App\Models\SavingsLedger;
 use App\Models\SavingsAccount;
@@ -53,6 +54,9 @@ class SavingsService
             // Send notification
             Notifications::sendSavingsCreditNotification($user, $savings->savingsAccount, $amount, $savings->balance);
 
+            $admin = Admin::where('email', env('ADMIN_MAIL'))->first();
+            Notifications::sendAdminNewContributionNotification($admin, $user, $savings->savingsAccount->name, $amount);
+
             return $this->getBalance($user, $savings);
         });
     }
@@ -79,6 +83,9 @@ class SavingsService
 
             // Send notification
             Notifications::sendSavingsDebitNotification($user, $savings->savingsAccount, $amount, $savings->balance);
+
+            $admin = Admin::where('email', env('ADMIN_MAIL'))->first();
+            Notifications::sendAdminNewCashoutNotification($admin, $user, $savings->savingsAccount->name, $amount);
 
             return $this->getBalance($user, $savings);
         });
