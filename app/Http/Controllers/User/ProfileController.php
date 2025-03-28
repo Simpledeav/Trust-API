@@ -310,10 +310,6 @@ class ProfileController extends Controller
             return ResponseBuilder::asError(400)
                 ->withMessage($e->getMessage())
                 ->build();
-        } catch (\Exception $e) {
-            return ResponseBuilder::asError(500)
-                ->withMessage('An unexpected error occurred.')
-                ->build();
         }
     }
 
