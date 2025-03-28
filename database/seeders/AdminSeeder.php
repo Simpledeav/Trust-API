@@ -36,20 +36,20 @@ class AdminSeeder extends Seeder
                 ]
             );
 
-            $role = Role::query()->updateOrCreate(
-                [
-                    'name' => 'SUPERADMIN',
-                    'description' => 'Superpowered admin',
-                    'guard_name' => 'api_admin',
-                ],
-                [
-                    'name' => 'SUPERADMIN',
-                    'description' => 'Superpowered admin',
-                    'guard_name' => 'api_admin',
-                ]
-            );
+            // $role = Role::query()->updateOrCreate(
+            //     [
+            //         'name' => 'SUPERADMIN',
+            //         'description' => 'Superpowered admin',
+            //         'guard_name' => 'api_admin',
+            //     ],
+            //     [
+            //         'name' => 'SUPERADMIN',
+            //         'description' => 'Superpowered admin',
+            //         'guard_name' => 'api_admin',
+            //     ]
+            // );
 
-            $admin->assignRole($role);
+            // $admin->assignRole($role);
 
             DB::commit();
         } catch (\Exception $e) {
