@@ -246,8 +246,8 @@ class TradeService
                 $transactionType = $amount > 0 ? 'credit' : 'debit';
                 $adjustedAmount = abs($amount);
                 $user->wallet->{$transactionType}($adjustedAmount, $wallet, $comment);
-                if($adjustedAmount > 0.00)
-                    $user->storeTransaction($adjustedAmount, $position->id, Position::class, $transactionType, 'approved', $comment, null, null, now());
+                // if($adjustedAmount > 0.00)
+                //     $user->storeTransaction($adjustedAmount, $position->id, Position::class, $transactionType, 'approved', $comment, null, null, now());
             }
 
             // Store trades as position transaction history

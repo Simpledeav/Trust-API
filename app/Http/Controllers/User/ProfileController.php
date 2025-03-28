@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\User;
 
 use App\Models\Admin;
+use App\Models\Trade;
 use App\Models\Position;
 use App\Models\Transaction;
 use Illuminate\Http\Request;
@@ -124,11 +125,17 @@ class ProfileController extends Controller
             // Helper function to calculate 24hr P&L and percentage change for brokerage and auto accounts
             $calculate24hrPLForPositions = function ($accountType) use ($user) {
                 // Fetch active positions for the account in the last 24 hours
-                $positionsLast24h = Position::where('user_id', $user->id)
+                $positionsLast24h = Trade::where('user_id', $user->id)
+                    ->where('account', $accountType)
+                    ->where('type', 'buy')
+                    ->where('created_at', '>=', now()->subHours(24))
+                    ->get();
+
+                $tradeLast24h = Position::where('user_id', $user->id)
                     ->where('account', $accountType)
                     ->where('status', 'open')
                     ->where('created_at', '>=', now()->subHours(24))
-                    ->get();
+                    ->sum('extra');
 
                 // Calculate total P&L for positions in the last 24 hours
                 $totalPL = $positionsLast24h->sum(function ($position) {
@@ -139,7 +146,7 @@ class ProfileController extends Controller
                     $extra = $position->extra;
 
                     return ($currentPrice - $openingPrice) * $quantity + $extra;
-                });
+                }) + $tradeLast24h;
 
                 // Fetch the total value of the account (balance + positions value)
                 $totalValue = $user->wallet->getBalance($accountType) + $positionsLast24h->sum(function ($position) {
