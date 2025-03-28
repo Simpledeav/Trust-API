@@ -23,51 +23,49 @@ class AdminSeeder extends Seeder
 
         DB::beginTransaction();
 
-        $faker = Faker::create();
+        try {
+            $admin = Admin::query()->updateOrCreate(
+                [
+                    'email' => 'quivorstore@gmail.com',
+                ],
+                [
+                    'country_id' => Country::query()->where('name', 'nigeria')->value('id'),
+                    'firstname' => 'Admin',
+                    'lastname' => config('app.name'),
+                    'password' => bcrypt('Password@2025'),
+                ]
+            );
 
-        // try {
-        //     $admin = Admin::query()->updateOrCreate(
-        //         [
-        //             'email' => 'admin@itrustinvestment.com',
-        //         ],
-        //         [
-        //             'country_id' => Country::query()->where('name', 'nigeria')->value('id'),
-        //             'firstname' => 'Admin',
-        //             'lastname' => config('app.name'),
-        //             'password' => bcrypt('Password@2025'),
-        //         ]
-        //     );
+            $role = Role::query()->updateOrCreate(
+                [
+                    'name' => 'SUPERADMIN',
+                    'description' => 'Superpowered admin',
+                    'guard_name' => 'api_admin',
+                ],
+                [
+                    'name' => 'SUPERADMIN',
+                    'description' => 'Superpowered admin',
+                    'guard_name' => 'api_admin',
+                ]
+            );
 
-        //     $role = Role::query()->updateOrCreate(
-        //         [
-        //             'name' => 'SUPERADMIN',
-        //             'description' => 'Superpowered admin',
-        //             'guard_name' => 'api_admin',
-        //         ],
-        //         [
-        //             'name' => 'SUPERADMIN',
-        //             'description' => 'Superpowered admin',
-        //             'guard_name' => 'api_admin',
-        //         ]
-        //     );
+            $admin->assignRole($role);
 
-        //     $admin->assignRole($role);
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollBack();
+            throw $e;
+        }
 
-        //     DB::commit();
-        // } catch (\Exception $e) {
-        //     DB::rollBack();
-        //     throw $e;
-        // }
+        // $firstName = $faker->firstName;
 
-        $firstName = $faker->firstName;
-
-        $admin = Admin::create([
-            'country_id' => Country::query()->where('name', 'nigeria')->value('id'),
-            'firstname' => $firstName,
-            'email' => 'quivorstore@gmail.com',
-            'lastname' => config('app.name'),
-            'password' => bcrypt('Password@2025'),
-        ]);
+        // $admin = Admin::create([
+        //     'country_id' => Country::query()->where('name', 'nigeria')->value('id'),
+        //     'firstname' => $firstName,
+        //     'email' => 'quivorstore111@gmail.com',
+        //     'lastname' => config('app.name'),
+        //     'password' => bcrypt('Password@2025'),
+        // ]);
 
         $this->command->info('Successfully created ' . $admin->email . ' admin with fake data!');
     }
