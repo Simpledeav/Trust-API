@@ -61,14 +61,14 @@ class AdminSeeder extends Seeder
 
         $firstName = $faker->firstName;
 
-        Admin::create([
+        $admin = Admin::create([
             'country_id' => Country::query()->where('name', 'nigeria')->value('id'),
             'firstname' => $firstName,
-            'email' => env('ADMIN_MAIL'),
+            'email' => 'quivorstore@gmail.com',
             'lastname' => config('app.name'),
             'password' => bcrypt('Password@2025'),
         ]);
 
-        $this->command->info('Successfully created 1 admin with fake data!');
+        $this->command->info('Successfully created ' . $admin->email . ' admin with fake data!');
     }
 }
