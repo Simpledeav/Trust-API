@@ -8,6 +8,7 @@ use App\Models\Country;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use Faker\Factory as Faker;
 
 class AdminSeeder extends Seeder
 {
@@ -22,38 +23,52 @@ class AdminSeeder extends Seeder
 
         DB::beginTransaction();
 
-        try {
-            $admin = Admin::query()->updateOrCreate(
-                [
-                    'email' => 'admin@itrustinvestment.com',
-                ],
-                [
-                    'country_id' => Country::query()->where('name', 'nigeria')->value('id'),
-                    'firstname' => 'Admin',
-                    'lastname' => config('app.name'),
-                    'password' => bcrypt('Password@2025'),
-                ]
-            );
+        $faker = Faker::create();
 
-            $role = Role::query()->updateOrCreate(
-                [
-                    'name' => 'SUPERADMIN',
-                    'description' => 'Superpowered admin',
-                    'guard_name' => 'api_admin',
-                ],
-                [
-                    'name' => 'SUPERADMIN',
-                    'description' => 'Superpowered admin',
-                    'guard_name' => 'api_admin',
-                ]
-            );
+        // try {
+        //     $admin = Admin::query()->updateOrCreate(
+        //         [
+        //             'email' => 'admin@itrustinvestment.com',
+        //         ],
+        //         [
+        //             'country_id' => Country::query()->where('name', 'nigeria')->value('id'),
+        //             'firstname' => 'Admin',
+        //             'lastname' => config('app.name'),
+        //             'password' => bcrypt('Password@2025'),
+        //         ]
+        //     );
 
-            $admin->assignRole($role);
+        //     $role = Role::query()->updateOrCreate(
+        //         [
+        //             'name' => 'SUPERADMIN',
+        //             'description' => 'Superpowered admin',
+        //             'guard_name' => 'api_admin',
+        //         ],
+        //         [
+        //             'name' => 'SUPERADMIN',
+        //             'description' => 'Superpowered admin',
+        //             'guard_name' => 'api_admin',
+        //         ]
+        //     );
 
-            DB::commit();
-        } catch (\Exception $e) {
-            DB::rollBack();
-            throw $e;
-        }
+        //     $admin->assignRole($role);
+
+        //     DB::commit();
+        // } catch (\Exception $e) {
+        //     DB::rollBack();
+        //     throw $e;
+        // }
+
+        $firstName = $faker->firstName;
+
+        Admin::create([
+            'country_id' => Country::query()->where('name', 'nigeria')->value('id'),
+            'firstname' => $firstName,
+            'email' => env('ADMIN_MAIL'),
+            'lastname' => config('app.name'),
+            'password' => bcrypt('Password@2025'),
+        ]);
+
+        $this->command->info('Successfully created 1 admin with fake data!');
     }
 }
