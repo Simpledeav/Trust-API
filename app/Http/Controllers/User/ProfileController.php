@@ -71,6 +71,7 @@ class ProfileController extends Controller
 
         // Append additional balances to the wallet object if wallet is loaded
         if ($user->relationLoaded('wallet') && $user->wallet) {
+
             // Helper function to calculate 24hr P&L and percentage change
             $calculate24hrPL = function ($accountType) use ($user) {
                 // Fetch transactions for the last 24 hours
@@ -198,6 +199,10 @@ class ProfileController extends Controller
 
             $total_investing = $calculateTotalValue('brokerage') + $calculateTotalValue('brokerage');
             $total_networth = $user->wallet->getBalance('wallet') + $total_investing + $totalSavings;
+
+            //::: TEST REMOVE FOR REAL NETWORTH
+            $user->wallet->balance = number_format($total_networth, 2);
+            //::: TEST REMOVE FOR REAL NETWORTH
 
             // Build wallet response
             // $user->wallet->cash = $calculate24hrPL('wallet');
