@@ -288,9 +288,8 @@ class AnalyticsService
             ->sum('amount');
         
         $totalSavings = $creditSavings - $debitSavings;
-        $total_networth = $cashBalance + $totalInvestment + $totalSavings;
         
-        return number_format($total_networth, 2);
+        return $cashBalance + $totalInvestment + $totalSavings;
     }
 
     /**
