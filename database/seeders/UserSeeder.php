@@ -99,7 +99,7 @@ class UserSeeder extends Seeder
             Wallet::create([
                 'id' => Str::uuid(),
                 'user_id' => $user->id,
-                'balance' => $faker->numberBetween(0, 10000),
+                'balance' => 0,
             ]);
 
             // Store payment methods (adjust according to your storePayment method)
