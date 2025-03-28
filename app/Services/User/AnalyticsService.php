@@ -277,13 +277,27 @@ class AnalyticsService
             });
         
         // 3. Calculate total savings (savings ledger up to that time)
+        // $creditSavings = SavingsLedger::where('user_id', $user->id)
+        //     ->where('type', 'credit')
+        //     ->where('created_at', '<=', $time)
+        //     ->sum('amount');
+        
+        // $debitSavings = SavingsLedger::where('user_id', $user->id)
+        //     ->where('type', 'debit')
+        //     ->where('created_at', '<=', $time)
+        //     ->sum('amount');
+        
+        // $totalSavings = $creditSavings - $debitSavings;
+
         $creditSavings = SavingsLedger::where('user_id', $user->id)
             ->where('type', 'credit')
+            ->where('method', 'profit')
             ->where('created_at', '<=', $time)
             ->sum('amount');
         
         $debitSavings = SavingsLedger::where('user_id', $user->id)
             ->where('type', 'debit')
+            ->where('method', 'profit')
             ->where('created_at', '<=', $time)
             ->sum('amount');
         
