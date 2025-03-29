@@ -146,7 +146,7 @@ class ProfileController extends Controller
                     $extra = $position->extra;
 
                     // return ($currentPrice - $openingPrice) * $quantity + $extra;
-                    return ($currentPrice * $quantity + $extra) - $position->amount;
+                    return ($openingPrice * $quantity + $extra) - $position->amount;
                 }) + $tradeLast24h;
 
                 // Fetch the total value of the account (balance + positions value)
