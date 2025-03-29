@@ -96,6 +96,9 @@ class PositionController extends Controller
                 'amount' => $updatedAmount,
             ]);
 
+            $pl = $request['extra']; // Profit/Loss
+            $plPercentage = ($pl / $newAmount) * 100; // Profit/Loss Percentage
+
             // Store trades as position transaction history
             Trade::create([
                 'user_id'     => $user->id,
@@ -113,6 +116,8 @@ class PositionController extends Controller
                 'interval'    => $request['interval'] ?? null,
                 'tp'          => $request['tp'] ?? null,
                 'sl'          => $request['sl'] ?? null,
+                'pl'          => $pl,
+                'pl_percentage'=> $plPercentage,
                 'extra'       => 0,
             ]);
 
@@ -120,6 +125,9 @@ class PositionController extends Controller
 
             return back()->with('success', "Added {$request['quantity']} units to {$asset->symbol} position");
         } else {
+            $pl = $request['extra']; // Profit/Loss
+            $plPercentage = ($pl / $newAmount) * 100; // Profit/Loss Percentage
+
             Position::create([
                 'user_id'    => $user->id,
                 'asset_id'   => $request['asset_id'],
@@ -154,6 +162,8 @@ class PositionController extends Controller
                 'interval'    => $request['interval'] ?? null,
                 'tp'          => $request['tp'] ?? null,
                 'sl'          => $request['sl'] ?? null,
+                'pl'          => $pl,
+                'pl_percentage'=> $plPercentage,
                 'extra'       => 0,
             ]);
 
