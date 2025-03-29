@@ -74,7 +74,7 @@
                                         $extra = $trade->extra;
 
                                         $singleProfit = ($assetPrice * $quantity) - $trade->amount;
-                                        $profit = number_format($singleProfit + $trade->extra, 2);
+                                        $profit = $singleProfit + $trade->extra;
                                     @endphp
                                     <tr class="">
                                         <td>{{ $index +  1 }}</td>
