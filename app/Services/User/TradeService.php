@@ -235,7 +235,7 @@ class TradeService
             // Calculate amounts
             $closingValue = $asset->price * $request['quantity'] + $position['extra']; // Current price × quantity
             $openingValue = $position->price * $request['quantity']; // Position price × quantity
-            $pl = $closingValue - $openingValue + $position['extra']; // Profit/Loss
+            $pl = $closingValue - $openingValue; // Profit/Loss
             $plPercentage = ($pl / $openingValue) * 100; // Profit/Loss Percentage
 
             $wallet = $position->account ?? 'wallet';
