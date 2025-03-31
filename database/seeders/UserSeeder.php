@@ -26,7 +26,7 @@ class UserSeeder extends Seeder
         // Get random location and currency
         $state = State::inRandomOrder()->first();
         $city = City::inRandomOrder()->first();
-        $currency = Currency::inRandomOrder()->first();
+        $currency = Currency::first();
 
         // Create admin user
         // $admin = User::create([

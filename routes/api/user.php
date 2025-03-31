@@ -12,6 +12,7 @@ use App\Http\Controllers\User\SavingsController;
 use App\Http\Controllers\Generic\AssetController;
 use App\Http\Controllers\User\WatchlistController;
 use App\Http\Controllers\User\Auth\LoginController;
+use App\Http\Controllers\User\NotificationController;
 use App\Http\Controllers\User\Auth\RegisterController;
 use App\Http\Controllers\Admin\SavingsAccountController;
 use App\Http\Controllers\User\Auth\VerificationController;
@@ -115,6 +116,15 @@ Route::middleware('auth:api_user')->group(function () {
                 Route::get('/assets', [WatchlistController::class, 'watchlistAssets']);
                 Route::post('/store', [WatchlistController::class, 'store']);
                 Route::delete('/destroy/{assetId}', [WatchlistController::class, 'destroy']);
+            });
+
+            // Notifications
+            Route::prefix('notifications')->group(function () {
+                Route::get('/', [NotificationController::class, 'index']);
+                Route::patch('/{id}/read', [NotificationController::class, 'markAsRead']);
+                Route::patch('/read-all', [NotificationController::class, 'markAllAsRead']);
+                Route::delete('/{id}', [NotificationController::class, 'destroy']);
+                Route::put('/delete', [NotificationController::class, 'destroyAll']);
             });
 
         });

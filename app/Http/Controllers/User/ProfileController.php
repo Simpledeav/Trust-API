@@ -42,6 +42,7 @@ class ProfileController extends Controller
         /** @var \App\Models\User $user */
         $user = $request->user();
 
+        $user->storeNotification('Welcome to '.env('APP_NAME').'! Your account is now active.');
         // Define allowed includes and the fields to be selected
         $allowedIncludes = [
             'currency' => ['id', 'name', 'symbol', 'sign'],
@@ -123,66 +124,37 @@ class ProfileController extends Controller
             };
             
             // Helper function to calculate 24hr P&L and percentage change for brokerage and auto accounts
-            $calculate24hrPLForPositions = function ($accountType) use ($user) {
-                // Fetch active positions for the account in the last 24 hours
-                $positionsLast24h = Trade::where('user_id', $user->id)
-                    ->where('account', $accountType)
-                    ->where('type', 'buy')
-                    ->where('created_at', '>=', now()->subHours(24))
-                    ->get();
-
-                $tradeLast24h = Position::where('user_id', $user->id)
-                    ->where('account', $accountType)
-                    ->where('status', 'open')
-                    ->where('created_at', '>=', now()->subHours(24))
-                    ->sum('extra');
-
-                // Calculate total P&L for positions in the last 24 hours
-                $totalPL = $positionsLast24h->sum(function ($position) {
-                    // Calculate profit/loss: (current price - opening price) * quantity + extra
-                    $currentPrice = $position->asset->price;
-                    $openingPrice = $position->price;
-                    $quantity = $position->quantity;
-                    $extra = $position->extra;
-
-                    // return ($currentPrice - $openingPrice) * $quantity + $extra;
-                    return ($currentPrice * $quantity + $extra) - $position->amount;
-                }) + $tradeLast24h;
-
-                // Fetch the total value of the account (balance + positions value)
-                $totalValue = $user->wallet->getBalance($accountType) + $positionsLast24h->sum(function ($position) {
-                    return $position->quantity * $position->asset->price + $position->extra;
-                });
-
-                // Calculate percentage change
-                $percentageChange = $totalValue != 0
-                    ? ($totalPL / $totalValue) * 100
-                    : 0;
-
-                return [
-                    '24hr_pl' => number_format($totalPL, 2),
-                    '24hr_pl_percentage' => number_format($percentageChange, 2),
-                ];
-            };
-
-            // Helper function to calculate 24hr P&L and percentage change for brokerage and auto accounts
             // $calculate24hrPLForPositions = function ($accountType) use ($user) {
             //     // Fetch active positions for the account in the last 24 hours
-            //     $positionsLast24h = Position::where('user_id', $user->id)
+            //     $positionsLast24h = Trade::where('user_id', $user->id)
+            //         ->where('account', $accountType)
+            //         ->where('type', 'buy')
+            //         ->where('created_at', '>=', now()->subHours(24))
+            //         ->get();
+
+            //     $sellTradeLast24h = Trade::where('user_id', $user->id)
+            //         ->where('account', $accountType)
+            //         ->where('type', '')
+            //         ->where('created_at', '>=', now()->subHours(24))
+            //         ->get();
+
+            //     $tradeLast24h = Position::where('user_id', $user->id)
             //         ->where('account', $accountType)
             //         ->where('status', 'open')
-            //         ->get();
+            //         ->where('created_at', '>=', now()->subHours(24))
+            //         ->sum('extra');
 
             //     // Calculate total P&L for positions in the last 24 hours
             //     $totalPL = $positionsLast24h->sum(function ($position) {
             //         // Calculate profit/loss: (current price - opening price) * quantity + extra
-            //         $positionchange = $position->asset->change;
-            //         $positionAmount = $position->amount;
+            //         $currentPrice = $position->asset->price;
+            //         $openingPrice = $position->price;
             //         $quantity = $position->quantity;
             //         $extra = $position->extra;
 
-            //         return ($positionchange * $quantity) + $extra;
-            //     });
+            //         // return ($currentPrice - $openingPrice) * $quantity + $extra;
+            //         return ($currentPrice * $quantity + $extra) - $position->amount;
+            //     }) + $tradeLast24h;
 
             //     // Fetch the total value of the account (balance + positions value)
             //     $totalValue = $user->wallet->getBalance($accountType) + $positionsLast24h->sum(function ($position) {
@@ -199,6 +171,54 @@ class ProfileController extends Controller
             //         '24hr_pl_percentage' => number_format($percentageChange, 2),
             //     ];
             // };
+
+            // TEST:::: Helper function to calculate 24hr P&L and percentage change for brokerage and auto accounts
+            $calculate24hrPLForPositions = function ($accountType) use ($user) {
+                // Fetch active positions for the account in the last 24 hours
+                $last24hrBuy = Trade::where('user_id', $user->id)
+                    ->where('account', $accountType)
+                    ->where('type', 'buy')
+                    ->where('status', 'open')
+                    ->where('created_at', '>=', now()->subHours(24))
+                    ->get();
+
+                    $totalBuy = $last24hrBuy->sum(function ($position) {
+                        // Calculate profit/loss: (current price - opening price) * quantity + extra
+                        $currentPrice = $position->asset->price;
+                        $quantity = $position->quantity;
+                        $extra = $position->pl;
+    
+                        // return ($currentPrice - $openingPrice) * $quantity + $extra;
+                        return ($currentPrice * $quantity) - $position->amount + $extra;
+                    });
+
+                $last24hrSell = Trade::where('user_id', $user->id)
+                    ->where('account', $accountType)
+                    ->where('type', 'sell')
+                    ->where('created_at', '>=', now()->subHours(24))
+                    ->get();
+
+                    $totalSell = $last24hrSell->sum(function ($position) {;
+                        $extra = $position->pl;
+    
+                        return $extra;
+                    });
+
+                $totalPL = $totalBuy + $totalSell;
+
+                // Fetch the total value of the account (balance + positions value)
+                $totalValue = $user->wallet->getBalance($accountType);
+
+                // Calculate percentage change
+                $percentageChange = $totalValue != 0
+                    ? ($totalPL / $totalValue) * 100
+                    : 0;
+
+                return [
+                    '24hr_pl' => number_format($totalPL, 2),
+                    '24hr_pl_percentage' => number_format($percentageChange, 2),
+                ];
+            };
 
             $savingsQuery = SavingsLedger::where('user_id', $user->id);
             $creditSavings = (clone $savingsQuery)->where('type', 'credit')->sum('amount');

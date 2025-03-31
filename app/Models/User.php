@@ -332,6 +332,11 @@ class User extends Authenticatable implements
     {
         return $this->hasMany(Transaction::class);
     }
+
+    public function notifiable()
+    {
+        return $this->hasMany(Notification::class);
+    }
     
     // public function transactions()
     // {
@@ -360,6 +365,15 @@ class User extends Authenticatable implements
             'swap_from'           => $swap_from,
             'swap_to'           => $swap_to,
             'created_at'           => $created_at,
+        ]);
+    }
+
+    public function storeNotification(
+        string $message,
+    ): Notification {
+        return $this->notifiable()->create([
+            'user_id'           => $this->id,
+            'message'            => $message,
         ]);
     }
 

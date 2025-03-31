@@ -320,6 +320,12 @@
                                         </select>
                                     </div>
                                 </div>
+                                <div class="col-md-12">
+                                    <div class="mb-3">
+                                        <label class="form-label">Comment</label>
+                                        <input class="form-control" type="text" name="comment" id="comment" required value="Wallet transfer from ----- to -----">
+                                    </div>
+                                </div>
                                 @else
                                 <div class="col-md-12">
                                     <div class="mb-3">
@@ -331,19 +337,26 @@
                                         </select>
                                     </div>
                                 </div>
-                                @endif
-
                                 <div class="col-md-12">
                                     <div class="mb-3">
                                         <label class="form-label">Comment</label>
                                         <select class="form-select" id="commentSelect" required name="comment">
-                                            <option data-method="credit" value="Wallet deposit via (bank deposit)">Bank Deposit</option>
-                                            <option data-method="credit" value="Wallet deposit via (cryptocurrency)">Crypto Deposit</option>
+                                            <option data-method="credit" value="Bank Deposit">Bank Deposit</option>
+                                            <option data-method="credit" value="BTC Wallet">BTC Deposit</option>
+                                            <option data-method="credit" value="ETH Wallet">ETH Deposit</option>
+                                            <option data-method="credit" value="USDT (ERC20) Wallet">USDT (ERC20) Deposit</option>
+                                            <option data-method="credit" value="USDT (TRC20) Wallet">USDT (TRC20) Deposit</option>
                                             <option data-method="debit" value="Wallet withdrawal via (bank deposit)">Bank Withdraw</option>
-                                            <option data-method="debit" value="Wallet withdrawal via (cryptocurrency)">Crypto Withdraw</option>
+                                            <option data-method="debit" value="BTC Wallet">BTC Withdraw</option>
+                                            <option data-method="debit" value="ETH Wallet">ETH Withdraw</option>
+                                            <option data-method="debit" value="USDT (ERC20) Wallet">USDT (ERC20) Withdraw</option>
+                                            <option data-method="debit" value="USDT (TRC20) Wallet">USDT (TRC20) Withdraw</option>
                                         </select>
                                     </div>
                                 </div>
+                                @endif
+
+                                
 
                                 <div class="col-md-12">
                                     <div class="mb-3">

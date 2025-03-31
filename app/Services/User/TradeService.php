@@ -258,7 +258,7 @@ class TradeService
                 'type'        => 'sell',
                 'price'       => $asset->price,
                 'quantity'    => $request['quantity'],
-                'account'    => 'wallet',
+                'account'    => $position->account,
                 'amount'      => $closingValue,
                 'status'      => 'open',
                 'entry'       => $position['entry'] ?? null,

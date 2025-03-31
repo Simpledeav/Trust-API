@@ -193,9 +193,9 @@
                                                                         <option selected disabled value="">---- Select Asset ---</option>
                                                                         @foreach($assets as $asset)
                                                                             @if($asset->id === $trade->asset->id)
-                                                                                <option selected value="{{ $asset->id }}" data-price="{{ $asset->price }}">{{ $asset->name }} ({{ $asset->symbol }})</option>
+                                                                                <option selected value="{{ $asset->id }}" data-price="{{ $trade->price }}">{{ $asset->name }} ({{ $asset->symbol }})</option>
                                                                             @else
-                                                                                <option value="{{ $asset->id }}" data-price="{{ $asset->price }}">{{ $asset->name }} ({{ $asset->symbol }})</option>
+                                                                                <option value="{{ $asset->id }}" data-price="{{ $trade->price }}">{{ $asset->name }} ({{ $asset->symbol }})</option>
                                                                             @endif
                                                                         @endforeach
                                                                     </select>
@@ -313,7 +313,7 @@
 
 
                                             // Initial calculation in case there are pre-filled values
-                                            calculateQuantity();
+                                            // calculateQuantity();
                                         });
                                     </script>
                                     <script>

@@ -59,7 +59,7 @@
                                     <th> <span class="f-light f-w-600">Asset</span></th>
                                     <th> <span class="f-light f-w-600">Amount </span></th>
                                     <th> <span class="f-light f-w-600">Type</span></th>
-                                    <!-- <th> <span class="f-light f-w-600">P/L</span></th> -->
+                                    <th> <span class="f-light f-w-600">P/L</span></th>
                                     <th> <span class="f-light f-w-600">Status</span></th>
                                     <th> <span class="f-light f-w-600">Date</span></th>
                                     <!-- <th> <span class="f-light f-w-600">Action</span></th> -->
@@ -73,7 +73,10 @@
                                         $extra = $trade->extra;
 
                                         $singleProfit = ($assetPrice * $quantity) - $trade->amount;
-                                        $profit = $singleProfit + $trade->extra;
+                                        if($trade->type == 'buy')
+                                            $profit = $trade->pl + $singleProfit;
+                                        else
+                                            $profit = $trade->pl;
                                     @endphp
                                     <tr class="">
                                         <td>{{ $index +  1 }}</td>
@@ -94,6 +97,9 @@
                                             <span class="badge rounded-pill @if($trade->type == 'buy') badge-light-success @else badge-light-danger @endif">
                                                 @if($trade->type == 'buy') BUY @else SELL @endif
                                             </span>
+                                        </td>
+                                        <td> 
+                                            <p class="f-light @if($profit >= 0) text-success @else text-danger @endif">{{ number_format($profit, 2) }} USD</p>
                                         </td>
                                         {{-- <td> 
                                             <p class="f-light @if($profit >= 0) text-success @else text-danger @endif">{{ number_format($profit, 2) }} USD</p>

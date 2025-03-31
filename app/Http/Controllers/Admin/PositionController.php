@@ -215,7 +215,7 @@ class PositionController extends Controller
         // Calculate amounts
         $closingValue = $asset->price * $request['quantity']; // Current price × quantity
         $openingValue = $position->price * $request['quantity']; // Position price × quantity
-        $pl = $closingValue - $openingValue + $position['extra']; // Profit/Loss
+        $pl = $closingValue - $position->amount + $position['extra']; // Profit/Loss
         $plPercentage = ($pl / $openingValue) * 100; // Profit/Loss Percentage
 
         $wallet = $position->account ?? 'wallet';
@@ -235,10 +235,9 @@ class PositionController extends Controller
             'user_id'     => $user->id,
             'asset_id'    => $position['asset_id'],
             'asset_type'  => $asset->type,
-            'account'    => 'wallet',
             'type'        => 'sell',
             'price'       => $asset->price,
-            'account'     => 'wallet',
+            'account'     => $position->account,
             'quantity'    => $position['quantity'],
             'amount'      => $newPrice + $position['extra'],
             'status'      => 'open',
@@ -267,6 +266,22 @@ class PositionController extends Controller
                 Trade::where('user_id', $user->id)
                     ->where('asset_id', $position->asset_id)
                     ->update(['status' => 'close']);
+
+                    // Check if extra value changed and update trades accordingly
+                    $openBuyTrades = Trade::where('user_id', $user->id)
+                        ->where('asset_id', $position->asset_id)
+                        ->where('type', 'buy')
+                        ->where('status', 'open')
+                        ->get();
+
+                    if ($openBuyTrades->count() > 0) {
+                        foreach ($openBuyTrades as $trade) {
+                            $trade->update([
+                                'pl' => $pl,
+                                'pl_percentage' => $plPercentage
+                            ]);
+                        }
+                    }
             }
 
             $position->delete();
@@ -329,18 +344,22 @@ class PositionController extends Controller
         $wallet = $request->input('account', $position->account);
         $balance = $user->wallet->getBalance($wallet);
 
-        $newAmount = $asset->price * $request->input('quantity', $position->quantity);
+        $newAmount = $position->price * $request->input('quantity', $position->quantity);
 
         if ($balance < $newAmount) {
             return back()->with('error', 'Insufficient balance.');
         }
+
+        // Store the original extra value before update
+        $originalExtra = $position->extra;
+        $newExtra = $request->input('extra', $position->extra);
 
         // Update the position
         $position->update([
             'asset_id'   => $request->input('asset_id', $position->asset_id),
             'user_id'    => $request->input('user_id', $position->user_id),
             'account'    => $wallet,
-            'price'      => $asset->price,
+            // 'price'      => $asset->price,  //Dont update the price, it will affect the calculation
             'quantity'   => $request->input('quantity', $position->quantity),
             'amount'     => $newAmount,
             'status'     => $request->input('status', $position->status),
@@ -354,29 +373,28 @@ class PositionController extends Controller
             'created_at' => $request->input('created_at', $position->created_at),
         ]);
 
-        // Update or create a trade record for the position transaction history
-        // Trade::updateOrCreate(
-        //     [
-        //         'user_id'  => $position->user_id,
-        //         'asset_id' => $position->asset_id,
-        //         'type'     => 'buy', // Assuming this is a buy trade
-        //     ],
-        //     [
-        //         'asset_type' => $asset->type,
-        //         'account'   => $wallet,
-        //         'price'      => $asset->price,
-        //         'quantity'   => $request->input('quantity', $position->quantity),
-        //         'amount'     => $newAmount,
-        //         'status'     => $request->input('status', $position->status),
-        //         'entry'      => $request->input('entry', $position->entry),
-        //         'exit'       => $request->input('exit', $position->exit),
-        //         'leverage'   => $request->input('leverage', $position->leverage),
-        //         'interval'   => $request->input('interval', $position->interval),
-        //         'tp'        => $request->input('tp', $position->tp),
-        //         'sl'        => $request->input('sl', $position->sl),
-        //         'extra'     => 0, // Assuming extra is not part of the trade history
-        //     ]
-        // );
+        // Check if extra value changed and update trades accordingly
+        if ($originalExtra != $newExtra) {
+            $openBuyTrades = Trade::where('user_id', $user->id)
+                ->where('asset_id', $position->asset_id)
+                ->where('type', 'buy')
+                ->where('status', 'open')
+                ->get();
+
+            if ($openBuyTrades->count() > 0) {
+                $extraPerTrade = $newExtra / $openBuyTrades->count();
+
+                foreach ($openBuyTrades as $trade) {
+                    // Calculate PL percentage: (PL / original amount) * 100
+                    $plPercentage = ($trade->amount > 0) ? ($extraPerTrade / $trade->amount) * 100 : 0;
+
+                    $trade->update([
+                        'pl' => $extraPerTrade,
+                        'pl_percentage' => $plPercentage
+                    ]);
+                }
+            }
+        }
 
         return back()->with('success', 'Position updated successfully');
     }

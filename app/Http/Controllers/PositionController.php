@@ -137,6 +137,15 @@ class PositionController extends Controller
             ->withQueryString();
 
             $transformedpositions = $positions->getCollection()->map(function ($post) {
+
+                if($post->status == 'open' && $post->type == 'buy') {
+                    $pl = ($post->asset->price * $post->quantity) - $post->amount + $post->pl;
+                    $pl_percent = ($pl / $post->amount) * 100;
+                } else {
+                    $pl = $post->pl;
+                    $pl_percent = $post->pl_percentage;
+                }
+
                 return [
                     'id' => $post->id,
                     'user_id' => $post->user_id,
@@ -151,8 +160,8 @@ class PositionController extends Controller
                     'interval' => $post->interval,
                     'tp' => $post->tp,
                     'sl' => $post->sl,
-                    'pl' => $post->pl,
-                    'pl_percentage' => $post->pl_percentage,
+                    'pl' => number_format($pl, 2),
+                    'pl_percentage' => number_format($pl_percent, 2),
                     'asset' => $post->asset ? [
                         'id' => $post->asset->id,
                         'name' => $post->asset->name,
