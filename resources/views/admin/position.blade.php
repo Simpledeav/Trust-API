@@ -61,6 +61,7 @@
                                     <th> <span class="f-light f-w-600">Quantity </span></th>
                                     <th> <span class="f-light f-w-600">Account</span></th>
                                     <th> <span class="f-light f-w-600">P/L</span></th>
+                                    <th> <span class="f-light f-w-600">Extra</span></th>
                                     <th> <span class="f-light f-w-600">Status</span></th>
                                     <th> <span class="f-light f-w-600">Date</span></th>
                                     <th> <span class="f-light f-w-600">Action</span></th>
@@ -74,7 +75,8 @@
                                         $extra = $trade->extra;
 
                                         $singleProfit = ($assetPrice * $quantity) - $trade->amount;
-                                        $profit = $singleProfit + $trade->extra;
+                                        $profit = $singleProfit;
+                                        $extra = $trade->extra;
                                     @endphp
                                     <tr class="">
                                         <td>{{ $index +  1 }}</td>
@@ -99,6 +101,9 @@
                                         </td>
                                         <td> 
                                             <p class="f-light @if($profit >= 0) text-success @else text-danger @endif">{{ number_format($profit, 2) }} USD</p>
+                                        </td>
+                                        <td> 
+                                            <p class="f-light @if($extra >= 0) text-success @else text-danger @endif">{{ number_format($extra, 2) }} USD</p>
                                         </td>
                                         <td> 
                                             <span class="badge @if($trade->status == 'open') badge-light-success  @elseif($trade->status == 'hold') badge-light-warning @else badge-light-danger @endif">

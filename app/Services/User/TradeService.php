@@ -320,6 +320,11 @@ class TradeService
                 $fractionAmount = $asset->price * $request['quantity'];
                 $fractionPl = $fractionAmount - ($position->price * $request['quantity']);
                 $fractionPlPercentage = ($fractionPl / $fractionAmount) * 100;
+
+                // Calculate the extra percentage
+                $closedFraction = $request['quantity'] / $position->quantity;
+                $fractionExtra = $position->extra * $closedFraction;
+                $remainingExtra = $position->extra - $fractionExtra;
                 
                 // Store trades as position transaction history
                 Trade::create([
@@ -341,9 +346,16 @@ class TradeService
                     'extra'       => 0,
                     'pl'          => $fractionPl,
                     'pl_percentage'=> $fractionPlPercentage,
+                    'pl' => $fractionPl + $fractionExtra,
+                    'pl_percentage' => (($fractionPl + $fractionExtra) / ($position->price * $request['quantity'])) * 100
                 ]);
                 
-                $position->update(['quantity' => $newQuantity, 'amount' => $newAmount]);
+                $position->update([
+                    'quantity' => $newQuantity, 
+                    'amount' => $newAmount,
+                    'extra' => $remainingExtra
+                ]);
+                
                 return $position;
             }
 

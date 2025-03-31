@@ -106,31 +106,20 @@ class AnalyticsService
             return $currentValue;
         }) + $positions->sum('extra');
 
-        // $rawTotalInvestment = $rawTotalBuy + $rawTotalPl + $totalExtra;
+        // Calculate the original investment amount (without extra)
+        $originalInvestment = $positions->sum('amount');
 
-        // Get trades from last 24 hours with their assets
-        // $tradesLast24h = (clone $tradesQuery)
-        //     ->where('status', 'open')
-        //     ->where('type', 'buy')
-        //     ->where('created_at', '>=', now()->subHours(24))
-        //     ->with('asset')
-        //     ->get();
+        // Calculate the percentage rate
+        $percentageRate = 0;
+        if ($originalInvestment > 0) {
+            $percentageRate = (($rawTotalInvestment - $originalInvestment) / $originalInvestment) * 100;
+        }
 
         // Calculate 24-hour P&L: (current value - invested amount) + extra from positions
         $rawTotalInvestment24hr = $positions->sum(function($trade) {
             $currentValue = $trade->quantity * $trade->asset->price;
             return $currentValue - $trade->amount + $trade->extra;
         });
-
-        //:::: Incase it comes to todays PL for all possitions
-        // $rawTotalInvestment24hr = $positions->sum(function($trade) {
-        //     $currentValue = ($trade->asset->change * $trade->quantity)+ $trade->extra;
-        //     return $currentValue ;
-        // });
-
-        // Get chart data
-        // $chartData = $this->getChartData(clone $ledgerQuery, $timeframe);
-        // $chartData = $this->getNetWorthChartData($user, $timeFilters[$timeframe]);
 
         // $timeframe = '1d'; // default to 1 day
         $chartData = $this->getNetworthChartData($user, $timeframe);
@@ -142,6 +131,7 @@ class AnalyticsService
             'total_savings_return' => number_format($rawTotalReturn, 2),
             'total_savings_24hr' => number_format($savingsLast24h, 2),
             'total_investment' => number_format($rawTotalInvestment, 2),
+            'total_investment_percentage' => number_format($percentageRate, 2),
             'total_investment_24hr' => number_format($rawTotalInvestment24hr, 2),
             'chart_data' => $chartData,
         ];
