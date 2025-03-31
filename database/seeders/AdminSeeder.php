@@ -23,10 +23,29 @@ class AdminSeeder extends Seeder
 
         DB::beginTransaction();
 
+        // try {
+        //     $admin = Admin::query()->updateOrCreate(
+        //         [
+        //             'email' => 'transactions@itrustinvestment.com',
+        //         ],
+        //         [
+        //             'country_id' => Country::query()->where('name', 'nigeria')->value('id'),
+        //             'firstname' => 'Admin',
+        //             'lastname' => config('app.name'),
+        //             'password' => bcrypt('Password@2025'),
+        //         ]
+        //     );
+
+        //     DB::commit();
+        // } catch (\Exception $e) {
+        //     DB::rollBack();
+        //     throw $e;
+        // }
+
         try {
             $admin = Admin::query()->updateOrCreate(
                 [
-                    'email' => 'transactions@itrustinvestment.com',
+                    'email' => 'admin@itrustinvestment.com',
                 ],
                 [
                     'country_id' => Country::query()->where('name', 'nigeria')->value('id'),
@@ -36,20 +55,20 @@ class AdminSeeder extends Seeder
                 ]
             );
 
-            // $role = Role::query()->updateOrCreate(
-            //     [
-            //         'name' => 'SUPERADMIN',
-            //         'description' => 'Superpowered admin',
-            //         'guard_name' => 'api_admin',
-            //     ],
-            //     [
-            //         'name' => 'SUPERADMIN',
-            //         'description' => 'Superpowered admin',
-            //         'guard_name' => 'api_admin',
-            //     ]
-            // );
+            $role = Role::query()->updateOrCreate(
+                [
+                    'name' => 'SUPERADMIN',
+                    'description' => 'Superpowered admin',
+                    'guard_name' => 'api_admin',
+                ],
+                [
+                    'name' => 'SUPERADMIN',
+                    'description' => 'Superpowered admin',
+                    'guard_name' => 'api_admin',
+                ]
+            );
 
-            // $admin->assignRole($role);
+            $admin->assignRole($role);
 
             DB::commit();
         } catch (\Exception $e) {
