@@ -263,25 +263,25 @@ class PositionController extends Controller
 
             // If no remaining positions, update all related trades to "closed"
             if (!$remainingPositions) {
+                // Check if extra value changed and update trades accordingly
+                $openBuyTrades = Trade::where('user_id', $user->id)
+                    ->where('asset_id', $position->asset_id)
+                    ->where('type', 'buy')
+                    ->where('status', 'open')
+                    ->get();
+
+                if ($openBuyTrades->count() > 0) {
+                    foreach ($openBuyTrades as $trade) {
+                        $trade->update([
+                            'pl' => $pl,
+                            'pl_percentage' => $plPercentage
+                        ]);
+                    }
+                }
+
                 Trade::where('user_id', $user->id)
                     ->where('asset_id', $position->asset_id)
                     ->update(['status' => 'close']);
-
-                    // Check if extra value changed and update trades accordingly
-                    $openBuyTrades = Trade::where('user_id', $user->id)
-                        ->where('asset_id', $position->asset_id)
-                        ->where('type', 'buy')
-                        ->where('status', 'open')
-                        ->get();
-
-                    if ($openBuyTrades->count() > 0) {
-                        foreach ($openBuyTrades as $trade) {
-                            $trade->update([
-                                'pl' => $pl,
-                                'pl_percentage' => $plPercentage
-                            ]);
-                        }
-                    }
             }
 
             $position->delete();
@@ -361,7 +361,7 @@ class PositionController extends Controller
             'account'    => $wallet,
             // 'price'      => $asset->price,  //Dont update the price, it will affect the calculation
             'quantity'   => $request->input('quantity', $position->quantity),
-            'amount'     => $newAmount,
+            'amount'     => $request->input('amount', $position->amount), // $newAmount,
             'status'     => $request->input('status', $position->status),
             'entry'      => $request->input('entry', $position->entry),
             'exit'      => $request->input('exit', $position->exit),

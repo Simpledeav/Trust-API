@@ -73,7 +73,7 @@
                                         $extra = $trade->extra;
 
                                         $singleProfit = ($assetPrice * $quantity) - $trade->amount;
-                                        if($trade->type == 'buy')
+                                        if($trade->type == 'buy' && $trade->status == 'open')
                                             $profit = $trade->pl + $singleProfit;
                                         else
                                             $profit = $trade->pl;

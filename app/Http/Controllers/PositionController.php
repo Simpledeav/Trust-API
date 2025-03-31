@@ -75,14 +75,29 @@ class PositionController extends Controller
             ->paginate((int) $request->per_page) 
             ->withQueryString();
 
-            // Add order_type to each position
             $positions->getCollection()->transform(function ($position) {
-                $pl = $position->asset->price * $position->quantity + $position->extra;
-                $pl_today = ($position->asset->change * $position->quantity) + $position->extra + $position->amount;
-
+                // Basic calculations
+                $currentValue = $position->asset->price * $position->quantity;
+                $pl = ($currentValue - $position->amount) + $position->extra;
+                $pl_percentage = $position->amount != 0 ? ($pl / $position->amount) * 100 : 0;
+                
+                // Initialize today's values with regular PL values by default
+                $today_pl = $pl;
+                $today_pl_percentage = $pl_percentage;
+                
+                // Only calculate today-specific PL if position is older than 24 hours
+                if ($position->created_at->diffInHours(now()) >= 24) {
+                    $today_pl = ($position->asset->change * $position->quantity) + $position->extra;
+                    $today_pl_percentage = $position->amount != 0 ? ($today_pl / $position->amount) * 100 : 0;
+                }
+            
                 $position->order_type = 'buy';
+                $position->value = number_format($currentValue + $position->extra, 2);
                 $position->pl = number_format($pl, 2);
-                $position->today_pl = number_format($pl_today, 2);
+                $position->pl_percentage = number_format($pl_percentage, 2);
+                $position->today_pl = number_format($today_pl, 2);
+                $position->today_pl_percentage = number_format($today_pl_percentage, 2);
+                
                 return $position;
             });
 

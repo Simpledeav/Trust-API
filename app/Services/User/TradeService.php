@@ -250,45 +250,38 @@ class TradeService
                 //     $user->storeTransaction($adjustedAmount, $position->id, Position::class, $transactionType, 'approved', $comment, null, null, now());
             }
 
-            // Store trades as position transaction history
-            Trade::create([
-                'user_id'     => $user->id,
-                'asset_id'    => $position['asset_id'],
-                'asset_type'  => $asset->type,
-                'type'        => 'sell',
-                'price'       => $asset->price,
-                'quantity'    => $request['quantity'],
-                'account'    => $position->account,
-                'amount'      => $closingValue,
-                'status'      => 'open',
-                'entry'       => $position['entry'] ?? null,
-                'exit'        => $position['exit'] ?? null,
-                'leverage'    => $position['leverage'] ?? null,
-                'interval'    => $position['interval'] ?? null,
-                'tp'          => $position['tp'] ?? null,
-                'sl'          => $position['sl'] ?? null,
-                'extra'       => 0,
-                'pl'          => $pl,
-                'pl_percentage'=> $plPercentage,
-            ]);
-
             Notifications::sendPositionClosedNotification($user, $position, $position->asset, $wallet, $request['quantity'], $pl, $plPercentage);
 
             // Close entire position
             if ($position->quantity === $request['quantity']) {
+                
+                // Store trades as position transaction history
+                Trade::create([
+                    'user_id'     => $user->id,
+                    'asset_id'    => $position['asset_id'],
+                    'asset_type'  => $asset->type,
+                    'type'        => 'sell',
+                    'price'       => $asset->price,
+                    'quantity'    => $request['quantity'],
+                    'account'    => $position->account,
+                    'amount'      => $closingValue,
+                    'status'      => 'open',
+                    'entry'       => $position['entry'] ?? null,
+                    'exit'        => $position['exit'] ?? null,
+                    'leverage'    => $position['leverage'] ?? null,
+                    'interval'    => $position['interval'] ?? null,
+                    'tp'          => $position['tp'] ?? null,
+                    'sl'          => $position['sl'] ?? null,
+                    'extra'       => 0,
+                    'pl'          => $pl,
+                    'pl_percentage'=> $plPercentage,
+                ]);
 
                 // Check if there are any remaining positions for the same asset and user
                 $remainingPositions = Position::where('user_id', $user->id)
                     ->where('asset_id', $position->asset_id)
                     ->where('quantity', '>', $request['quantity'])
                     ->exists();
-
-                // If no remaining positions, update all related trades to "closed"
-                if (!$remainingPositions) {
-                    Trade::where('user_id', $user->id)
-                        ->where('asset_id', $position->asset_id)
-                        ->update(['status' => 'close']);
-                }
 
                 // Check if extra value changed and update trades accordingly
                 $openBuyTrades = Trade::where('user_id', $user->id)
@@ -305,6 +298,13 @@ class TradeService
                         ]);
                     }
                 }
+
+                // If no remaining positions, update all related trades to "closed"
+                if (!$remainingPositions) {
+                    Trade::where('user_id', $user->id)
+                        ->where('asset_id', $position->asset_id)
+                        ->update(['status' => 'close']);
+                }
                 
                 $position->delete();
 
@@ -313,8 +313,36 @@ class TradeService
 
             // Close part of the position
             if ($position->quantity > $request['quantity']) {
+                
                 $newQuantity = $position->quantity - $request['quantity'];
                 $newAmount = $position->price * $newQuantity;
+
+                $fractionAmount = $asset->price * $request['quantity'];
+                $fractionPl = $fractionAmount - ($position->price * $request['quantity']);
+                $fractionPlPercentage = ($fractionPl / $fractionAmount) * 100;
+                
+                // Store trades as position transaction history
+                Trade::create([
+                    'user_id'     => $user->id,
+                    'asset_id'    => $position['asset_id'],
+                    'asset_type'  => $asset->type,
+                    'type'        => 'sell',
+                    'price'       => $asset->price,
+                    'quantity'    => $request['quantity'],
+                    'account'    => $position->account,
+                    'amount'      => $fractionAmount,
+                    'status'      => 'open',
+                    'entry'       => $position['entry'] ?? null,
+                    'exit'        => $position['exit'] ?? null,
+                    'leverage'    => $position['leverage'] ?? null,
+                    'interval'    => $position['interval'] ?? null,
+                    'tp'          => $position['tp'] ?? null,
+                    'sl'          => $position['sl'] ?? null,
+                    'extra'       => 0,
+                    'pl'          => $fractionPl,
+                    'pl_percentage'=> $fractionPlPercentage,
+                ]);
+                
                 $position->update(['quantity' => $newQuantity, 'amount' => $newAmount]);
                 return $position;
             }
