@@ -289,6 +289,22 @@ class TradeService
                         ->where('asset_id', $position->asset_id)
                         ->update(['status' => 'close']);
                 }
+
+                // Check if extra value changed and update trades accordingly
+                $openBuyTrades = Trade::where('user_id', $user->id)
+                    ->where('asset_id', $position->asset_id)
+                    ->where('type', 'buy')
+                    ->where('status', 'open')
+                    ->get();
+
+                if ($openBuyTrades->count() > 0) {
+                    foreach ($openBuyTrades as $trade) {
+                        $trade->update([
+                            'pl' => $pl,
+                            'pl_percentage' => $plPercentage
+                        ]);
+                    }
+                }
                 
                 $position->delete();
 
