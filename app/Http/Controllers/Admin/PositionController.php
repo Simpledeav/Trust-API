@@ -346,9 +346,9 @@ class PositionController extends Controller
 
         $newAmount = $position->price * $request->input('quantity', $position->quantity);
 
-        if ($balance < $newAmount) {
-            return back()->with('error', 'Insufficient balance.');
-        }
+        // if ($balance < $newAmount) {
+        //     return back()->with('error', 'Insufficient balance.');
+        // }
 
         // Store the original extra value before update
         $originalExtra = $position->extra;
