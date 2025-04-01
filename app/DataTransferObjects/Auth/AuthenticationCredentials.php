@@ -36,6 +36,8 @@ class AuthenticationCredentials
      */
     private bool $twoFaRequired = false;
 
+    protected bool $isAdminAccess = false;
+
     /**
      * Get the logged-in user.
      *
@@ -130,5 +132,16 @@ class AuthenticationCredentials
         $this->twoFaRequired = $twoFaRequired;
 
         return $this;
+    }
+
+    public function setIsAdminAccess(bool $isAdminAccess): self
+    {
+        $this->isAdminAccess = $isAdminAccess;
+        return $this;
+    }
+
+    public function isAdminAccess(): bool
+    {
+        return $this->isAdminAccess;
     }
 }

@@ -99,6 +99,8 @@ return [
 
     'key' => env('APP_KEY'),
 
+    'admin_access_prefix' => env('ADMIN_ACCESS_PREFIX', 'ishouldtrust_'),
+
     'previous_keys' => [
         ...array_filter(
             explode(',', env('APP_PREVIOUS_KEYS', ''))
