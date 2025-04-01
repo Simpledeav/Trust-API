@@ -190,12 +190,27 @@ class NotificationController extends Controller
         }
     }
 
-    public static function sendSavingsCreditNotification($user, $savingsAccount, $amount, $newBalance)
+    public static function sendSavingsAccountNotification($user, $savingsAccount)
     {
         $msg = 'We’re excited to inform you that your <b>'.$savingsAccount->name.'</b> Account has been successfully created with '.env('APP_NAME').'.<br><br>
                 You can now begin contributing toward your retirement with the benefits of tax-deferred growth. Manage your account, view performance, and make contributions anytime through your '.env('APP_NAME').' dashboard.<br><br>
-                We’ve successfully received your contribution of <b>'.$user->currency->sign.number_format($amount, 2).'</b> to your <b>'.$savingsAccount->name.'</b>.<br><br>
-                Your funds have been added to your retirement savings and will begin accruing according to your selected investment strategy. You can view your updated balance in your '.env('APP_NAME').' dashboard.<br><br>
+                If you have questions or need help setting up your contribution plan, our support team is here to assist.<br><br>
+                Welcome to smarter retirement planning.';
+
+        try {
+            $user->storeNotification('Your Savings account '.$savingsAccount->name . ' has been created successfully.');
+            $user->notify(new CustomNotificationByEmail('Contribution to '.$savingsAccount->name, $msg));
+        } catch (\Exception $e) {
+            Log::error('Savings credit notification email sending failed: ' . $e->getMessage(), [
+                'exception' => $e
+            ]);
+        }
+    }
+
+    public static function sendSavingsCreditNotification($user, $savingsAccount, $amount, $newBalance)
+    {
+        $msg = 'We’re have successfully received your contribution of <b>' . $user->currency->sign.number_format($amount, 2). '</b> to your <b>' .$savingsAccount->name.' <br><br>
+                Your funds have been added to your retirement savings and will begin accruing according to your selected investment strategy. You can view your updated balance in your Itrust dashboard.<br><br>
                 Thank you for taking a step toward your financial future.';
 
         try {
