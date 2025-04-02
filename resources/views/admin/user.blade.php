@@ -32,7 +32,7 @@
                         <div class="card-header">
                             <div class="d-flex justify-content-between align-items-center">
                                 <div>
-                                    <h4>Users</h4>
+                                    <h4>Users 👽</h4>
                                 </div>
                                 <div class="d-flex align-items-center">
                                     <input class="form-control" id="inputEmail4" type="email" placeholder="Search in {{ $users->count() }} Users...">
