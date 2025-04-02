@@ -151,6 +151,26 @@ class TradeController extends Controller
         return back()->withInput()->with('error', 'Error processing trade');
     }
 
+    public function updateHistory(Request $request, Trade $trade)
+    {
+        $validator = Validator::make($request->all(), [
+            'created_at' => ['required'],
+        ]);
+
+        if ($validator->fails()) {
+            return back()->withErrors($validator)->withInput()->with('error', 'Invalid input data');
+        }
+
+        $trade->update([
+            'created_at'  => Carbon::parse($request->created_at),
+        ]);
+
+        if($trade)
+            return back()->with('success', 'Successfully updated');
+
+        return back()->withInput()->with('error', 'Error processing trade');
+    }
+
     public function toggle(Request $request, Trade $trade)
     {
         $validator = Validator::make($request->all(), [

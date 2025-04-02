@@ -285,7 +285,7 @@ class UserController extends Controller
         $user->payments()->delete();
 
         // Finally, delete the user
-        $user->delete();
+        $user->forceDelete();
 
         return redirect()->back()->with('success', 'User and all related data deleted successfully.');
     }

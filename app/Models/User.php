@@ -207,7 +207,7 @@ class User extends Authenticatable implements
      *
      * @throws \LogicException
      */
-    public function delete(string|null $reason = null)
+    public function deletes(string|null $reason = null)
     {
         $this->updateQuietly([
             'deleted_reason' => $reason,

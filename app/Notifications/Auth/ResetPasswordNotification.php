@@ -31,7 +31,7 @@ class ResetPasswordNotification extends Notification implements ShouldQueue
      */
     public function via($notifiable)
     {
-        return ['mail', 'database'];
+        return ['mail'];
     }
 
     /**
@@ -43,7 +43,7 @@ class ResetPasswordNotification extends Notification implements ShouldQueue
     {
         return [
             'mail' => Queue::MAIL->value,
-            'database' => Queue::MAIL->value,
+            // 'database' => Queue::MAIL->value,
         ];
     }
 

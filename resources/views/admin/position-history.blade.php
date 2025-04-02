@@ -62,7 +62,7 @@
                                     <th> <span class="f-light f-w-600">P/L</span></th>
                                     <th> <span class="f-light f-w-600">Status</span></th>
                                     <th> <span class="f-light f-w-600">Date</span></th>
-                                    <!-- <th> <span class="f-light f-w-600">Action</span></th> -->
+                                    <th> <span class="f-light f-w-600">Action</span></th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -112,7 +112,7 @@
                                         <td> 
                                             <p class="f-light">{{ $trade['created_at']->format('d M, Y \a\t h:i A') }}</p>
                                         </td>
-                                        {{-- <td>
+                                        <td>
                                             <div class="btn-group">
                                                 <button class="btn btn-dark rounded-pill dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">Action</button>
                                                     <ul class="dropdown-menu dropdown-menu-dark dropdown-block">
@@ -121,46 +121,9 @@
                                                                 Edit
                                                             </a>
                                                         </li>
-                                                        @if($trade->status !== 'open')
-                                                            <li>
-                                                                <form action="{{ route('admin.trade.toggle', $trade->id) }}" method="POST" style="display: inline;">
-                                                                    @csrf
-                                                                    @method('PUT')
-                                                                    <input type="hidden" name="action" value="open">
-                                                                    <button type="submit" class="dropdown-item fw-bold text-success">Open</button>
-                                                                </form>
-                                                            </li>
-                                                        @endif
-                                                        @if($trade->status !== 'hold')
-                                                        <li>
-                                                            <form action="{{ route('admin.trade.toggle', $trade->id) }}" method="POST" style="display: inline;">
-                                                                @csrf
-                                                                @method('PUT')
-                                                                <input type="hidden" name="action" value="hold">
-                                                                <button type="submit" class="dropdown-item text-warning fw-bold">Hold</button>
-                                                            </form>
-                                                        </li>
-                                                        @endif
-                                                        @if($trade->status !== 'close')
-                                                        <li>
-                                                            <form action="{{ route('admin.trade.toggle', $trade->id) }}" method="POST" style="display: inline;">
-                                                                @csrf
-                                                                @method('PUT')
-                                                                <input type="hidden" name="action" value="close">
-                                                                <button type="submit" class="dropdown-item text-danger fw-bold">Close</button>
-                                                            </form>
-                                                        </li>
-                                                        @endif
-                                                        <li>
-                                                            <form action="{{ route('admin.trade.destroy', $trade->id) }}" method="POST" style="display: inline;">
-                                                                @csrf
-                                                                @method('DELETE')
-                                                                <button type="submit" class="dropdown-item text-white bg-danger fw-bold">Delete</button>
-                                                            </form>
-                                                        </li>
                                                     </ul>
                                             </div>
-                                        </td> --}}
+                                        </td>
                                     </tr>
 
                                     <!-- Edit Trade Modal -->
@@ -170,106 +133,13 @@
                                                 <div class="modal-body">
                                                     <div class="modal-toggle-wrapper">
                                                         <h4 class="text-center pb-2" id="modalTitle">Edit Trade</h4>
-                                                        <form id="editTradeForm" action="{{ route('admin.trade.update', $trade->id) }}" method="POST">
+                                                        <form id="editTradeForm" action="{{ route('admin.trade.date.update', $trade->id) }}" method="POST">
                                                             @csrf
                                                             @method('PUT')
                                                             <div class="col-md-12">
                                                                 <div class="mb-3">
-                                                                    <label class="form-label">User</label>
-                                                                    <select class="form-select" id="" required="" name="user_id">
-                                                                        @foreach($users as $user)
-                                                                            @if($user->id === $trade->user->id)
-                                                                                <option selected value="{{ $user->id }}">{{ $user->first_name }} {{ $user->last_name }}</option>
-                                                                            @endif
-                                                                        @endforeach
-                                                                    </select>
-                                                                </div>
-                                                            </div>
-
-                                                            <div class="col-md-12">
-                                                                <div class="mb-3">
-                                                                    <label class="form-label">Asset</label>
-                                                                    <select class="form-select" id="" required="" name="asset_id">
-                                                                        @foreach($assets as $asset)
-                                                                            @if($asset->id === $trade->asset->id)
-                                                                                <option selected value="{{ $asset->id }}">{{ $asset->name }} ({{ $asset->symbol }})</option>
-                                                                            @else
-                                                                                <option value="{{ $asset->id }}">{{ $asset->name }} ({{ $asset->symbol }})</option>
-                                                                            @endif
-                                                                        @endforeach
-                                                                    </select>
-                                                                </div>
-                                                            </div>
-
-                                                            <div class="col-md-12">
-                                                                <div class="mb-3">
-                                                                    <label class="form-label">Amount</label>
-                                                                    <input class="form-control" type="number" placeholder="Enter amount..." name="amount" id="editAmount" value="{{ $trade->amount }}" required>
-                                                                </div>
-                                                            </div>
-
-                                                            <div class="col-md-12">
-                                                                <div class="mb-3">
-                                                                    <label class="form-label">Type</label>
-                                                                    <select class="form-select" id="editType" required="" name="type">
-                                                                        <option selected="" disabled="" value="">Trade type...</option>
-                                                                        <option value="buy"  @if($trade->type == 'buy') selected @endif>BUY</option>
-                                                                        <option value="sell"  @if($trade->type == 'sell') selected @endif>SELL</option>
-                                                                    </select>
-                                                                </div>
-                                                            </div>
-
-                                                            <div class="col-md-12">
-                                                                <div class="mb-3">
-                                                                    <label class="form-label">Account</label>
-                                                                    <select class="form-select" id="" required="" name="account">
-                                                                        <option selected="" disabled="" value="">---- Select Account ---</option>
-                                                                        <option value="wallet">Cash</option>
-                                                                        <option value="brokerage">Brokerage</option>
-                                                                        <option value="auto">Auto Investing</option>
-                                                                    </select>
-                                                                </div>
-                                                            </div>
-
-                                                            <div class="col-md-12">
-                                                                <div class="mb-3">
-                                                                    <label class="form-label">Entry</label>
-                                                                    <input class="form-control" type="number" placeholder="(Optional)" name="entry" value="{{ $trade->entry }}" id="editEntry">
-                                                                </div>
-                                                            </div>
-
-                                                            <div class="col-md-12">
-                                                                <div class="mb-3">
-                                                                    <label class="form-label">S/L</label>
-                                                                    <input class="form-control" type="number" placeholder="(Optional)" name="sl" value="{{ $trade->sl }}" id="editSl">
-                                                                </div>
-                                                            </div>
-
-                                                            <div class="col-md-12">
-                                                                <div class="mb-3">
-                                                                    <label class="form-label">T/P</label>
-                                                                    <input class="form-control" type="number" placeholder="(Optional)" name="tp" value="{{ $trade->tp }}" id="editTp">
-                                                                </div>
-                                                            </div>
-
-                                                            <div class="col-md-12">
-                                                                <div class="mb-3">
-                                                                    <label class="form-label">Leverage</label>
-                                                                    <input class="form-control" type="text" placeholder="(Optional)" name="leverage" value="{{ $trade->leverage }}" id="leverage">
-                                                                </div>
-                                                            </div>
-
-                                                            <div class="col-md-12">
-                                                                <div class="mb-3">
-                                                                    <label class="form-label">P&L (USD)</label>
-                                                                    <input class="form-control" type="number" placeholder="(Optional)" name="extra" value="{{ $trade->extra }}" id="editExtra">
-                                                                </div>
-                                                            </div>
-
-                                                            <div class="col-md-12">
-                                                                <div class="mb-3">
                                                                     <label class="form-label">Date</label>
-                                                                    <input class="form-control" type="datetime-local" name="created_at" id="dateEdit" required value="{{ $trade->created_at }}">
+                                                                    <input class="form-control" type="datetime-local" name="created_at" id="dateEdit" required value="{{ $trade->created_at }}" step="any">
                                                                 </div>
                                                             </div>
 
