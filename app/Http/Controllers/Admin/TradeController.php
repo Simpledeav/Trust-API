@@ -171,6 +171,13 @@ class TradeController extends Controller
         return back()->withInput()->with('error', 'Error processing trade');
     }
 
+    public function destroyHistory(Trade $trade)
+    {
+        $trade->delete();
+
+        return redirect()->back()->with('success', 'Trade history deleted successfully.');
+    }
+
     public function toggle(Request $request, Trade $trade)
     {
         $validator = Validator::make($request->all(), [
