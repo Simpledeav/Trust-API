@@ -33,6 +33,9 @@ jobs:
         target: "/var/www/itrust-api/"
         rm: true
         strip_components: 1
+        script: |
+          whoami
+          pwd
 
     - name: Run deployment commands
       uses: appleboy/ssh-action@v0.1.8
