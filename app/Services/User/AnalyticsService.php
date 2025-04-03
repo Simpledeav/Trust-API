@@ -270,7 +270,7 @@ class AnalyticsService
         $totalTradeHistoryInvestment = Trade::where('user_id', $user->id)
             ->where('type', 'sell')
             ->where('created_at', '<=', $time)
-            ->sum('amount');
+            ->sum('pl');
 
         $creditSavings = SavingsLedger::where('user_id', $user->id)
             ->where('type', 'credit')
