@@ -268,7 +268,7 @@ class AnalyticsService
 
         // 3. Calculate total investment (positions value at that time)
         $totalTradeHistoryInvestment = Trade::where('user_id', $user->id)
-            ->where('status', 'closed')
+            ->where('type', 'sell')
             ->where('created_at', '<=', $time)
             ->sum('amount');
 
