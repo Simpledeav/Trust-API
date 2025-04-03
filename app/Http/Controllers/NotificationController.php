@@ -23,7 +23,7 @@ class NotificationController extends Controller
                 If you need any help getting started or have questions, our team is ready to assist at support@itrustinvestment.com.<br><br>
                 Thanks for using '.env('APP_NAME').'!';
         try {
-            $user->storeNotification('Welcome to '.env('APP_NAME').'! Your account is now active.');
+            // $user->storeNotification('Welcome to '.env('APP_NAME').'! Your account is now active.');
             $user->notify(new CustomNotificationByEmail('Welcome to '.env('APP_NAME'), $msg));
         } catch (\Exception $e) {
             Log::error('Email sending failed: ' . $e->getMessage(), [
@@ -40,7 +40,7 @@ class NotificationController extends Controller
                 Once your payment is received, we will process your deposit promptly and notify you of the update.<br><br>
                 If you have any questions or need assistance, feel free to reach out to us at support@itrustinvestment.com.';
         try {
-            $user->storeNotification('Deposit request of '.$user->currency->sign.number_format($amount, 2).' via '.$method.' received - pending payment');
+            // $user->storeNotification('Deposit request of '.$user->currency->sign.number_format($amount, 2).' via '.$method.' received - pending payment');
             $user->notify(new CustomNotificationByEmail('Deposit Request Confirmation', $msg));
         } catch (\Exception $e) {
             Log::error('Deposit notification email sending failed: ' . $e->getMessage(), [
@@ -59,7 +59,7 @@ class NotificationController extends Controller
                 Thank you for choosing '.env('APP_NAME').'.';
         
         try {
-            $user->storeNotification('Withdrawal of '.$user->currency->sign.number_format($amount, 2).' via '.$method.' submitted - processing');
+            // $user->storeNotification('Withdrawal of '.$user->currency->sign.number_format($amount, 2).' via '.$method.' submitted - processing');
             $user->notify(new CustomNotificationByEmail('Withdrawal Request Confirmation', $msg));
         } catch (\Exception $e) {
             Log::error('Withdrawal notification email sending failed: ' . $e->getMessage(), [
@@ -74,7 +74,7 @@ class NotificationController extends Controller
                 Your funds are now available for trading and investing.<br><br>
                 Thank you for choosing '.env('APP_NAME').'.';
         try {
-            $user->storeNotification('Transfer of '.$user->currency->sign.number_format($amount, 2).' from '.$from.' to '.$to.' completed');
+            // $user->storeNotification('Transfer of '.$user->currency->sign.number_format($amount, 2).' from '.$from.' to '.$to.' completed');
             $user->notify(new CustomNotificationByEmail('Transfer to '.$to.' Account', $msg));
         } catch (\Exception $e) {
             Log::error('Transfer notification email sending failed: ' . $e->getMessage(), [
@@ -90,7 +90,7 @@ class NotificationController extends Controller
                 Thank you for choosing '.env('APP_NAME').'.';
 
         try {
-            $user->storeNotification('Deposit of '.$user->currency->sign.number_format($amount, 2).' processed - funds available');
+            // $user->storeNotification('Deposit of '.$user->currency->sign.number_format($amount, 2).' processed - funds available');
             $user->notify(new CustomNotificationByEmail('Deposit Processed!', $msg));
         } catch (\Exception $e) {
             Log::error('Approved deposit notification email sending failed: ' . $e->getMessage(), [
@@ -111,7 +111,7 @@ class NotificationController extends Controller
                 We’re here to assist you every step of the way.';
 
         try {
-            $user->storeNotification('Deposit of '.$user->currency->sign.number_format($amount, 2).' declined'.($reason ? ': '.$reason : ''));
+            // $user->storeNotification('Deposit of '.$user->currency->sign.number_format($amount, 2).' declined'.($reason ? ': '.$reason : ''));
             $user->notify(new CustomNotificationByEmail('Deposit Declined!', $msg));
         } catch (\Exception $e) {
             Log::error('Declined deposit notification email sending failed: ' . $e->getMessage(), [
@@ -128,7 +128,7 @@ class NotificationController extends Controller
                 Please allow standard network or bank processing times for the funds to reflect.<br><br>
                 Thank you for investing with us.';
         try {
-            $user->storeNotification('Withdrawal of '.$user->currency->sign.number_format($amount, 2).' via '.$method.' processed');
+            // $user->storeNotification('Withdrawal of '.$user->currency->sign.number_format($amount, 2).' via '.$method.' processed');
             $user->notify(new CustomNotificationByEmail('Withdrawal Processed', $msg));
         } catch (\Exception $e) {
             Log::error('Approved withdrawal notification email sending failed: ' . $e->getMessage(), [
@@ -149,7 +149,7 @@ class NotificationController extends Controller
                 We’re here to help.';
 
         try {
-            $user->storeNotification('Withdrawal of '.$user->currency->sign.number_format($amount, 2).' declined'.($reason ? ': '.$reason : ''));
+            // $user->storeNotification('Withdrawal of '.$user->currency->sign.number_format($amount, 2).' declined'.($reason ? ': '.$reason : ''));
             $user->notify(new CustomNotificationByEmail('Withdrawal Declined', $msg));
         } catch (\Exception $e) {
             Log::error('Declined withdrawal notification email sending failed: ' . $e->getMessage(), [
@@ -165,7 +165,7 @@ class NotificationController extends Controller
                 Thank you for investing with '.env('APP_NAME').'.';
 
         try {
-            $user->storeNotification('BUY order for '.$position->quantity.' '.$asset->symbol.' ('.$user->currency->sign.number_format($position->amount, 2).') placed');
+            // $user->storeNotification('BUY order for '.$position->quantity.' '.$asset->symbol.' ('.$user->currency->sign.number_format($position->amount, 2).') placed');
             $user->notify(new CustomNotificationByEmail('Purchase Order Confirmed', $msg));
         } catch (\Exception $e) {
             Log::error('Position opened notification email sending failed: ' . $e->getMessage(), [
@@ -181,7 +181,7 @@ class NotificationController extends Controller
                 Thank you for trading with '.env('APP_NAME').'.';
 
         try {
-            $user->storeNotification('SELL order for '.$closedQuantity.' '.$asset->symbol.' executed');
+            // $user->storeNotification('SELL order for '.$closedQuantity.' '.$asset->symbol.' executed');
             $user->notify(new CustomNotificationByEmail('Stock Sale Order Confirmed', $msg));
         } catch (\Exception $e) {
             Log::error('Position closed notification email sending failed: ' . $e->getMessage(), [
@@ -198,7 +198,7 @@ class NotificationController extends Controller
                 Welcome to smarter retirement planning.';
 
         try {
-            $user->storeNotification('Your Savings account '.$savingsAccount->name . ' has been created successfully.');
+            // $user->storeNotification('Your Savings account '.$savingsAccount->name . ' has been created successfully.');
             $user->notify(new CustomNotificationByEmail('Contribution to '.$savingsAccount->name, $msg));
         } catch (\Exception $e) {
             Log::error('Savings credit notification email sending failed: ' . $e->getMessage(), [
@@ -214,7 +214,7 @@ class NotificationController extends Controller
                 Thank you for taking a step toward your financial future.';
 
         try {
-            $user->storeNotification('Contributed '.$user->currency->sign.number_format($amount, 2).' to '.$savingsAccount->name);
+            // $user->storeNotification('Contributed '.$user->currency->sign.number_format($amount, 2).' to '.$savingsAccount->name);
             $user->notify(new CustomNotificationByEmail('Contribution to '.$savingsAccount->name, $msg));
         } catch (\Exception $e) {
             Log::error('Savings credit notification email sending failed: ' . $e->getMessage(), [
@@ -231,7 +231,7 @@ class NotificationController extends Controller
                 Thank you for investing with us.';
 
         try {
-            $user->storeNotification('Withdrew '.$user->currency->sign.number_format($amount, 2).' from '.$savingsAccount->name);
+            // $user->storeNotification('Withdrew '.$user->currency->sign.number_format($amount, 2).' from '.$savingsAccount->name);
             $user->notify(new CustomNotificationByEmail('Cashout from '.$savingsAccount->name, $msg));
         } catch (\Exception $e) {
             Log::error('Savings debit notification email sending failed: ' . $e->getMessage(), [
