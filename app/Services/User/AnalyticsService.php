@@ -230,26 +230,26 @@ class AnalyticsService
     protected function calculateNetworthAtTime(User $user, Carbon $time): float
     {
         // 1. Calculate cash balance (wallet balance at that time)
-        // $cashBalance = Transaction::where('user_id', $user->id)
-        //     ->where('status', 'approved')
-        //     ->where('created_at', '<=', $time)
-        //     ->where('type', 'credit')
-        //     ->sum('amount');
+        $cashBalance = Transaction::where('user_id', $user->id)
+            ->where('status', 'approved')
+            ->where('created_at', '<=', $time)
+            ->where('type', 'credit')
+            ->sum('amount');
 
         // 1. Calculate cash balance (wallet balance at that time)
-        $creditBalance = Transaction::where('user_id', $user->id)
-            ->where('status', 'approved')
-            ->where('type', 'credit')
-            ->where('created_at', '<=', $time)
-            ->sum('amount');
+        // $creditBalance = Transaction::where('user_id', $user->id)
+        //     ->where('status', 'approved')
+        //     ->where('type', 'credit')
+        //     ->where('created_at', '<=', $time)
+        //     ->sum('amount');
 
-        $debitBalance = Transaction::where('user_id', $user->id)
-            ->where('status', 'approved')
-            ->where('type', 'debit')
-            ->where('created_at', '<=', $time)
-            ->sum('amount');
+        // $debitBalance = Transaction::where('user_id', $user->id)
+        //     ->where('status', 'approved')
+        //     ->where('type', 'debit')
+        //     ->where('created_at', '<=', $time)
+        //     ->sum('amount');
 
-        $cashBalance = $creditBalance - $debitBalance;
+        // $cashBalance = $creditBalance - $debitBalance;
         
         // 2. Calculate total investment (positions value at that time)
         $totalInvestment = Position::where('user_id', $user->id)
