@@ -42,8 +42,6 @@ class ProfileController extends Controller
         /** @var \App\Models\User $user */
         $user = $request->user();
 
-        NotificationController::sendTestEmailNotification($user);
-
         // Define allowed includes and the fields to be selected
         $allowedIncludes = [
             'currency' => ['id', 'name', 'symbol', 'sign'],
