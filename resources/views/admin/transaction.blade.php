@@ -80,7 +80,25 @@
                                                 </span>
                                             </td>
                                             <td> 
+                                            @if($title == 'Transfer')
+                                                @php
+                                                    // Map account types to their display names
+                                                    $accountNames = [
+                                                        'wallet' => 'Cash Account',
+                                                        'cash' => 'Cash Account', // if you want both 'wallet' and 'cash' to show same
+                                                        'brokerage' => 'Brokerage Account',
+                                                        'auto' => 'Auto Investing Account',
+                                                        'ira' => 'IRA Account'
+                                                    ];
+                                                    
+                                                    // Get display names or fallback to original if not found
+                                                    $fromDisplay = $accountNames[$transaction->swap_from] ?? $transaction->swap_from;
+                                                    $toDisplay = $accountNames[$transaction->swap_to] ?? $transaction->swap_to;
+                                                @endphp
+                                                <p class="f-light">From <b>{{ $fromDisplay }}</b> to <b>{{ $toDisplay }}</b></p>
+                                            @else
                                                 <p class="f-light">{{ $transaction->comment }}</p>
+                                            @endif
                                             </td>
                                             <td> 
                                                 <span class="badge @if($transaction->status == 'approved') badge-light-success  @elseif($transaction->status == 'pending') badge-light-warning @else badge-light-danger @endif">
