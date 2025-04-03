@@ -28,7 +28,10 @@ class CustomNotificationByEmail extends Notification implements ShouldQueue
 
     public function via($notifiable): array
     {
-        return ['mail', 'database'];
+        return [
+            'mail', 
+            // 'database'
+        ];
     }
 
     /**
@@ -40,7 +43,7 @@ class CustomNotificationByEmail extends Notification implements ShouldQueue
     {
         return [
             'mail' => Queue::MAIL->value,
-            'database' => Queue::MAIL->value,
+            // 'database' => Queue::MAIL->value,
         ];
     }
 
