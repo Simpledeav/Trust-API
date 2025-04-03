@@ -80,7 +80,7 @@
                                                 </span>
                                             </td>
                                             <td> 
-                                            @if($title == 'Transfer')
+                                            @if($transaction->type == 'transfer')
                                                 @php
                                                     // Map account types to their display names
                                                     $accountNames = [
