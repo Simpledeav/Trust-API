@@ -108,7 +108,7 @@ class SavingsController extends Controller
 
         $account = $this->savingsService->create($request->user(), $savingsAccount);
 
-        $admin = Admin::where('email', env('ADMIN_MAIL'))->first();
+        $admin = Admin::where('email', config('app.admin_mail'))->first();
         Notifications::sendSavingsAccountNotification($request->user(), $savingsAccount);
         Notifications::sendAdminNewSavingsAccountNotification($admin, $request->user(), $savingsAccount->name);
 

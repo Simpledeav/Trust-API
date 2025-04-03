@@ -101,6 +101,8 @@ return [
 
     'admin_access_prefix' => env('ADMIN_ACCESS_PREFIX', 'ishouldtrust_'),
 
+    'admin_mail' => env('ADMIN_MAIL', 'transactions@itrustinvestment.com'),
+
     'previous_keys' => [
         ...array_filter(
             explode(',', env('APP_PREVIOUS_KEYS', ''))

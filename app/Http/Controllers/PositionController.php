@@ -215,7 +215,7 @@ class PositionController extends Controller
             $request->user()
         );
 
-        $admin = Admin::where('email', env('ADMIN_MAIL'))->first();
+        $admin = Admin::where('email', config('app.admin_mail'))->first();
 
         Notifications::sendPositionOpenedNotification($request->user(), $position, $position->asset, $request->wallet);
         NotificationController::sendAdminNewTradeNotification($admin, $request->user(), $position);

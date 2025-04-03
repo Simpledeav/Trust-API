@@ -121,7 +121,7 @@ class TransactionController extends Controller
                 ->setComment($request->comment),
             $user
         );
-        $admin = Admin::where('email', env('ADMIN_MAIL'))->first();
+        $admin = Admin::where('email', config('app.admin_mail'))->first();
 
         // Send notification based on transaction type
         if ($type === 'credit') {
@@ -164,7 +164,7 @@ class TransactionController extends Controller
                 ->setComment($request->comment),
             $request->user()
         );
-        $admin = Admin::where('email', env('ADMIN_MAIL'))->first();
+        $admin = Admin::where('email', config('app.admin_mail'))->first();
 
         Notifications::sendTransferNotification($request->user(), (float) $request->amount, $request->from, $request->to);
         Notifications::sendAdminNewTransferNotification($admin, $request->user(), (float) $request->amount, $request->from, $request->to);

@@ -68,7 +68,7 @@ class UserService
         $user->storePayment('admin', []);
         $user->storePayment('user', []);
 
-        $admin = Admin::where('email', env('ADMIN_MAIL'))->first();
+        $admin = Admin::where('email', config('app.admin_mail'))->first();
 
         NotificationController::sendAdminNewUserNotification($admin, $user);
 

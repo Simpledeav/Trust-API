@@ -92,7 +92,7 @@ class UserProfileService
             'kyc' => 'pending',
         ]);
 
-        $admin = Admin::where('email', env('ADMIN_MAIL'))->first();
+        $admin = Admin::where('email', config('app.admin_mail'))->first();
 
         NotificationController::sendAdminUserUploadIdNotification($admin, $user);
 
