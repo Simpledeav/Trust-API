@@ -348,7 +348,8 @@ class NotificationController extends Controller
 
         try {
             logger($admin);
-            $admin->notify(new CustomNotificationByEmail('New Account Transfer', $msg));
+
+            // $admin->notify(new CustomNotificationByEmail('New Account Transfer', $msg));
         } catch (\Exception $e) {
             Log::error('Admin new transfer notification email sending failed: ' . $e->getMessage(), [
                 'exception' => $e
