@@ -70,7 +70,20 @@ class NotificationController extends Controller
 
     public static function sendTransferNotification($user, $amount, $from, $to)
     {
-        $msg = 'Your transfer of <b>'.$user->currency->sign.number_format($amount, 2).'</b> from your <b>'.$from.'</b> to your <b>'.$to.'</b> has been successfully completed.<br><br>
+        // Map account types to their display names
+        $accountNames = [
+            'wallet' => 'Cash Account',
+            'cash' => 'Cash Account', // if you want both 'wallet' and 'cash' to show same
+            'brokerage' => 'Brokerage Account',
+            'auto' => 'Auto Investing Account',
+            'ira' => 'IRA Account'
+        ];
+        
+        // Get display names or fallback to original if not found
+        $fromDisplay = $accountNames[$from] ?? $from;
+        $toDisplay = $accountNames[$to] ?? $to;
+
+        $msg = 'Your transfer of <b>'.$user->currency->sign.number_format($amount, 2).'</b> from your <b>'.$fromDisplay.'</b> to your <b>'.$toDisplay.'</b> has been successfully completed.<br><br>
                 Your funds are now available for trading and investing.<br><br>
                 Thank you for choosing '.env('APP_NAME').'.';
         try {
