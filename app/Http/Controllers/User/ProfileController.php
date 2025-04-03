@@ -42,7 +42,8 @@ class ProfileController extends Controller
         /** @var \App\Models\User $user */
         $user = $request->user();
 
-        $user->storeNotification('Welcome to '.env('APP_NAME').'! Your account is now active.');
+        NotificationController::sendTestEmailNotification($user);
+
         // Define allowed includes and the fields to be selected
         $allowedIncludes = [
             'currency' => ['id', 'name', 'symbol', 'sign'],
