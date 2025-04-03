@@ -265,19 +265,12 @@ class AnalyticsService
             ->sum(function($position) {
                 return ($position->quantity * ($position->asset->price ?? 0)) + $position->extra - $position->amount;
             });
-        
-        // 3. Calculate total savings (savings ledger up to that time)
-        // $creditSavings = SavingsLedger::where('user_id', $user->id)
-        //     ->where('type', 'credit')
-        //     ->where('created_at', '<=', $time)
-        //     ->sum('amount');
-        
-        // $debitSavings = SavingsLedger::where('user_id', $user->id)
-        //     ->where('type', 'debit')
-        //     ->where('created_at', '<=', $time)
-        //     ->sum('amount');
-        
-        // $totalSavings = $creditSavings - $debitSavings;
+
+        // 3. Calculate total investment (positions value at that time)
+        $totalTradeHistoryInvestment = Trade::where('user_id', $user->id)
+            ->where('status', 'closed')
+            ->where('created_at', '<=', $time)
+            ->sum('amount');
 
         $creditSavings = SavingsLedger::where('user_id', $user->id)
             ->where('type', 'credit')
@@ -293,7 +286,7 @@ class AnalyticsService
         
         $totalSavings = $creditSavings - $debitSavings;
         
-        return $cashBalance + $totalInvestment + $totalSavings;
+        return $cashBalance + $totalInvestment + $totalTradeHistoryInvestment + $totalSavings;
     }
 
     /**
