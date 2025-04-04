@@ -80,5 +80,6 @@ Route::group(['middleware' => ['active_admin']], function (){
     Route::post('/positions/user/close', [PositionController::class, 'close'])->name('position.close');
     Route::put('/positions/user/update/{id}', [PositionController::class, 'update'])->name('position.update');
     Route::put('/trades/update/{trade}', [TradeController::class, 'updateHistory'])->name('trade.date.update');
+    Route::delete('/trades/delete/{trade}', [TradeController::class, 'destroyHistory'])->name('trade.date.delete');
 
 });

@@ -121,6 +121,14 @@
                                                                 Edit
                                                             </a>
                                                         </li>
+                                                        <li>
+                                                            <form action="{{ route('admin.trade.date.delete', $trade->id) }}" method="POST" style="display: inline;">
+                                                                @csrf
+                                                                @method('DELETE')
+                                                                <!-- <input type="hidden" name="action" value="hold"> -->
+                                                                <button type="submit" class="dropdown-item text-danger fw-bold">Delete</button>
+                                                            </form>
+                                                        </li>
                                                     </ul>
                                             </div>
                                         </td>
