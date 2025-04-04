@@ -359,16 +359,16 @@
                                     <div class="mb-3">
                                         <label class="form-label">Comment</label>
                                         <select class="form-select" id="commentSelect" required name="comment">
-                                            <option data-method="credit" value="Bank Deposit">Bank Deposit</option>
-                                            <option data-method="credit" value="BTC Wallet">BTC Deposit</option>
-                                            <option data-method="credit" value="ETH Wallet">ETH Deposit</option>
-                                            <option data-method="credit" value="USDT (ERC20) Wallet">USDT (ERC20) Deposit</option>
-                                            <option data-method="credit" value="USDT (TRC20) Wallet">USDT (TRC20) Deposit</option>
-                                            <option data-method="debit" value="Wallet withdrawal via (bank deposit)">Bank Withdraw</option>
-                                            <option data-method="debit" value="BTC Wallet">BTC Withdraw</option>
-                                            <option data-method="debit" value="ETH Wallet">ETH Withdraw</option>
-                                            <option data-method="debit" value="USDT (ERC20) Wallet">USDT (ERC20) Withdraw</option>
-                                            <option data-method="debit" value="USDT (TRC20) Wallet">USDT (TRC20) Withdraw</option>
+                                            <option data-method="credit" value="cash deposit via bank deposit">cash deposit via bank deposit</option>
+                                            <option data-method="credit" value="cash deposit via (BTC)">cash deposit via (BTC)</option>
+                                            <option data-method="credit" value="cash deposit via (ETH)">cash deposit via (ETH)</option>
+                                            <option data-method="credit" value="cash deposit via (USDT (ERC20))">cash deposit via (USDT (ERC20))</option>
+                                            <option data-method="credit" value="cash deposit via (USDT (TRC20))">cash deposit via (USDT (TRC20))</option>
+                                            <option data-method="debit" value="cash withdrawal via bank withdrawal">cash withdrawal via bank withdrawal</option>
+                                            <option data-method="debit" value="cash withdrawal via (BTC)">cash withdrawal via (BTC)</option>
+                                            <option data-method="debit" value="cash withdrawal via (ETH)">cash withdrawal via (ETH)</option>
+                                            <option data-method="debit" value="cash withdrawal via (USDT (ERC20))">cash withdrawal via (USDT (ERC20))</option>
+                                            <option data-method="debit" value="cash withdrawal via (USDT (TRC20))">cash withdrawal via (USDT (TRC20))</option>
                                         </select>
                                     </div>
                                 </div>
