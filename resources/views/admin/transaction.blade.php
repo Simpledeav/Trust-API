@@ -185,19 +185,20 @@
                                                                             <label class="form-label">Comment</label>
                                                                             <select class="form-select" id="comment" required name="comment">
                                                                                 <option value="">----- Select the comment to edit ------</option>
-                                                                                <option value="cash deposit via bank deposit">cash deposit via bank deposit</option>
-                                                                                <option value="cash deposit via (BTC)">cash deposit via (BTC)</option>
-                                                                                <option value="cash deposit via (ETH)">cash deposit via (ETH)</option>
-                                                                                <option value="cash deposit via (USDT (ERC20))">cash deposit via (USDT (ERC20))</option>
-                                                                                <option value="cash deposit via (USDT (TRC20))">cash deposit via (USDT (TRC20))</option>
-                                                                                <option value="cash withdrawal via bank withdrawal">cash withdrawal via bank withdrawal</option>
-                                                                                <option value="cash withdrawal via (BTC)">cash withdrawal via (BTC)</option>
-                                                                                <option value="cash withdrawal via (ETH)">cash withdrawal via (ETH)</option>
-                                                                                <option value="cash withdrawal via (USDT (ERC20))">cash withdrawal via (USDT (ERC20))</option>
-                                                                                <option value="cash withdrawal via (USDT (TRC20))">cash withdrawal via (USDT (TRC20))</option>
+                                                                                <option value="cash deposit via bank deposit" {{ $transaction->comment == 'cash deposit via bank deposit' ? 'selected' : '' }}>cash deposit via bank deposit</option>
+                                                                                <option value="cash deposit via (BTC)" {{ $transaction->comment == 'cash deposit via (BTC)' ? 'selected' : '' }}>cash deposit via (BTC)</option>
+                                                                                <option value="cash deposit via (ETH)" {{ $transaction->comment == 'cash deposit via (ETH)' ? 'selected' : '' }}>cash deposit via (ETH)</option>
+                                                                                <option value="cash deposit via (USDT (ERC20))" {{ $transaction->comment == 'cash deposit via (USDT (ERC20))' ? 'selected' : '' }}>cash deposit via (USDT (ERC20))</option>
+                                                                                <option value="cash deposit via (USDT (TRC20))" {{ $transaction->comment == 'cash deposit via (USDT (TRC20))' ? 'selected' : '' }}>cash deposit via (USDT (TRC20))</option>
+                                                                                <option value="cash withdrawal via bank withdrawal" {{ $transaction->comment == 'cash withdrawal via bank withdrawal' ? 'selected' : '' }}>cash withdrawal via bank withdrawal</option>
+                                                                                <option value="cash withdrawal via (BTC)" {{ $transaction->comment == 'cash withdrawal via (BTC)' ? 'selected' : '' }}>cash withdrawal via (BTC)</option>
+                                                                                <option value="cash withdrawal via (ETH)" {{ $transaction->comment == 'cash withdrawal via (ETH)' ? 'selected' : '' }}>cash withdrawal via (ETH)</option>
+                                                                                <option value="cash withdrawal via (USDT (ERC20))" {{ $transaction->comment == 'cash withdrawal via (USDT (ERC20))' ? 'selected' : '' }}>cash withdrawal via (USDT (ERC20))</option>
+                                                                                <option value="cash withdrawal via (USDT (TRC20))" {{ $transaction->comment == 'cash withdrawal via (USDT (TRC20))' ? 'selected' : '' }}>cash withdrawal via (USDT (TRC20))</option>
                                                                             </select>
                                                                         </div>
                                                                     </div>
+
 
                                                                     <div class="col-md-12">
                                                                         <div class="mb-3">
