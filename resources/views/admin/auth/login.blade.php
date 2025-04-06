@@ -53,7 +53,7 @@
                   <p>Enter your email & password to login!🎉 </p>
                   <div class="form-group">
                     <label class="col-form-label">Email Address</label>
-                    <input class="form-control" type="email" name="email" required="" placeholder="Test@gmail.com" value="admin@itrustinvestment.com">
+                    <input class="form-control" type="email" name="email" required="" placeholder="test@gmail.com">
                     @error('email')
                         <span class="text-danger">
                             <strong class="text-danger fs-8">{{ $message }}</strong>
@@ -63,7 +63,7 @@
                   <div class="form-group">
                     <label class="col-form-label">Password </label>
                     <div class="form-input position-relative">
-                      <input class="form-control" type="password" name="password" required="" placeholder="*********" value="Password@2025">
+                      <input class="form-control" type="password" name="password" required="" placeholder="*********">
                       <div class="show-hide"> <span class="show"></span></div>
                     </div>
                   </div>
