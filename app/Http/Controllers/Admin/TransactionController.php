@@ -127,6 +127,7 @@ class TransactionController extends Controller
         // Validate the request data
         $validator = Validator::make($request->all(), [
             'user_id' => ['required'],
+            'comment' => ['required'],
             'amount' => ['required', 'numeric', 'min:0.01'], // Ensure amount is positive
             'created_at' => ['required', 'date'], // Ensure created_at is a valid date
         ]);
@@ -166,6 +167,7 @@ class TransactionController extends Controller
         // Update the transaction amount and created_at fields
         $transaction->update([
             'amount' => $request->amount,
+            'comment' => $request->comment,
             'created_at' => Carbon::parse($request->created_at)->format('Y-m-d H:i:s'),
         ]);
 

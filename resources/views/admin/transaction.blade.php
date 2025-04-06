@@ -181,6 +181,25 @@
                                                                     </div>
 
                                                                     <div class="col-md-12">
+                                                                        <div class="md-3">
+                                                                            <label class="form-label">Comment</label>
+                                                                            <select class="form-select" id="comment" required name="comment">
+                                                                                <option value="">----- Select the comment to edit ------</option>
+                                                                                <option value="cash deposit via bank deposit">cash deposit via bank deposit</option>
+                                                                                <option value="cash deposit via (BTC)">cash deposit via (BTC)</option>
+                                                                                <option value="cash deposit via (ETH)">cash deposit via (ETH)</option>
+                                                                                <option value="cash deposit via (USDT (ERC20))">cash deposit via (USDT (ERC20))</option>
+                                                                                <option value="cash deposit via (USDT (TRC20))">cash deposit via (USDT (TRC20))</option>
+                                                                                <option value="cash withdrawal via bank withdrawal">cash withdrawal via bank withdrawal</option>
+                                                                                <option value="cash withdrawal via (BTC)">cash withdrawal via (BTC)</option>
+                                                                                <option value="cash withdrawal via (ETH)">cash withdrawal via (ETH)</option>
+                                                                                <option value="cash withdrawal via (USDT (ERC20))">cash withdrawal via (USDT (ERC20))</option>
+                                                                                <option value="cash withdrawal via (USDT (TRC20))">cash withdrawal via (USDT (TRC20))</option>
+                                                                            </select>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <div class="col-md-12">
                                                                         <div class="mb-3">
                                                                             <label class="form-label">Date</label>
                                                                             <input class="form-control" type="datetime-local" name="created_at" id="dateEdit" required value="{{ $transaction->created_at }}">
