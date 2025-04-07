@@ -50,8 +50,8 @@ class ProfileController extends Controller
             'city' => ['id', 'name'],
             'transactions' => ['id', 'amount', 'status', 'type', 'user_id'],
             'wallet' => ['id', 'balance', 'user_id'],
-            'depositAccount' => ['id', 'user_id', 'wallet_name', 'wallet_address', 'bank_name', 'bank_account_number', 'bank_routing_number', 'bank_reference', 'bank_address'],
-            'withdrawalAccount' => ['id', 'user_id', 'wallet_name', 'wallet_address', 'bank_name', 'bank_account_number', 'bank_routing_number', 'bank_reference', 'bank_address'],
+            'depositAccount' => ['id', 'user_id', 'wallet_name', 'wallet_address', 'bank_name', 'account_name', 'bank_account_number', 'bank_routing_number', 'bank_reference', 'bank_address'],
+            'withdrawalAccount' => ['id', 'user_id', 'wallet_name', 'wallet_address', 'bank_name', 'account_name', 'bank_account_number', 'bank_routing_number', 'bank_reference', 'bank_address'],
             'savings' => ['id', 'savings_account_id', 'user_id', 'balance'],
         ];
 

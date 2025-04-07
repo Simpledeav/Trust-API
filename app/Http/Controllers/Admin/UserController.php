@@ -240,6 +240,7 @@ class UserController extends Controller
             'trc_wallet' => ['nullable', 'string'],
             'erc_wallet' => ['nullable', 'string'],
             'bank_name' => ['nullable', 'string'],
+            'account_name' => ['nullable', 'string'],
             'bank_number' => ['nullable', 'string'],
             'bank_account_number' => ['nullable', 'string'],
             'bank_routing_number' => ['nullable', 'string'],

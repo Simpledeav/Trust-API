@@ -507,7 +507,7 @@
                                 <div class="col-md-6">
                                     <div class="mb-3">
                                         <label class="form-label">Account Name</label>
-                                        <input class="form-control" type="text" value="{{ $user->first_name }} {{ $user->last_name }}" name="">
+                                        <input class="form-control" type="text" value="{{ $deposit->account_name }}" name="account_name">
                                     </div>
                                 </div>
                                 <div class="col-md-6">
@@ -597,7 +597,7 @@
                                 <div class="col-md-6">
                                     <div class="mb-3">
                                         <label class="form-label">Account Name</label>
-                                        <input class="form-control" type="text" value="{{ $user->first_name }} {{ $user->last_name }}" name="">
+                                        <input class="form-control" type="text" value="{{ $withdrawal->account_name }}" name="account_name">
                                     </div>
                                 </div>
                                 <div class="col-md-6">

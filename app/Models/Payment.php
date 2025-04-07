@@ -13,7 +13,7 @@ class Payment extends Model
 
     protected $fillable = [
         'wallet_name', 'type', 'wallet_address', 'wallet_note', 
-        'bank_name', 'bank_number', 'bank_account_number', 'bank_routing_number', 'bank_reference',
+        'bank_name', 'account_name', 'bank_number', 'bank_account_number', 'bank_routing_number', 'bank_reference',
         'bank_address', 'user_id'
     ];
 

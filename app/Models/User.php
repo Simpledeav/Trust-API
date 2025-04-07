@@ -448,6 +448,7 @@ class User extends Authenticatable implements
             'wallet_address' => null,
             'wallet_note' => null,
             'bank_name' => null,
+            'account_name' => null,
             'bank_number' => null,
             'bank_account_number' => null,
             'bank_routing_number' => null,
