@@ -19,7 +19,7 @@ use App\Http\Controllers\User\Auth\VerificationController;
 use App\Http\Controllers\User\Auth\ResetPasswordController;
 use App\Http\Controllers\User\Auth\TwoFactorLoginController;
 
-// Route::middleware('throttle:3,1')->group(function () {
+Route::middleware('throttle:3,1')->group(function () {
     Route::post('register', RegisterController::class);
     Route::post('login', [LoginController::class, 'login']);
 
@@ -27,7 +27,7 @@ use App\Http\Controllers\User\Auth\TwoFactorLoginController;
     Route::post('password/forgot', [ResetPasswordController::class, 'forgot']);
     Route::post('password/verify', [ResetPasswordController::class, 'verify']);
     Route::post('password/reset', [ResetPasswordController::class, 'reset']);
-// });
+});
 
 Route::middleware('auth:api_user')->group(function () {
     Route::get('/', [ProfileController::class, 'index'])->middleware('auth.two_fa');
