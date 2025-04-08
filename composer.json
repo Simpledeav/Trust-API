@@ -12,6 +12,7 @@
         "laravel/tinker": "^2.9",
         "marcin-orlowski/laravel-api-response-builder": "^11.0",
         "spatie/laravel-activitylog": "^4.9",
+        "spatie/laravel-backup": "^9.2",
         "spatie/laravel-permission": "^6.13",
         "spatie/laravel-query-builder": "^6.3",
         "symfony/http-client": "^7.2",
