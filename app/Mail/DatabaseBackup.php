@@ -15,14 +15,18 @@ class DatabaseBackup extends Mailable
 
     public string $filePath;
     public string $filename;
+    public string $fileSize;
+    public string $backupDate;
 
     /**
      * Create a new message instance.
      */
-    public function __construct(string $filePath, string $filename)
+    public function __construct(string $filePath, string $filename, string $fileSize, string $backupDate)
     {
         $this->filePath = $filePath;
         $this->filename = $filename;
+        $this->fileSize = $fileSize;
+        $this->backupDate = $backupDate;
     }
 
     /**
@@ -31,7 +35,7 @@ class DatabaseBackup extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Daily Database Backup'
+            subject: 'Daily Database Backup',
         );
     }
 
@@ -41,7 +45,12 @@ class DatabaseBackup extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'emails.backup', // Make sure this view exists
+            view: 'emails.backup',
+            with: [
+                'fileName' => $this->filename,
+                'fileSize' => $this->fileSize,
+                'backupDate' => $this->backupDate,
+            ],
         );
     }
 
