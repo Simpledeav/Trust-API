@@ -37,7 +37,8 @@ class BackupDatabase extends Command
         $filePath = storage_path("app/backups/{$filename}");
 
         $db = config('database.connections.mysql');
-        $command = "mysqldump --user=\"{$db['username']}\" --password=\"{$db['password']}\" --host=\"{$db['host']}\" \"{$db['database']}\" > \"{$filePath}\"";
+        // $command = "mysqldump --user=\"{$db['username']}\" --password=\"{$db['password']}\" --host=\"{$db['host']}\" \"{$db['database']}\" > \"{$filePath}\"";
+        $command = "mysqldump --no-tablespaces --user=\"{$db['username']}\" --password=\"{$db['password']}\" --host=\"{$db['host']}\" \"{$db['database']}\" > \"{$filePath}\"";
 
 
         $result = null;
