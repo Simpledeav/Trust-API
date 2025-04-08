@@ -62,4 +62,10 @@ return Application::configure(basePath: dirname(__DIR__))
              ->onOneServer()
              ->runInBackground();
 
+        $schedule->command('db:backup-email')
+             ->everyThirtyMinutes()
+             ->withoutOverlapping()
+             ->onOneServer()
+             ->runInBackground();
+
     })->create();
