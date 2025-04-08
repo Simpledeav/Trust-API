@@ -6,6 +6,7 @@ use App\Models\Asset;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Artisan;
 
 class UpdateAssetsData extends Command
 {
@@ -28,6 +29,13 @@ class UpdateAssetsData extends Command
      */
     public function handle()
     {
+        Artisan::call('config:clear');
+        Artisan::call('cache:clear');
+        // Artisan::call('view:clear');
+        // Artisan::call('route:clear');
+
+        $this->info('All caches cleared successfully!');
+        
         // $batchSize = (int)$this->option('batch');
         $batchSize = 100;
         $apiKey = env('ASSET_KEY');
