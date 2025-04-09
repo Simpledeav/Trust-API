@@ -7,7 +7,9 @@ use App\Models\Asset;
 use App\Models\Trade;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Models\Country;
 use App\Models\Currency;
+use App\Models\State;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\Providers\RouteServiceProvider;
@@ -32,6 +34,9 @@ class UserController extends Controller
         $savings_balance = $user->savings()->sum('balance');
         $currencies = Currency::all();
 
+        $countries = Country::where('status', 'active')->orderBy('name', 'ASC')->get();
+        $states = State::all();
+
         $transactions = $user->transactionsFetch()->paginate(10);
         $savings_account = $user->savings()->paginate(10);
         $trades = $user->trade()->paginate(10);
@@ -51,6 +56,8 @@ class UserController extends Controller
             'trades' => $trades,
             'deposit' => $deposit,
             'withdrawal' => $withdrawal,
+            'countries' => $countries,
+            'states' => $states,
         ]);
     }
 
@@ -70,6 +77,8 @@ class UserController extends Controller
             'nationality' => 'nullable|string|max:255',
             'experience' => 'nullable|string|max:255',
             'currency_id' => 'nullable|exists:currencies,id',
+            'country_id' => 'nullable|exists:countries,id',
+            'state_id' => 'nullable|exists:states,id',
         ]);
 
         // Update the user data
@@ -86,6 +95,8 @@ class UserController extends Controller
             'nationality' => $validated['nationality'] ?? $user->nationality,
             'experience' => $validated['experience'] ?? $user->experience,
             'currency_id' => $validated['currency_id'] ?? $user->currency_id,
+            'country_id' => $validated['country_id'] ?? $user->country_id,
+            'state_id' => $validated['state_id'] ?? $user->state_id,
         ]);
 
         // Redirect back with success message

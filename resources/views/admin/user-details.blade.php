@@ -235,15 +235,27 @@
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label class="form-label">Country</label>
-                                    <input class="form-control" type="text" value="{{ $user->country->name }}" name="country">
+                                    <select class="form-control text-capitalize" id="country-select" name="country_id" required>
+                                        <option value="">Select Country</option>
+                                        @foreach($countries as $country)
+                                            <option value="{{ $country->id }}" {{ $user->country_id == $country->id ? 'selected' : '' }}>
+                                                {{ $country->name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
                                 </div>
                             </div>
+
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label class="form-label">State</label>
-                                    <input class="form-control" type="text" value="{{ $user->state->name }}" name="state">
+                                    <select class="form-control text-capitalize" id="state-select" name="state_id" required>
+                                        <option value="">Select State</option>
+                                        
+                                    </select>
                                 </div>
                             </div>
+
                             <div class="col-md-4">
                                 <div class="mb-3">
                                     <label class="form-label">Zipcode</label>
@@ -703,6 +715,38 @@
         </div>
         <!-- Credit Modal -->
     </div>
+    <!-- jQuery 3.6.0 from Google CDN -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script>
+        const allStates = @json($states);
+
+        $(document).ready(function () {
+            const $countrySelect = $('#country-select');
+            const $stateSelect = $('#state-select');
+            const selectedStateId = "{{ old('state_id', $user->state_id ?? '') }}";
+
+            function populateStates(countryId) {
+                $stateSelect.empty().append('<option value="">-- Select State --</option>');
+
+                allStates
+                    .filter(state => state.country_id == countryId)
+                    .forEach(state => {
+                        const isSelected = state.id == selectedStateId ? 'selected' : '';
+                        $stateSelect.append(`<option value="${state.id}" ${isSelected}>${state.name}</option>`);
+                    });
+            }
+
+            $countrySelect.on('change', function () {
+                const selectedCountryId = $(this).val();
+                populateStates(selectedCountryId);
+            });
+
+            // Trigger on page load if country is already selected
+            if ($countrySelect.val()) {
+                populateStates($countrySelect.val());
+            }
+        });
+    </script>
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
@@ -721,6 +765,8 @@
             });
         });
     </script>
+
+
 @endsection
 
 @section('scripts')
