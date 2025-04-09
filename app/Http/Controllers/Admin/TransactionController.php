@@ -72,7 +72,7 @@ class TransactionController extends Controller
 
             $user->wallet->credit($amount, $request->account, $comment);
 
-            $transaction = $user->storeTransaction($amount, $user->wallet->id, Wallet::class, 'credit', 'approved', $comment, null, null, Carbon::parse($request->created_at)->format('Y-m-d H:i:s'));
+            $transaction = $user->storeTransaction($amount, $user->wallet->id, Wallet::class, 'credit', 'approved', $comment, 'wallet', null, Carbon::parse($request->created_at)->format('Y-m-d H:i:s'));
 
             if($transaction)
                 return redirect()->back()->with('success', 'Account credited successfully');
@@ -88,7 +88,7 @@ class TransactionController extends Controller
 
             $user->wallet->debit($amount, $request->account, $comment);
 
-            $transaction = $user->storeTransaction($amount, $user->wallet->id, Wallet::class, 'debit', 'approved', $comment, null, null, Carbon::parse($request->created_at)->format('Y-m-d H:i:s'));
+            $transaction = $user->storeTransaction($amount, $user->wallet->id, Wallet::class, 'debit', 'approved', $comment, 'wallet', null, Carbon::parse($request->created_at)->format('Y-m-d H:i:s'));
 
             if($transaction)
                 return redirect()->back()->with('success', 'Account debited successfully');
@@ -112,7 +112,7 @@ class TransactionController extends Controller
             $user->wallet->debit($amount, $account, $comment);
             $user->wallet->credit($amount, $to, $comment);
 
-            $transaction = $user->storeTransaction($amount, $user->wallet->id, Wallet::class, 'transfer', 'approved', $comment, null, null, Carbon::parse($request->created_at)->format('Y-m-d H:i:s'));
+            $transaction = $user->storeTransaction($amount, $user->wallet->id, Wallet::class, 'transfer', 'approved', $comment, $account, $to, Carbon::parse($request->created_at)->format('Y-m-d H:i:s'));
 
             if($transaction)
                 return redirect()->back()->with('success', 'Account transfer successful');
