@@ -35,7 +35,7 @@ class NotificationController extends Controller
     public static function sendDepositNotification($user, $amount, $method)
     {
         $msg = 'Thank you for choosing '.env('APP_NAME').'.<br><br>
-                We have received your <b>'.$method.'</b> deposit request of <b>'.$user->currency->sign.number_format($amount, 2).'</b>. To proceed, please make a payment to the payment details on your dashboard.
+                We have received your <b>'.$method.'</b> of <b>'.$user->currency->sign.number_format($amount, 2).'</b>. To proceed, please make a payment to the payment details on your dashboard.
                 <br><br>
                 Once your payment is received, we will process your deposit promptly and notify you of the update.<br><br>
                 If you have any questions or need assistance, feel free to reach out to us at support@itrustinvestment.com.';
@@ -51,7 +51,7 @@ class NotificationController extends Controller
 
     public static function sendWithdrawalNotification($user, $amount, $method)
     {
-        $msg = 'We have received your <b>'.$method.'</b> withdrawal request of <b>'.$user->currency->sign.number_format($amount, 2).'</b>, and it is currently being processed.<br><br>
+        $msg = 'We have received your <b>'.$method.'</b> of <b>'.$user->currency->sign.number_format($amount, 2).'</b>, and it is currently being processed.<br><br>
                 <b>Processing Timeline:</b><br>
                 Crypto Withdrawals: Typically process in few minutes or within 24 hours depending on the blockchain network<br>
                 Bank Transfers: May take 2–3 business days<br><br>
