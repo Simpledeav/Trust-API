@@ -59,7 +59,7 @@ class RegisterRequest extends FormRequest
             'zipcode' => 'required|string|max:20',
             'ssn' => 'sometimes|string|max:20',
             'dob' => 'nullable|date',
-            'nationality' => 'required|string|max:191',
+            'nationality' => 'required|string|exists:nationalities,name',
             'experience' => 'nullable|string|max:191',
             'employed' => 'nullable|string|max:191',
             'id_number' => 'nullable|string|max:191',
