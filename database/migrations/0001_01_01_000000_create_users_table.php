@@ -30,7 +30,7 @@ return new class extends Migration
             $table->string('experience');
             $table->string('employed');
             $table->enum('status', ['active', 'suspended'])->default('active');
-            $table->enum('kyc', ['approved', 'pending', 'declined'])->default('pending');
+            $table->enum('kyc', ['approved', 'pending', 'declined', 'submitted'])->default('pending');
             $table->uuid('currency_id')->constrained()->references('id')->on('currencies');
             $table->string('id_number')->nullable();
             $table->text('front_id')->nullable();

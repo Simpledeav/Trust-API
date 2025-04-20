@@ -75,8 +75,8 @@
                                         </div>
                                         <div class="mb-3">
                                             <label class="form-label">KYC</label>
-                                            <span class="mx-2 px-4 badge @if($user->kyc == 'approved') badge-light-success @elseif($user->kyc == 'pending') badge-light-warning @else badge-light-danger @endif">
-                                                @if($user->kyc == 'approved') Approved @elseif($user->kyc == 'pending') Pending @else Declined @endif
+                                            <span class="mx-2 px-4 badge @if($user->kyc == 'approved') badge-light-success @elseif($user->kyc == 'pending') badge-light-warning @elseif($user->kyc == 'submitted') badge-light-info @else badge-light-danger @endif">
+                                                @if($user->kyc == 'approved') Approved @elseif($user->kyc == 'pending') Pending @elseif($user->kyc == 'submitted') Submitted @else Declined @endif
                                             </span>
                                         </div>
 
@@ -251,7 +251,6 @@
                                     <label class="form-label">State</label>
                                     <select class="form-control text-capitalize" id="state-select" name="state_id" required>
                                         <option value="">Select State</option>
-                                        
                                     </select>
                                 </div>
                             </div>

@@ -80,16 +80,19 @@ class UserProfileService
     {
 
         // Handle file uploads for front_id and back_id
-        $frontIdPath = $this->uploadFile($userModelData->getFrontId(), 'kyc/front_ids');
-        $backIdPath = $this->uploadFile($userModelData->getBackId(), 'kyc/back_ids');
+        if($userModelData->getFrontId())
+            $frontIdPath = $this->uploadFile($userModelData->getFrontId(), 'kyc/front_ids');
+
+        if($userModelData->getBackId())
+            $backIdPath = $this->uploadFile($userModelData->getBackId(), 'kyc/back_ids');
 
         // Update the user's KYC information
         $user->update([
             'id_type' => $userModelData->getIdtype() ?? $user->id_type,
             'id_number' => $userModelData->getIdNumber() ?? $user->id_number,
-            'front_id' => $frontIdPath,
-            'back_id' => $backIdPath,
-            'kyc' => 'pending',
+            'front_id' => $userModelData->getFrontId() ? $frontIdPath : $user->front_id,
+            'back_id' => $userModelData->getBackId() ? $backIdPath : $user->back_id,
+            'kyc' => 'submitted',
         ]);
 
         $admin = Admin::where('email', config('app.admin_mail'))->first();
