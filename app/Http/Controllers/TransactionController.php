@@ -118,7 +118,7 @@ class TransactionController extends Controller
         }
 
         // Validate Locked Cash
-        if($type === 'credit' && $user->settings->locked_bank_deposit === true)
+        if($type === 'credit' && $user->settings->locked_bank_deposit == true && $request->comment == 'cash deposit via (bank deposit)')
         {
             return ResponseBuilder::asError(ApiErrorCode::INSUFFICIENT_FUNDS->value)
                     ->withMessage($user->settings->locked_bank_deposit_message)
