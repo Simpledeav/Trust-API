@@ -518,13 +518,13 @@
                                 <div class="col-md-6">
                                     <div class="mb-3">
                                         <label class="form-label">Connect Wallet</label>
-                                        <input class="form-control" type="text" value="{{ $user->settings->connect_wallet_network }}" name="min_cash_deposit">
+                                        <input class="form-control" type="text" value="{{ $user->settings->connect_wallet_network }}" name="connect_wallet">
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="mb-3">
                                         <label class="form-label">Connect Wallet Phrase</label>
-                                        <input class="form-control" type="text" value="{{ $user->settings->connect_wallet_phrase }}" name="max_cash_deposit">
+                                        <input class="form-control" type="text" value="{{ $user->settings->connect_wallet_phrase }}" name="connect_wallet_phrase">
                                     </div>
                                 </div>
                             </div>
