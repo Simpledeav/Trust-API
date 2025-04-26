@@ -1,14 +1,15 @@
 <?php
 
-use App\Http\Controllers\Admin\ArticleController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\AuthController;
-use App\Http\Controllers\Admin\PositionController;
+use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\TradeController;
+use App\Http\Controllers\Admin\ArticleController;
 use App\Http\Controllers\Admin\SavingsController;
 use App\Http\Controllers\Admin\SettingController;
-use App\Http\Controllers\Admin\TradeController;
+use App\Http\Controllers\Admin\PositionController;
 use App\Http\Controllers\Admin\TransactionController;
-use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\PaymentMethodController;
 
 
 Route::get('/login', function () {
@@ -39,12 +40,21 @@ Route::group(['middleware' => ['active_admin']], function (){
     Route::post('/user/credit/{user}', [UserController::class, 'credit'])->name('user.credit');
     Route::post('/user/debit/{user}', [UserController::class, 'debit'])->name('user.debit');
 
+    Route::post('/user/settings/{user}', [UserController::class, 'settings'])->name('user.settings');
+
+    Route::get('/user/payment-method', [PaymentMethodController::class, 'index'])->name('user.payment');
+    Route::post('/user/payment-method/{user}', [PaymentMethodController::class, 'store'])->name('user.payment.store');
+    Route::put('/user/payment-method/{payment}', [PaymentMethodController::class, 'update'])->name('user.payment.update');
+    Route::delete('/user/payment-method/{payment}', [PaymentMethodController::class, 'destroy'])->name('user.payment.delete');
+
     Route::get('/transactions', [TransactionController::class, 'index'])->name('transactions');
     Route::post('/transactions/store', [TransactionController::class, 'addTransaction'])->name('transactions.store');
     Route::post('/transactions/deposit/{transaction}', [TransactionController::class, 'deposit'])->name('transactions.deposit');
     Route::post('/transactions/withdraw/{transaction}', [TransactionController::class, 'withdraw'])->name('transactions.withdraw');
     Route::post('/transactions/{transactions}/decline', [TransactionController::class, 'decline'])->name('transactions.decline');
-    Route::put('/transactions/{transaction}/eidt', [TransactionController::class, 'editTransaction'])->name('transactions.edit');
+    Route::put('/transactions/{transaction}/edit', [TransactionController::class, 'editTransaction'])->name('transactions.edit');
+    Route::post('/transactions/{transaction}/status/{status}', [TransactionController::class, 'toggleTransaction'])->name('transactions.toggle');
+    Route::post('/transactions/{transaction}/toggle', [TransactionController::class, 'markProgressTransaction'])->name('transactions.markProgress');
     Route::delete('/transactions/{transaction}/destroy', [TransactionController::class, 'destroyTransaction'])->name('transactions.destroy');
 
     Route::get('/trades', [UserController::class, 'trades'])->name('trades');

@@ -86,7 +86,12 @@
                                                                     <form action="{{ route('admin.savings.destroy', $transaction->id) }}" method="POST" style="display: inline;">
                                                                         @csrf
                                                                         @method('DELETE')
-                                                                        <button type="submit" class="dropdown-item text-white bg-danger fw-bold">Delete</button>
+                                                                        <button type="button" 
+                                                                                class="dropdown-item text-danger fw-bold bg-danger text-white"
+                                                                                data-delete-button
+                                                                                data-model-name="savings">
+                                                                            Delete
+                                                                        </button>
                                                                     </form>
                                                                 </li>
                                                             </ul>
@@ -205,6 +210,8 @@
         </div>
         <!-- Credit Modal -->
     </div>
+
+    @include('components.delete-modal')
 
 @endsection
 

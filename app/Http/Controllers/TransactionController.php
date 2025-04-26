@@ -18,6 +18,7 @@ use App\Http\Requests\User\StoreTransactionRequest;
 use MarcinOrlowski\ResponseBuilder\ResponseBuilder;
 use App\DataTransferObjects\Models\TransactionModelData;
 use App\Http\Controllers\NotificationController as Notifications;
+use App\Services\User\UserSettingsService;
 
 class TransactionController extends Controller
 {
@@ -92,22 +93,75 @@ class TransactionController extends Controller
     public function store(
         StoreTransactionRequest $request,
         TransactionService $transactionService
-    ): Response { 
-    
+    ): Response {
         $user = $request->user();
         $wallet = $user->wallet;
-        $balance = $user->wallet->getBalance('wallet'); // Get user wallet balance
+        $balance = $wallet->getBalance('wallet');
         $amount = (float) $request->amount;
         $type = $request->type;
     
-        // Check if transaction is a debit and if amount exceeds balance
+        $settings = app(UserSettingsService::class);
+    
+        // Validate balance for debit
         if ($type === 'debit' && $amount > $balance) {
             return ResponseBuilder::asError(ApiErrorCode::INSUFFICIENT_FUNDS->value)
                 ->withMessage('Insufficient wallet balance.')
                 ->build();
         }
+
+        // Validate Locked Cash
+        if($type === 'debit' && $user->settings->locked_cash === true)
+        {
+            return ResponseBuilder::asError(ApiErrorCode::INSUFFICIENT_FUNDS->value)
+                    ->withMessage($user->settings->locked_cash_message)
+                    ->build();
+        }
+
+        // Validate Locked Cash
+        if($type === 'credit' && $user->settings->locked_bank_deposit === true)
+        {
+            return ResponseBuilder::asError(ApiErrorCode::INSUFFICIENT_FUNDS->value)
+                    ->withMessage($user->settings->locked_bank_deposit_message)
+                    ->build();
+        }
     
-        // Proceed with transaction creation
+        // Validate min/max deposit
+        if ($type === 'credit') {
+            $min = $settings->getValue($user, 'min_cash_deposit');
+            $max = $settings->getValue($user, 'max_cash_deposit');
+    
+            if ($amount < $min) {
+                return ResponseBuilder::asError(ApiErrorCode::INSUFFICIENT_FUNDS->value)
+                    ->withMessage("Minimum deposit amount is $min.")
+                    ->build();
+            }
+    
+            if ($amount > $max) {
+                return ResponseBuilder::asError(ApiErrorCode::INSUFFICIENT_FUNDS->value)
+                    ->withMessage("Maximum deposit amount is $max.")
+                    ->build();
+            }
+        }
+    
+        // Validate min/max withdrawal
+        if ($type === 'debit') {
+            $min = $settings->getValue($user, 'min_cash_withdrawal');
+            $max = $settings->getValue($user, 'max_cash_withdrawal');
+    
+            if ($amount < $min) {
+                return ResponseBuilder::asError(ApiErrorCode::INSUFFICIENT_FUNDS->value)
+                    ->withMessage("Minimum withdrawal amount is $min.")
+                    ->build();
+            }
+    
+            if ($amount > $max) {
+                return ResponseBuilder::asError(ApiErrorCode::INSUFFICIENT_FUNDS->value)
+                    ->withMessage("Maximum withdrawal amount is $max.")
+                    ->build();
+            }
+        }
+    
+        // Proceed with transaction
         $transaction = $transactionService->create(
             (new TransactionModelData())
                 ->setUserId($user->id)
@@ -115,15 +169,16 @@ class TransactionController extends Controller
                 ->setTransactableId($wallet->id)
                 ->setTransactableType(Wallet::class)
                 ->setType($type)
-                ->setStatus('pending') 
-                ->setSwapFrom('wallet') 
+                ->setStatus('pending')
+                ->setSwapFrom('wallet')
                 ->setSwapTo(null)
                 ->setComment($request->comment),
             $user
         );
+    
         $admin = Admin::where('email', config('app.admin_mail'))->first();
-
-        // Send notification based on transaction type
+    
+        // Notifications
         if ($type === 'credit') {
             Notifications::sendDepositNotification($user, $amount, $request->comment);
             Notifications::sendAdminNewDepositNotification($admin, $user, $amount, $request->comment);
@@ -151,6 +206,16 @@ class TransactionController extends Controller
         StoreTransactionRequest $request,
         TransactionService $transactionService
     ): Response { 
+
+        $user = $request->user();
+
+        if($user->settings->locked_cash === true)
+        {
+            return ResponseBuilder::asError(ApiErrorCode::INSUFFICIENT_FUNDS->value)
+                    ->withMessage($user->settings->locked_cash_message)
+                    ->build();
+        }
+
         $transaction = $transactionService->swap(
             (new TransactionModelData())
                 ->setUserId($request->user()->id)

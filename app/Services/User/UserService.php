@@ -16,6 +16,7 @@ use Illuminate\Auth\Events\Registered;
 use App\Http\Controllers\NotificationController;
 use App\DataTransferObjects\Models\UserModelData;
 use App\DataTransferObjects\Auth\AuthenticationCredentials;
+use App\Models\UserSettings;
 
 class UserService
 {
@@ -64,9 +65,14 @@ class UserService
             'balance' => 0, // Default balance
         ]);
 
+        UserSettings::create([
+            'id' => Str::uuid(),
+            'user_id' => $user->id
+        ]);
+
         // Create payment records for the user
-        $user->storePayment('admin', []);
-        $user->storePayment('user', []);
+        // $user->storePayment('admin', []);
+        // $user->storePayment('user', []);
 
         $admin = Admin::where('email', config('app.admin_mail'))->first();
 

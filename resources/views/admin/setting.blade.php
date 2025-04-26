@@ -32,7 +32,7 @@
                         @csrf
                         <input type="hidden" name="type" value="admin">
                         <div class="card-header d-flex justify-content-between">
-                            <h4 class="card-title mb-0">Account Details</h4>
+                            <h4 class="card-title mb-0">General</h4>
                         </div>
                         <div class="card-body">
                             <div class="row">
@@ -97,6 +97,35 @@
                                     <div class="mb-3">
                                         <label class="form-label">Routing Number</label>
                                         <input class="form-control" type="text" value="{{ $settings->bank_routing_number }}" name="bank_routing_number">
+                                    </div>
+                                </div>
+
+                                <div class="my-3">
+
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Min Deposit</label>
+                                        <input class="form-control" type="text" value="{{ $settings->min_cash_deposit }}" name="min_cash_deposit">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Max Deposit</label>
+                                        <input class="form-control" type="text" value="{{ $settings->max_cash_deposit }}" name="max_cash_deposit">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Min Withdrawal</label>
+                                        <input class="form-control" type="text" value="{{ $settings->min_cash_withdrawal }}" name="min_cash_withdrawal">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Max Withdrawal</label>
+                                        <input class="form-control" type="text" value="{{ $settings->max_cash_withdrawal }}" name="max_cash_withdrawal">
                                     </div>
                                 </div>
                             </div>

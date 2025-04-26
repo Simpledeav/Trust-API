@@ -131,4 +131,12 @@ class UserProfileService
 
     }
 
+    public function destroy(User $user):bool
+    {
+        // Finally, delete the user
+        $user->forceDelete();
+
+        return true;
+    }
+
 }

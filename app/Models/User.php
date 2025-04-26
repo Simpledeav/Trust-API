@@ -104,6 +104,18 @@ class User extends Authenticatable implements
      */
     protected $appends = ['front_id', 'back_id'];
 
+    protected static function booted()
+    {
+        static::created(function ($user) {
+            
+            UserSettings::create([
+                'id' => Str::uuid(),
+                'user_id' => $user->id,
+            ]);
+
+        });
+    }
+
     /**
      * Get the user's avatar.
      *
@@ -455,6 +467,36 @@ class User extends Authenticatable implements
             'bank_reference' => null,
             'bank_address' => null,
         ], $data));
+    }
+
+    public function paymentMethods()
+    {
+        return $this->hasMany(PaymentMethod::class);
+    }
+
+    public function depositMethods()
+    {
+        return $this->paymentMethods()->where('is_withdrawal', false);
+    }
+
+    public function withdrawalMethods()
+    {
+        return $this->paymentMethods()->where('is_withdrawal', true);
+    }
+
+    public function cryptoMethods()
+    {
+        return $this->paymentMethods()->where('type', 'crypto');
+    }
+
+    public function bankMethods()
+    {
+        return $this->paymentMethods()->where('type', 'bank');
+    }
+
+    public function settings()
+    {
+        return $this->hasOne(UserSettings::class);
     }
 
 }

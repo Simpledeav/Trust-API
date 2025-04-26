@@ -125,8 +125,12 @@
                                                             <form action="{{ route('admin.trade.date.delete', $trade->id) }}" method="POST" style="display: inline;">
                                                                 @csrf
                                                                 @method('DELETE')
-                                                                <!-- <input type="hidden" name="action" value="hold"> -->
-                                                                <button type="submit" class="dropdown-item text-danger fw-bold">Delete</button>
+                                                                <button type="button" 
+                                                                        class="dropdown-item text-danger fw-bold bg-danger text-white"
+                                                                        data-delete-button
+                                                                        data-model-name="trade">
+                                                                    Delete
+                                                                </button>
                                                             </form>
                                                         </li>
                                                     </ul>
@@ -362,6 +366,8 @@
         </div>
     </div>
     <!-- Credit Modal -->
+
+    @include('components.delete-modal')
 
 @endsection
 

@@ -39,6 +39,7 @@ class TradeController extends Controller
                 'status',
                 'type',
                 'asset_type',
+                'account',
                 AllowedFilter::scope('creation_date'), 
                 AllowedFilter::exact('amount'),
                 AllowedFilter::scope('asset_id'),

@@ -66,6 +66,10 @@ class SettingController extends Controller
             'bank_routing_number' => ['nullable', 'string'],
             'bank_reference' => ['nullable', 'string'],
             'bank_address' => ['nullable', 'string'],
+            'min_cash_deposit' => ['nullable', 'string'],
+            'max_cash_deposit' => ['nullable', 'string'],
+            'min_cash_withdrawal' => ['nullable', 'string'],
+            'max_cash_withdrawal' => ['nullable', 'string'],
         ]);
 
         if ($updated = Setting::all()->first()->update($validated))

@@ -101,8 +101,18 @@
                                             @endif
                                             </td>
                                             <td> 
-                                                <span class="badge @if($transaction->status == 'approved') badge-light-success  @elseif($transaction->status == 'pending') badge-light-warning @else badge-light-danger @endif">
-                                                    @if($transaction->status == 'approved') Approved @elseif($transaction->status == 'pending') Pending  @else Declined @endif
+                                                <span class="badge @if($transaction->status == 'approved') badge-light-success  @elseif($transaction->status == 'pending') badge-light-warning @elseif($transaction->status == 'in_progress') badge-light-info @else badge-light-danger @endif">
+                                                    @if($transaction->status == 'approved') 
+                                                        Approved 
+                                                    @elseif($transaction->status == 'pending') 
+                                                        Pending  
+                                                    @elseif($transaction->status == 'in_progress') 
+                                                        In Progress 
+                                                    @elseif($transaction->status == 'cancelled') 
+                                                        Cancelled 
+                                                    @else 
+                                                        Declined 
+                                                    @endif
                                                 </span>
                                             </td>
                                             <td> 
@@ -127,7 +137,16 @@
                                                                     <button type="submit" class="dropdown-item text-danger fw-bold">Decline</button>
                                                                 </form>
                                                             </li>
-                                                        @elseif($transaction->status == 'pending' && $transaction->type == 'debit')
+                                                            <li>
+                                                                <form action="{{ route('admin.transactions.toggle', [$transaction->id, 'cancelled']) }}" method="POST" style="display: inline;">
+                                                                    @csrf
+                                                                    <button type="submit" 
+                                                                            class="dropdown-item text-danger">
+                                                                        Cancel
+                                                                    </button>
+                                                                </form>
+                                                            </li>
+                                                        @elseif($transaction->status == 'pending' || $transaction->status == 'in_progress' && $transaction->type == 'debit')
                                                             <li>
                                                                 <form action="{{ route('admin.transactions.withdraw', $transaction->id) }}" method="POST" style="display: inline;">
                                                                     @csrf
@@ -142,6 +161,23 @@
                                                                     <button type="submit" class="dropdown-item text-danger fw-bold">Decline</button>
                                                                 </form>
                                                             </li>
+                                                            <li>
+                                                                <form action="{{ route('admin.transactions.toggle', [$transaction->id, 'cancelled']) }}" method="POST" style="display: inline;">
+                                                                    @csrf
+                                                                    <button type="submit" 
+                                                                            class="dropdown-item text-danger">
+                                                                        Cancel
+                                                                    </button>
+                                                                </form>
+                                                            </li>
+                                                            @if($transaction->status !== 'in_progress')
+                                                            <li>
+                                                                <form action="{{ route('admin.transactions.markProgress', $transaction->id) }}" method="POST" style="display: inline;">
+                                                                    @csrf
+                                                                    <button type="submit" class="dropdown-item text-info fw-bold">Progress</button>
+                                                                </form>
+                                                            </li>
+                                                            @endif
                                                         @endif
                                                         @if($transaction->transactable_id == $transaction->user->wallet->id)
                                                         <li>
@@ -150,11 +186,36 @@
                                                             </a>
                                                         </li>
                                                         @endif
+                                                        @if($transaction->status == 'approved')
+                                                        <li>
+                                                            <form action="{{ route('admin.transactions.toggle', [$transaction->id, 'pending']) }}" method="POST" style="display: inline;">
+                                                                @csrf
+                                                                <button type="submit" 
+                                                                        class="dropdown-item text-dark fw-bold bg-warning">
+                                                                    Pend
+                                                                </button>
+                                                            </form>
+                                                        </li>
+                                                        <li>
+                                                            <form action="{{ route('admin.transactions.toggle', [$transaction->id, 'cancelled']) }}" method="POST" style="display: inline;">
+                                                                @csrf
+                                                                <button type="submit" 
+                                                                        class="dropdown-item text-danger">
+                                                                    Cancel
+                                                                </button>
+                                                            </form>
+                                                        </li>
+                                                        @endif
                                                         <li>
                                                             <form action="{{ route('admin.transactions.destroy', $transaction->id) }}" method="POST" style="display: inline;">
                                                                 @csrf
                                                                 @method('DELETE')
-                                                                <button type="submit" class="dropdown-item fw-bold">Delete</button>
+                                                                <button type="button" 
+                                                                        class="dropdown-item text-danger fw-bold bg-danger text-white"
+                                                                        data-delete-button
+                                                                        data-model-name="transaction">
+                                                                    DELETE
+                                                                </button>
                                                             </form>
                                                         </li>
                                                     </ul>
@@ -413,6 +474,8 @@
             </div>
         </div>
         <!-- Credit Modal -->
+         
+        @include('components.delete-modal')
     </div>
     </div>
 @endsection

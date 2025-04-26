@@ -302,4 +302,26 @@ class UserController extends Controller
         return redirect()->back()->with('success', 'User and all related data deleted successfully.');
     }
 
+    public function settings(Request $request, User $user)
+    {
+        $validated = $request->validate([
+            'min_cash_deposit' => 'nullable|numeric|min:0',
+            'max_cash_deposit' => 'nullable|numeric|min:0',
+            'min_cash_withdrawal' => 'nullable|numeric|min:0',
+            'max_cash_withdrawal' => 'nullable|numeric|min:0',
+            // 'locked_cash' => 'nullable|boolean',
+            'locked_cash_message' => 'nullable|string',
+            // 'locked_bank_deposit' => 'nullable|boolean',
+            'locked_bank_deposit_message' => 'nullable|string',
+        ]);
+    
+        // Handle checkboxes - they won't be in request if unchecked
+        $validated['locked_cash'] = $request->has('locked_cash');
+        $validated['locked_bank_deposit'] = $request->has('locked_bank_deposit');
+    
+        $user->settings->update($validated);
+    
+        return redirect()->back()->with('success', 'User settings updated successfully.');
+    }
+
 }

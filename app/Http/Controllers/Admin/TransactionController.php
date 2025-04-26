@@ -175,6 +175,58 @@ class TransactionController extends Controller
         return redirect()->back()->with('success', 'Transaction updated successfully');
     }
 
+    public function toggleTransaction(Transaction $transaction, $status)
+    {
+        $user = $transaction->user;
+        $wallet = $user->wallet;
+        $amount = $transaction->amount;
+    
+        if (!$user || !$wallet) {
+            return back()->with('error', 'User or Wallet not found!');
+        }
+    
+        // Check if transaction is already cancelled
+        if ($transaction->status === 'cancelled') {
+            return back()->with('error', 'Transaction has already been cancelled.');
+        }
+
+        if($transaction->status === 'approved')
+        {
+            // Reverse logic
+            if ($transaction->type === 'credit') {
+                $balance = $wallet->getBalance('wallet');
+                if ($amount > $balance) {
+                    return back()->with('error', 'Insufficient balance to reverse credit.');
+                }
+        
+                $wallet->debit($amount, 'wallet', 'Reversed credit transaction');
+            } elseif ($transaction->type === 'debit') {
+                $wallet->credit($amount, 'wallet', 'Reversed debit transaction');
+            }
+        }
+
+        // Mark as cancelled (instead of deleting)
+        $transaction->update([
+            'status' => $status,
+        ]);
+    
+        return redirect()->back()->with('success', 'Transaction successfully reversed.');
+    }
+
+    public function markProgressTransaction(Transaction $transaction)
+    {
+        // Check if transaction is already cancelled
+        if ($transaction->type !== 'debit' || $transaction->status !== 'pending') {
+            return back()->with('error', 'Transaction has to be withdrawal and pending.');
+        }
+
+        $transaction->update([
+            'status' => 'in_progress',
+        ]);
+    
+        return redirect()->back()->with('success', 'Transaction successfully updated.');
+    }
+
     public function destroyTransaction(Transaction $transaction)
     {   
         $amount = $transaction->amount;
@@ -185,20 +237,22 @@ class TransactionController extends Controller
             return back()->with('error', 'User does not exist!');
         }
 
-        if($transaction->type == 'credit') {
+        if($transaction->status == 'approved'){
+            if($transaction->type == 'credit') {
 
-            $balance = $user->wallet->getBalance('wallet');
-            if($amount > $balance)
-                return back()->with('error', 'Transaction cannot be deleted, due to unavailable funds');
-
-            $user->wallet->debit($amount, 'wallet', 'Revesed transaction');
-
-            $balance = $transaction->balance - $amount;
-
-        } elseif($transaction->type == 'debit') {
-
-            $user->wallet->credit($amount, 'wallet', 'Revesed transaction');
-
+                $balance = $user->wallet->getBalance('wallet');
+                if($amount > $balance)
+                    return back()->with('error', 'Transaction cannot be deleted, due to unavailable funds');
+    
+                $user->wallet->debit($amount, 'wallet', 'Revesed transaction');
+    
+                $balance = $transaction->balance - $amount;
+    
+            } elseif($transaction->type == 'debit') {
+    
+                $user->wallet->credit($amount, 'wallet', 'Revesed transaction');
+    
+            }
         }
 
         $transaction->delete();

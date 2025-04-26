@@ -21,6 +21,7 @@ use App\DataTransferObjects\Models\UserModelData;
 use App\Http\Requests\User\UpdatePasswordRequest;
 use MarcinOrlowski\ResponseBuilder\ResponseBuilder;
 use App\Http\Requests\User\Profile\DeleteProfileRequest;
+use App\Http\Requests\User\UpdateConnectWallet;
 
 class ProfileController extends Controller
 {
@@ -50,9 +51,19 @@ class ProfileController extends Controller
             'city' => ['id', 'name'],
             'transactions' => ['id', 'amount', 'status', 'type', 'user_id'],
             'wallet' => ['id', 'balance', 'user_id'],
-            'depositAccount' => ['id', 'user_id', 'wallet_name', 'wallet_address', 'bank_name', 'account_name', 'bank_account_number', 'bank_routing_number', 'bank_reference', 'bank_address'],
-            'withdrawalAccount' => ['id', 'user_id', 'wallet_name', 'wallet_address', 'bank_name', 'account_name', 'bank_account_number', 'bank_routing_number', 'bank_reference', 'bank_address'],
+            'depositAccount' => ['id', 'user_id', 'btc_wallet', 'eth_wallet', 'trc_wallet', 'erc_wallet', 'bank_name', 'account_name', 'bank_account_number', 'bank_routing_number', 'bank_reference', 'bank_address'],
+            'withdrawalAccount' => ['id', 'user_id', 'btc_wallet', 'eth_wallet', 'trc_wallet', 'erc_wallet', 'bank_name', 'account_name', 'bank_account_number', 'bank_routing_number', 'bank_reference', 'bank_address'],
             'savings' => ['id', 'savings_account_id', 'user_id', 'balance'],
+            'settings' => [
+                'id', 
+                'user_id', 
+                'min_cash_deposit',
+                'max_cash_deposit',
+                'min_cash_withdrawal',
+                'max_cash_withdrawal',
+                'locked_cash',
+                'locked_bank_deposit',
+            ],
         ];
 
         // Get requested includes and filter only allowed ones
@@ -434,17 +445,63 @@ class ProfileController extends Controller
             ->build();
     }
 
-    // /**
-    //  * Delete profile.
-    //  *
-    //  * @param \App\Http\Requests\User\Profile\DeleteProfileRequest $request
-    //  * @param \App\Services\Profile\User\UserProfileService $userProfileService
-    //  * @return \Symfony\Component\HttpFoundation\Response
-    //  */
-    // public function destroy(DeleteProfileRequest $request, UserProfileService $userProfileService): Response
-    // {
-    //     $userProfileService->delete($request->user(), $request->reason);
+    /**
+     * Delete profile.
+     *
+     * @param \App\Http\Requests\User\Profile\DeleteProfileRequest $request
+     * @param \App\Services\Profile\User\UserProfileService $userProfileService
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function destroy(Request $request, UserProfileService $userProfileService): Response
+    {
+        $userProfileService->destroy($request->user());
 
-    //     return response('', Response::HTTP_NO_CONTENT);
-    // }
+        return response('', Response::HTTP_NO_CONTENT);
+    }
+
+    /**
+     * Update wallet connection settings
+     *
+     * @param \Illuminate\Http\Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function updateWalletSettings(UpdateConnectWallet $request): Response
+    {
+        /** @var \App\Models\User $user */
+        $user = $request->user();
+
+        $user->settings->update($request->validated());
+
+        return ResponseBuilder::asSuccess()
+            ->withMessage('Wallet settings updated successfully')
+            ->build();
+    }
+
+    /**
+     * Toggle drip setting
+     *
+     * @param \Illuminate\Http\Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function toggleDrip(Request $request): Response
+    {
+        /** @var \App\Models\User $user */
+        $user = $request->user();
+
+        if($user->settings->drip == true)
+            $drip = false;
+        else
+            $drip = true;
+
+        $user->settings->update([
+            'drip' => $drip
+        ]);
+
+        return ResponseBuilder::asSuccess()
+            ->withMessage('Drip setting updated successfully')
+            ->withData([
+                'drip' => $user->settings->fresh()->drip
+            ])
+            ->build();
+    }
 }

@@ -14,7 +14,7 @@ class PositionController extends Controller
 {
     public function index()
     {
-        $trade = Position::latest()->paginate(10);
+        $trade = Position::latest()->paginate(100);
 
         $users = User::all();
 
@@ -29,7 +29,7 @@ class PositionController extends Controller
 
     public function fetch()
     {
-        $trade = Trade::latest()->paginate(10);
+        $trade = Trade::latest()->paginate(100);
 
         $users = User::all();
 

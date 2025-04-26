@@ -18,6 +18,8 @@ use App\Http\Controllers\Admin\SavingsAccountController;
 use App\Http\Controllers\User\Auth\VerificationController;
 use App\Http\Controllers\User\Auth\ResetPasswordController;
 use App\Http\Controllers\User\Auth\TwoFactorLoginController;
+use App\Http\Controllers\User\PaymentMethodController;
+use App\Models\PaymentMethod;
 
 Route::middleware('throttle:3,1')->group(function () {
     Route::post('register', RegisterController::class);
@@ -48,6 +50,7 @@ Route::middleware('auth:api_user')->group(function () {
     // Email verification
     Route::post('email/verify', [VerificationController::class, 'verify']);
     Route::post('email/resend', [VerificationController::class, 'resend'])->middleware('throttle:resend');
+    Route::delete('profile', [ProfileController::class, 'destroy']);
 
     // Full Authentication
     Route::middleware(['auth.two_fa', 'verified', 'unblocked'])->group(function () {
@@ -62,8 +65,18 @@ Route::middleware('auth:api_user')->group(function () {
             //Profile
             Route::patch('profile', [ProfileController::class, 'updateProfile']);
             Route::patch('profile/kyc', [ProfileController::class, 'updateKYC']);
-            Route::delete('profile', [ProfileController::class, 'destroy']);
-            Route::post('/profile/bank', [PaymentController::class, 'updatePayment']);
+            // Route::post('/profile/bank', [PaymentController::class, 'updatePayment']);
+            Route::patch('profile/toggle-drip', [ProfileController::class, 'toggleDrip']);
+            Route::post('profile/connect-wallet', [ProfileController::class, 'updateWalletSettings']);
+
+
+            // Payment method
+            Route::prefix('payment-method')->group(function () {
+                Route::get('', [PaymentMethodController::class, 'index']);
+                Route::post('', [PaymentMethodController::class, 'store']);
+                Route::put('/{payment}', [PaymentMethodController::class, 'update']);
+                Route::delete('/{payment}', [PaymentMethodController::class, 'destroy']);
+            });
 
             //Analytics
             Route::get('analytics', [ProfileController::class, 'analytics']);

@@ -26,7 +26,7 @@
         </div>
         <!-- Container-fluid starts-->
         <div class="container-fluid">
-            <div class="row"> 
+            <div class="row">
                 <div class="col-sm-12"> 
                     <div class="card">
                         <div class="card-header">
@@ -112,7 +112,12 @@
                                                                 <form action="{{ route('admin.users.destroy', $user->id) }}" method="POST" style="display: inline;">
                                                                     @csrf
                                                                     @method('DELETE')
-                                                                    <button type="submit" class="dropdown-item text-danger fw-bold bg-danger text-white">DELETE</button>
+                                                                    <button type="button" 
+                                                                            class="dropdown-item text-danger fw-bold bg-danger text-white"
+                                                                            data-delete-button
+                                                                            data-model-name="user">
+                                                                        DELETE
+                                                                    </button>
                                                                 </form>
                                                             </li>
                                                         </ul>
@@ -181,6 +186,8 @@
             </div>
         </div>
         <!-- Container-fluid Ends-->
+
+        @include('components.delete-modal')
     </div>
 @endsection
 
