@@ -24,7 +24,7 @@ return new class extends Migration
             $table->string('routing_number')->nullable();
             $table->string('bank_reference')->nullable();
             $table->string('bank_address')->nullable();
-            $table->boolean('is_withdrawal')->default(false); // true if for withdrawal
+            $table->boolean('is_withdrawal')->default(true); // true if for withdrawal
             $table->timestamps();
 
 

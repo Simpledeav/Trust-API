@@ -29,10 +29,10 @@ class StoreTransactionRequest extends FormRequest
             'amount' => ['required', 'numeric', 'min:0.01'],
             'method' => ['nullable', Rule::in(['wallet', 'save', 'trade'])], // Defaults to 'wallet'
             'type' => ['required', Rule::in(['credit', 'debit', 'transfer'])],
-            // 'status' => ['required', Rule::in(['approved', 'declined', 'pending'])],
             'comment' => ['nullable', 'string', 'max:255'],
             'to' => ['sometimes', Rule::in(['wallet', 'cash', 'brokerage', 'auto', 'ira'])],
             'from' => ['sometimes', Rule::in(['wallet', 'cash', 'brokerage', 'auto', 'ira'])],
+            'payment_method_id' => ['nullable', 'uuid', 'exists:payment_methods,id']
         ];
     }
 

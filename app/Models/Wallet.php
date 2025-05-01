@@ -38,7 +38,7 @@ class Wallet extends Model
     /**
      * Credit the wallet and create a ledger entry.
      */
-    public function credit(float $amount, string $account = 'wallet', ?string $comment = null): void
+    public function credit(float $amount, string $account, ?string $comment = null): void
     {
         DB::transaction(function () use ($amount, $account, $comment) {
             Ledger::record($this, 'credit', $amount, $account, $comment);
@@ -49,7 +49,7 @@ class Wallet extends Model
     /**
      * Debit the wallet and create a ledger entry.
      */
-    public function debit(float $amount, string $account = 'wallet', ?string $comment = null): void
+    public function debit(float $amount, string $account, ?string $comment = null): void
     {
         DB::transaction(function () use ($amount, $account, $comment) {
             if ($this->balance < $amount) {

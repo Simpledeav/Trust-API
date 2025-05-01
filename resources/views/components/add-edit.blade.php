@@ -61,11 +61,11 @@
                         </div>
                     </div>
                     
-                    <div class="mb-3 form-check">
+                    <!-- <div class="mb-3 form-check">
                         <input type="checkbox" class="form-check-input" id="is_withdrawal" name="is_withdrawal">
                         <label class="form-check-label" for="is_withdrawal">Use for withdrawals</label>
                         <small class="form-text text-muted d-block">Note: Only admin can set withdrawal methods</small>
-                    </div>
+                    </div> -->
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>

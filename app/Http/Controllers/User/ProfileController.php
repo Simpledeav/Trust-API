@@ -267,8 +267,8 @@ class ProfileController extends Controller
                 $savingsQuery = SavingsLedger::where('savings_id', $savings->id);
 
                 // Total Savings: Sum of contributions
-                $creditSavings = (clone $savingsQuery)->where('type', 'credit')->where('method', 'contribution')->sum('amount');
-                $debitSavings = (clone $savingsQuery)->where('type', 'debit')->where('method', 'contribution')->sum('amount');
+                $creditSavings = (clone $savingsQuery)->where('type', 'credit')->where('method', 'contribution')->where('status', 'approved')->sum('amount');
+                $debitSavings = (clone $savingsQuery)->where('type', 'debit')->where('method', 'contribution')->where('status', 'approved')->sum('amount');
                 $savings->total_savings = number_format(($creditSavings), 2);
 
                 // Total Return: (credit - contribution + profit)
@@ -279,10 +279,12 @@ class ProfileController extends Controller
                 // 24hr Amount Change: Compare current savings with savings 24 hours ago
                 $creditLast24h = (clone $savingsQuery)
                     ->where('type', 'credit')
+                    ->where('status', 'approved')
                     ->where('created_at', '>=', now()->subHours(24))
                     ->sum('amount');
                 $debitLast24h = (clone $savingsQuery)
                     ->where('type', 'debit')
+                    ->where('status', 'approved')
                     ->where('created_at', '>=', now()->subHours(24))
                     ->sum('amount');
                 $savingsLast24h = $creditLast24h - $debitLast24h; // Net change

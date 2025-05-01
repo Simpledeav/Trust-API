@@ -67,6 +67,12 @@ Route::group(['middleware' => ['active_admin']], function (){
     Route::get('/savings-accounts', [SavingsController::class, 'accounts'])->name('accounts.savings');
     Route::post('/savings-account/store', [SavingsController::class, 'storeAccounts'])->name('account.savings.store');
     Route::put('/savings-account/update/{savingsAccount}', [SavingsController::class, 'updateAccounts'])->name('account.savings.update');
+    Route::put('/savings/approve/{savingsLedger}', [SavingsController::class, 'approveDebit'])->name('account.savings.approve');
+    Route::put('/savings/decline/{savingsLedger}', [SavingsController::class, 'declineDebit'])->name('account.savings.decline');
+    Route::post('/savings/lock/{saving}', [SavingsController::class, 'lockAccount'])->name('account.savings.lock');
+    Route::post('/savings/unlock/{saving}', [SavingsController::class, 'unlockAccount'])->name('account.savings.unlock');
+    Route::post('/savings/trade/lock/{saving}', [SavingsController::class, 'lockTrading'])->name('account.savings.trade.lock');
+    Route::post('/savings/trade/unlock/{saving}', [SavingsController::class, 'unlockTrading'])->name('account.savings.trade.unlock');
     Route::delete('/savings-account/destroy/{savingsAccount}', [SavingsController::class, 'destroyAccount'])->name('account.savings.destroy');
     Route::get('/savings/{user}/transactions/{savings}', [SavingsController::class, 'transactions'])->name('accounts.transactions');
     Route::post('/savings/{user}/contribue/{savings}', [SavingsController::class, 'contribute'])->name('accounts.contribute');

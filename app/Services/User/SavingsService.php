@@ -32,7 +32,17 @@ class SavingsService
             // Ensure savings record exists for the user
             $savings = Savings::where('user_id', $user->id)
                             ->where('savings_account_id', $savingsAccount)
+                            ->with('savingsAccount') // Eager load the savingsAccount relationship
                             ->firstOrFail();
+
+            // Check contribution limits
+            if ($amount < $savings->savingsAccount->min_contribution) {
+                throw new \Exception("Minimum contribution amount is " . $savings->savingsAccount->min_contribution);
+            }
+
+            if ($savings->savingsAccount->max_contribution > 0 && $amount > $savings->savingsAccount->max_contribution) {
+                throw new \Exception("Maximum contribution amount is " . $savings->savingsAccount->max_contribution);
+            }
 
             $wallet_balance = $user->wallet->getBalance('wallet');
 
@@ -49,7 +59,7 @@ class SavingsService
             ]);
 
             // Record transaction in ledger
-            SavingsLedger::record($user, 'credit', $savings->id, $amount, $method, $comment, now());
+            SavingsLedger::record($user, 'credit', $savings->id, $amount, $method, 'approved', $comment, now());
 
             // Send notification
             Notifications::sendSavingsCreditNotification($user, $savings->savingsAccount, $amount, $savings->balance);
@@ -66,20 +76,28 @@ class SavingsService
         return DB::transaction(function () use ($user, $savingsAccount, $amount, $method, $comment) {
             $savings = Savings::where('user_id', $user->id)
                 ->where('savings_account_id', $savingsAccount)
+                ->with('savingsAccount') // Eager load the savingsAccount relationship
                 ->firstOrFail();
+
+            // Check if account is locked
+            if ($savings->status === 'locked') {
+                throw new \Exception($savings->locked_account_message);
+            }
+
+            // Check cashout limits
+            if ($amount < $savings->savingsAccount->min_cashout) {
+                throw new \Exception("Minimum cashout amount is " . $savings->savingsAccount->min_cashout);
+            }
+
+            if ($savings->savingsAccount->max_cashout > 0 && $amount > $savings->savingsAccount->max_cashout) {
+                throw new \Exception("Maximum cashout amount is " . $savings->savingsAccount->max_cashout);
+            }
 
             if ($savings->balance < $amount) {
                 throw new \Exception("Insufficient funds in your " . $savings->savingsAccount->name . " savings account.");
             }
 
-            $savings->update([
-                'old_balance' => $savings->balance,
-                'balance' => $savings->balance - $amount
-            ]);
-
-            SavingsLedger::record($user, 'debit', $savings->id, $amount, $method, $comment, now());
-
-            $user->wallet->credit($amount, 'wallet', 'Savings Cashout to wallet balance.');
+            SavingsLedger::record($user, 'debit', $savings->id, $amount, $method, 'pending', $comment, now());
 
             // Send notification
             Notifications::sendSavingsDebitNotification($user, $savings->savingsAccount, $amount, $savings->balance);

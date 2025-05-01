@@ -60,6 +60,7 @@
                                     <th> <span class="f-light f-w-600">Account(s)</span></th>
                                     <th> <span class="f-light f-w-600">Interest</span></th>
                                     <th> <span class="f-light f-w-600">Status</span></th>
+                                    <th> <span class="f-light f-w-600">Trade</span></th>
                                     <th> <span class="f-light f-w-600">Action</span></th>
                                 </tr>
                                 </thead>
@@ -84,23 +85,132 @@
                                             <p class="f-light text-success">+{{ $saving->savingsTransaction->where('method', 'profit')->sum('amount') }} {{ $saving->user->currency->symbol }}</p>
                                         </td>
                                         <td> 
-                                            <span class="badge badge-light-success">
-                                                Active
+                                            <span class="badge text-capitalize @if($saving->status == 'active') badge-light-success @else badge-light-danger @endif">
+                                                {{ $saving->status }}
+                                            </span>
+                                        </td>
+                                        <td> 
+                                            <span class="badge text-capitalize @if($saving->trading == 'active') badge-light-success @else badge-light-danger @endif">
+                                                {{ $saving->trading }}
                                             </span>
                                         </td>
                                         <td>
                                             <div class="btn-group">
                                                 <button class="btn btn-dark rounded-pill dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">Action</button>
-                                                    <ul class="dropdown-menu dropdown-menu-dark dropdown-block">
+                                                <ul class="dropdown-menu dropdown-menu-dark dropdown-block">
+                                                    <li>
+                                                        <a href="{{ route('admin.accounts.transactions', ['user' => $saving->user->id, 'savings' => $saving->id]) }}" class="dropdown-item fw-bold">
+                                                            View
+                                                        </a>
+                                                    </li>
+                                                    @if($saving->status === 'active')
                                                         <li>
-                                                            <a href="{{ route('admin.accounts.transactions', ['user' => $saving->user->id, 'savings' => $saving->id]) }}" class="dropdown-item fw-bold">
-                                                                View
-                                                            </a>
+                                                            <form action="#" method="POST" style="display: inline;">
+                                                                @csrf
+                                                                <button type="button" 
+                                                                        class="dropdown-item fw-bold text-dark"
+                                                                        data-bs-toggle="modal" data-bs-target="#lockAccountModal{{ $saving->id }}">
+                                                                    Lock Account
+                                                                </button>
+                                                            </form>
                                                         </li>
-                                                    </ul>
+                                                    @else
+                                                        <li>
+                                                            <form action="{{ route('admin.account.savings.unlock', $saving->id) }}" method="POST" style="display: inline;">
+                                                                @csrf
+                                                                <button type="submit" 
+                                                                        class="dropdown-item fw-bold text-dark">
+                                                                        Unlock Account
+                                                                </button>
+                                                            </form>
+                                                        </li>
+                                                    @endif
+                                                    @if($saving->trading === 'active')
+                                                        <li>
+                                                            <form action="#" method="POST" style="display: inline;">
+                                                                @csrf
+                                                                <button type="button" 
+                                                                        class="dropdown-item fw-bold text-dark"
+                                                                        data-bs-toggle="modal" data-bs-target="#lockTradeModal{{ $saving->id }}">
+                                                                    Lock Trade
+                                                                </button>
+                                                            </form>
+                                                        </li>
+                                                    @else
+                                                        <li>
+                                                            <form action="{{ route('admin.account.savings.trade.unlock', $saving->id) }}" method="POST" style="display: inline;">
+                                                                @csrf
+                                                                <button type="submit" 
+                                                                        class="dropdown-item fw-bold text-dark">
+                                                                        Unlock Trade
+                                                                </button>
+                                                            </form>
+                                                        </li>
+                                                    @endif
+                                                </ul>
                                             </div>
                                         </td>
                                     </tr>
+
+                                    <!-- Lock Account Modal -->
+                                    <div class="modal fade" id="lockAccountModal{{ $saving->id }}" tabindex="-1" aria-labelledby="lockAccountModal{{ $saving->id }}Label" aria-hidden="true">
+                                        <div class="modal-dialog" role="document">
+                                            <div class="modal-content">
+                                                <div class="modal-body"> 
+                                                    <div class="modal-toggle-wrapper"> 
+                                                        <h4 class="text-center pb-2">Lock Savings Account</h4> 
+                                                        <form action="{{ route('admin.account.savings.lock', $saving->id) }}" method="POST">
+                                                            @csrf
+                                                            <input type="hidden" name="saving_id" id="modalSavingId">
+                                                            
+                                                            <div class="col-md-12">
+                                                                <div class="mb-3">
+                                                                    <label class="form-label">Lock Message</label>
+                                                                    <textarea class="form-control" name="locked_account_message" rows="3" required
+                                                                        placeholder="Enter message locking this account...">{{ $saving->locked_account_message }}</textarea>
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="form-footer mt-4 d-flex">
+                                                                <button class="btn btn-danger btn-block" type="submit">Lock Account</button>
+                                                                <button class="btn btn-secondary btn-block mx-2" type="button" data-bs-dismiss="modal">Cancel</button>
+                                                            </div>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Lock Trade Modal -->
+                                    <div class="modal fade" id="lockTradeModal{{ $saving->id }}" tabindex="-1" aria-labelledby="lockTradeModal{{ $saving->id }}Label" aria-hidden="true">
+                                        <div class="modal-dialog" role="document">
+                                            <div class="modal-content">
+                                                <div class="modal-body"> 
+                                                    <div class="modal-toggle-wrapper"> 
+                                                        <h4 class="text-center pb-2">Lock Trade</h4> 
+                                                        <form action="{{ route('admin.account.savings.trade.lock', $saving->id) }}" method="POST">
+                                                            @csrf
+                                                            <input type="hidden" name="saving_id" id="modalSavingId">
+                                                            
+                                                            <div class="col-md-12">
+                                                                <div class="mb-3">
+                                                                    <label class="form-label">Lock Message</label>
+                                                                    <textarea class="form-control" name="locked_trading_message" rows="3" required
+                                                                        placeholder="Enter message locking this account...">{{ $saving->locked_trading_message }}</textarea>
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="form-footer mt-4 d-flex">
+                                                                <button class="btn btn-danger btn-block" type="submit">Lock Trade</button>
+                                                                <button class="btn btn-secondary btn-block mx-2" type="button" data-bs-dismiss="modal">Cancel</button>
+                                                            </div>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 @endforeach
                                 </tbody>
                             </table>
@@ -228,6 +338,40 @@
             let now = new Date();
             let formattedDateTime = now.toISOString().slice(0, 16); // Format: YYYY-MM-DDTHH:MM
             document.getElementById("date").value = formattedDateTime;
+        });
+    </script>
+    <script>
+        // Set up the lock modal with saving ID
+        document.getElementById('lockAccountModal').addEventListener('show.bs.modal', function (event) {
+            var button = event.relatedTarget;
+            var savingId = button.getAttribute('data-saving-id');
+            var modal = this;
+            modal.querySelector('#modalSavingId').value = savingId;
+            modal.querySelector('form').action = "{{ route('admin.account.savings.lock', '') }}/" + savingId;
+        });
+
+        // Handle unlock action
+        document.querySelectorAll('.unlock-account').forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                if (confirm('Are you sure you want to unlock this account?')) {
+                    var savingId = this.getAttribute('data-saving-id');
+                    fetch("{{ route('admin.account.savings.unlock', '') }}/" + savingId, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            location.reload();
+                        }
+                    });
+                }
+            });
         });
     </script>
     <script src="{{ asset('admin/assets/js/js-datatables/simple-datatables@latest.js') }}"></script>

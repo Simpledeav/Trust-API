@@ -191,17 +191,13 @@
                                 <a href="#" 
                                     class="badge px-3 f-light badge badge-light-success text-success" 
                                     data-bs-toggle="modal" 
-                                    data-bs-target="#transactionModal" 
-                                    data-action="Credit"
-                                    data-url="{{ route('admin.user.credit', $user->id) }}">
+                                    data-bs-target="#creditTransactionModal">
                                     Credit
                                 </a>
                                 <a href="#" 
                                     class="badge px-3 f-light badge badge-light-danger text-danger" 
                                     data-bs-toggle="modal" 
-                                    data-bs-target="#transactionModal" 
-                                    data-action="Debit"
-                                    data-url="{{ route('admin.user.debit', $user->id) }}">
+                                    data-bs-target="#debitTransactionModal">
                                     Debit
                                 </a>
                             </div>
@@ -303,34 +299,39 @@
                     </form>
                 </div>
 
+                <!-- Deposit Details Card -->
                 <div class="col-xl-12">
                     <div class="card">
                         <div class="card-body">
-                            <!-- Tabs Navigation -->
-                            <ul class="nav nav-tabs border-tab border-0 mb-0 nav-dark" id="payment-methods-tab" role="tablist">
-                                <li class="nav-item" role="presentation">
-                                    <a class="nav-link nav-border pt-0 txt-dark nav-dark active" id="bank-tab" data-bs-toggle="tab" href="#bank-methods" role="tab" aria-controls="bank" aria-selected="true">
-                                        Bank Accounts
-                                    </a>
-                                </li>
-                                <li class="nav-item" role="presentation">
-                                    <a class="nav-link nav-border txt-dark nav-dark" id="crypto-tab" data-bs-toggle="tab" href="#crypto-methods" role="tab" aria-controls="crypto" aria-selected="false">
-                                        Crypto Wallets
-                                    </a>
-                                </li>
-                            </ul>
+                            <div class="card-header d-flex justify-content-between">
+                                <h4 class="card-title mb-0">Deposit Details</h4>
+                                <!-- Tabs Navigation -->
+                                <ul class="nav nav-tabs border-tab border-0 mb-0 nav-dark" id="deposit-methods-tab" role="tablist">
+                                    <li class="nav-item" role="presentation">
+                                        <a class="nav-link nav-border pt-0 txt-dark nav-dark active" id="deposit-bank-tab" data-bs-toggle="tab" href="#deposit-bank-methods" role="tab" aria-controls="bank" aria-selected="true">
+                                            Bank Accounts
+                                        </a>
+                                    </li>
+                                    <li class="nav-item" role="presentation">
+                                        <a class="nav-link nav-border txt-dark nav-dark" id="deposit-crypto-tab" data-bs-toggle="tab" href="#deposit-crypto-methods" role="tab" aria-controls="crypto" aria-selected="false">
+                                            Crypto Wallets
+                                        </a>
+                                    </li>
+                                </ul>
+                                <div class="form-footer d-flex">
+                                    <button class="btn btn-success btn-sm" id="add-deposit-bank-btn" data-bs-target="#addPaymentMethodModal" data-type="bank" data-method-type="deposit" data-user="{{ $user->id }}" style="{{ $user->bankMethods->where('is_withdrawal', false)->count() > 0 ? 'display:none' : '' }}">
+                                        <i class="fa fa-plus"></i> Add Bank Account
+                                    </button>
+                                    <button class="btn btn-success btn-sm ms-1" id="add-deposit-crypto-btn" data-bs-target="#addPaymentMethodModal" data-type="crypto" data-method-type="deposit" data-user="{{ $user->id }}" style="{{ $user->cryptoMethods->where('is_withdrawal', false)->count() > 0 ? 'display:none' : '' }}">
+                                        <i class="fa fa-plus"></i> Add Crypto Wallet
+                                    </button>
+                                </div>
+                            </div>
                             
                             <!-- Tab Content -->
-                            <div class="tab-content" id="payment-methods-tabContent">
+                            <div class="tab-content" id="deposit-methods-tabContent">
                                 <!-- Bank Accounts Tab -->
-                                <div class="tab-pane fade active show" id="bank-methods" role="tabpanel" aria-labelledby="bank-tab">
-                                    <div class="d-flex justify-content-between align-items-center mb-3">
-                                        <h5 class="mb-0"></h5>
-                                        <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#addPaymentMethodModal" data-type="bank" data-user="{{ $user->id }}">
-                                            <i class="fa fa-plus"></i> Add Bank Account
-                                        </button>
-                                    </div>
-                                    
+                                <div class="tab-pane fade active show" id="deposit-bank-methods" role="tabpanel" aria-labelledby="deposit-bank-tab">
                                     <div class="table-responsive">
                                         <table class="table table-hover">
                                             <thead>
@@ -339,26 +340,21 @@
                                                     <th>Bank Name</th>
                                                     <th>Account Number</th>
                                                     <th>Account Name</th>
-                                                    <th>Type</th>
                                                     <th>Actions</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                @forelse($user->bankMethods as $method)
+                                                @forelse($user->bankMethods->where('is_withdrawal', false) as $method)
                                                 <tr>
                                                     <td>{{ $method->label ?? 'N/A' }}</td>
                                                     <td>{{ $method->bank_name }}</td>
                                                     <td>{{ $method->account_number }}</td>
                                                     <td>{{ $method->account_name }}</td>
                                                     <td>
-                                                        <span class="badge {{ $method->is_withdrawal ? 'badge-light-success' : 'badge-light-primary' }}">
-                                                            {{ $method->is_withdrawal ? 'Withdrawal' : 'Deposit' }}
-                                                        </span>
-                                                    </td>
-                                                    <td>
                                                         <button class="btn btn-sm btn-outline-primary edit-method" 
                                                                 data-method="{{ json_encode($method, JSON_HEX_APOS) }}"
-                                                                data-type="bank">
+                                                                data-type="bank"
+                                                                data-method-type="deposit">
                                                             <i class="fa fa-edit"></i>
                                                         </button>
                                                         <form action="{{ route('admin.user.payment.delete', $method->id) }}" method="POST" style="display: inline;">
@@ -376,7 +372,7 @@
                                                 </tr>
                                                 @empty
                                                 <tr>
-                                                    <td colspan="6" class="text-center py-4">No bank accounts added yet</td>
+                                                    <td colspan="5" class="text-center py-4">No deposit bank accounts added yet</td>
                                                 </tr>
                                                 @endforelse
                                             </tbody>
@@ -385,14 +381,7 @@
                                 </div>
                                 
                                 <!-- Crypto Wallets Tab -->
-                                <div class="tab-pane fade" id="crypto-methods" role="tabpanel" aria-labelledby="crypto-tab">
-                                    <div class="d-flex justify-content-between align-items-center mb-3">
-                                        <h5 class="mb-0"></h5>
-                                        <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#addPaymentMethodModal" data-type="crypto" data-user="{{ $user->id }}">
-                                            <i class="fa fa-plus"></i> Add Crypto Wallet
-                                        </button>
-                                    </div>
-                                    
+                                <div class="tab-pane fade" id="deposit-crypto-methods" role="tabpanel" aria-labelledby="deposit-crypto-tab">
                                     <div class="table-responsive">
                                         <table class="table table-hover">
                                             <thead>
@@ -400,25 +389,20 @@
                                                     <th>Label</th>
                                                     <th>Currency</th>
                                                     <th>Wallet Address</th>
-                                                    <th>Type</th>
                                                     <th>Actions</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                @forelse($user->cryptoMethods as $method)
+                                                @forelse($user->cryptoMethods->where('is_withdrawal', false) as $method)
                                                 <tr>
                                                     <td>{{ $method->label ?? 'N/A' }}</td>
                                                     <td>{{ $method->currency }}</td>
                                                     <td class="text-truncate" style="max-width: 200px;">{{ $method->wallet_address }}</td>
                                                     <td>
-                                                        <span class="badge {{ $method->is_withdrawal ? 'badge-light-success' : 'badge-light-primary' }}">
-                                                            {{ $method->is_withdrawal ? 'Withdrawal' : 'Deposit' }}
-                                                        </span>
-                                                    </td>
-                                                    <td>
                                                         <button class="btn btn-sm btn-outline-primary edit-method" 
                                                                 data-method="{{ json_encode($method) }}"
-                                                                data-type="crypto">
+                                                                data-type="crypto"
+                                                                data-method-type="deposit">
                                                             <i class="fa fa-edit"></i>
                                                         </button>
                                                         <form action="{{ route('admin.user.payment.delete', $method->id) }}" method="POST" style="display: inline;">
@@ -436,7 +420,140 @@
                                                 </tr>
                                                 @empty
                                                 <tr>
-                                                    <td colspan="5" class="text-center py-4">No crypto wallets added yet</td>
+                                                    <td colspan="4" class="text-center py-4">No deposit crypto wallets added yet</td>
+                                                </tr>
+                                                @endforelse
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Withdrawal Details Card -->
+                <div class="col-xl-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="card-header d-flex justify-content-between">
+                                <h4 class="card-title mb-0">Withdrawal Details</h4>
+                                <!-- Tabs Navigation -->
+                                <ul class="nav nav-tabs border-tab border-0 mb-0 nav-dark" id="withdrawal-methods-tab" role="tablist">
+                                    <li class="nav-item" role="presentation">
+                                        <a class="nav-link nav-border pt-0 txt-dark nav-dark active" id="withdrawal-bank-tab" data-bs-toggle="tab" href="#withdrawal-bank-methods" role="tab" aria-controls="bank" aria-selected="true">
+                                            Bank Accounts
+                                        </a>
+                                    </li>
+                                    <li class="nav-item" role="presentation">
+                                        <a class="nav-link nav-border txt-dark nav-dark" id="withdrawal-crypto-tab" data-bs-toggle="tab" href="#withdrawal-crypto-methods" role="tab" aria-controls="crypto" aria-selected="false">
+                                            Crypto Wallets
+                                        </a>
+                                    </li>
+                                </ul>
+                                {{-- <div class="form-footer d-flex">
+                                    <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#addPaymentMethodModal" data-type="bank" data-method-type="withdrawal" data-user="{{ $user->id }}">
+                                        <i class="fa fa-plus"></i> Add Bank Account
+                                    </button>
+                                    <button class="btn btn-success btn-sm ms-1" data-bs-toggle="modal" data-bs-target="#addPaymentMethodModal" data-type="crypto" data-method-type="withdrawal" data-user="{{ $user->id }}">
+                                        <i class="fa fa-plus"></i> Add Crypto Wallet
+                                    </button>
+                                </div> --}}
+                            </div>
+                            
+                            <!-- Tab Content -->
+                            <div class="tab-content" id="withdrawal-methods-tabContent">
+                                <!-- Bank Accounts Tab -->
+                                <div class="tab-pane fade active show" id="withdrawal-bank-methods" role="tabpanel" aria-labelledby="withdrawal-bank-tab">
+                                    <div class="table-responsive">
+                                        <table class="table table-hover">
+                                            <thead>
+                                                <tr>
+                                                    <th>Label</th>
+                                                    <th>Bank Name</th>
+                                                    <th>Account Number</th>
+                                                    <th>Account Name</th>
+                                                    <th>Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @forelse($user->bankMethods->where('is_withdrawal', true) as $method)
+                                                <tr>
+                                                    <td>{{ $method->label ?? 'N/A' }}</td>
+                                                    <td>{{ $method->bank_name }}</td>
+                                                    <td>{{ $method->account_number }}</td>
+                                                    <td>{{ $method->account_name }}</td>
+                                                    <td>
+                                                        <button class="btn btn-sm btn-outline-primary edit-method" 
+                                                                data-method="{{ json_encode($method, JSON_HEX_APOS) }}"
+                                                                data-type="bank"
+                                                                data-method-type="withdrawal">
+                                                            <i class="fa fa-edit"></i>
+                                                        </button>
+                                                        <form action="{{ route('admin.user.payment.delete', $method->id) }}" method="POST" style="display: inline;">
+                                                            @csrf
+                                                            @method('DELETE')
+                                                            <button type="submit" 
+                                                                    class="btn btn-sm btn-outline-danger delete-method"
+                                                                    data-id="{{ $method->id }}"
+                                                                    data-delete-button
+                                                                    data-model-name="payment method">
+                                                                <i class="fa fa-trash"></i>
+                                                            </button>
+                                                        </form>
+                                                    </td>
+                                                </tr>
+                                                @empty
+                                                <tr>
+                                                    <td colspan="5" class="text-center py-4">No withdrawal bank accounts added yet</td>
+                                                </tr>
+                                                @endforelse
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                
+                                <!-- Crypto Wallets Tab -->
+                                <div class="tab-pane fade" id="withdrawal-crypto-methods" role="tabpanel" aria-labelledby="withdrawal-crypto-tab">
+                                    <div class="table-responsive">
+                                        <table class="table table-hover">
+                                            <thead>
+                                                <tr>
+                                                    <th>Label</th>
+                                                    <th>Currency</th>
+                                                    <th>Wallet Address</th>
+                                                    <th>Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @forelse($user->cryptoMethods->where('is_withdrawal', true) as $method)
+                                                <tr>
+                                                    <td>{{ $method->label ?? 'N/A' }}</td>
+                                                    <td>{{ $method->currency }}</td>
+                                                    <td class="text-truncate" style="max-width: 200px;">{{ $method->wallet_address }}</td>
+                                                    <td>
+                                                        <button class="btn btn-sm btn-outline-primary edit-method" 
+                                                                data-method="{{ json_encode($method) }}"
+                                                                data-type="crypto"
+                                                                data-method-type="withdrawal">
+                                                            <i class="fa fa-edit"></i>
+                                                        </button>
+                                                        <form action="{{ route('admin.user.payment.delete', $method->id) }}" method="POST" style="display: inline;">
+                                                            @csrf
+                                                            @method('DELETE')
+                                                            <button type="submit" 
+                                                                    class="btn btn-sm btn-outline-danger delete-method"
+                                                                    data-id="{{ $method->id }}"
+                                                                    data-delete-button
+                                                                    data-model-name="payment method">
+                                                                <i class="fa fa-trash"></i>
+                                                            </button>
+                                                        </form>
+                                                    </td>
+                                                </tr>
+                                                @empty
+                                                <tr>
+                                                    <td colspan="4" class="text-center py-4">No withdrawal crypto wallets added yet</td>
                                                 </tr>
                                                 @endforelse
                                             </tbody>
@@ -921,19 +1038,28 @@
 
    <!-- ::::::  MODAL SECTION   :::::: -->
     <div>
-        <!-- Reusable Modal -->
-        <div class="modal fade" id="transactionModal" tabindex="-1" aria-labelledby="transactionModal" aria-hidden="true">
+        <!-- Credit Modal -->
+        <div class="modal fade" id="creditTransactionModal" tabindex="-1" aria-labelledby="creditTransactionModal" aria-hidden="true">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <div class="modal-body"> 
                         <div class="modal-toggle-wrapper"> 
-                            <h4 class="text-center pb-2" id="modalTitle"></h4> 
+                            <h4 class="text-center pb-2" id="">Credit User</h4> 
                             <form id="transactionForm" action="{{ route('admin.user.credit', $user->id) }}" method="POST">
                                 @csrf
-                                <div class="col-md-12">
+                                    <div class="mb-3">
+                                        <label class="form-label">Account</label>
+                                        <select class="form-control text-capitalize" id="account" name="account" required>
+                                            <option value="">---- Select Account ----</option>
+                                            <option value="wallet">Cash Account</option>
+                                            <option value="brokerage">Brokerage Account</option>
+                                            <option value="auto">Auto Account</option>
+                                        </select>
+                                    </div>
+
                                     <div class="mb-3">
                                         <label class="form-label">Amount</label>
-                                        <input class="form-control" type="text" placeholder="Enter amount..." name="amount">
+                                        <input class="form-control" type="number" placeholder="Enter amount..." name="amount">
                                     </div>
                                 </div>
                                 <div class="form-footer mt-4 d-flex">
@@ -947,6 +1073,41 @@
             </div>
         </div>
         <!-- Credit Modal -->
+
+        <!-- Debit Modal -->
+        <div class="modal fade" id="debitTransactionModal" tabindex="-1" aria-labelledby="debitTransactionModal" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-body"> 
+                        <div class="modal-toggle-wrapper"> 
+                            <h4 class="text-center pb-2" id="">Debit User</h4> 
+                            <form id="transactionForm" action="{{ route('admin.user.debit', $user->id) }}" method="POST">
+                                @csrf
+                                    <div class="mb-3">
+                                        <label class="form-label">Account</label>
+                                        <select class="form-control text-capitalize" id="account" name="account" required>
+                                            <option value="">---- Select Account ----</option>
+                                            <option value="wallet">Cash Account</option>
+                                            <option value="brokerage">Brokerage Account</option>
+                                            <option value="auto">Auto Account</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Amount</label>
+                                        <input class="form-control" type="number" placeholder="Enter amount..." name="amount">
+                                    </div>
+                                </div>
+                                <div class="form-footer mt-4 d-flex">
+                                    <button class="btn btn-primary btn-block" type="submit">Submit</button>
+                                    <button class="btn btn-danger btn-block mx-2" type="button" data-bs-dismiss="modal">Cancel</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Debit Modal -->
     </div>
 
     <!-- Add/Edit Payment Method Modal -->
@@ -963,6 +1124,7 @@
     <!-- jQuery 3.6.0 from Google CDN -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    
     <script>
         const allStates = @json($states);
 
@@ -1011,7 +1173,6 @@
             });
         });
     </script>
-
 
     <script>
         $(document).ready(function() {

@@ -17,6 +17,7 @@ class TransactionModelData
     public ?string $swap_from = null;
     public ?string $swap_to = null;
     private ?string $comment;
+    private ?array $payment_method = null;
 
     public function setUserId(string $userId): self
     {
@@ -98,6 +99,17 @@ class TransactionModelData
         return $this->swap_to;
     }
 
+    public function setPaymentMethod(?array $paymentMethod): self
+    {
+        $this->payment_method = $paymentMethod;
+        return $this;
+    }
+
+    public function getPaymentMethod(): ?array
+    {
+        return $this->payment_method;
+    }
+
     public function toArray(): array
     {
         return [
@@ -108,6 +120,7 @@ class TransactionModelData
             'type' => $this->type,
             'swap_from' => $this->swap_from,
             'status' => $this->status,
+            'payment_method' => $this->payment_method,
             'comment' => $this->comment,
         ];
     }

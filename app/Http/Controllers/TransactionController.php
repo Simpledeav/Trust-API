@@ -7,10 +7,12 @@ use App\Models\Wallet;
 use App\Enums\ApiErrorCode;
 use App\Models\Transaction;
 use Illuminate\Http\Request;
+use App\Models\PaymentMethod;
 use Spatie\QueryBuilder\QueryBuilder;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\AllowedInclude;
 use App\Services\User\TransactionService;
+use App\Services\User\UserSettingsService;
 use Illuminate\Notifications\Notification;
 use Symfony\Component\HttpFoundation\Response;
 use App\Spatie\QueryBuilder\IncludeSelectFields;
@@ -18,7 +20,6 @@ use App\Http\Requests\User\StoreTransactionRequest;
 use MarcinOrlowski\ResponseBuilder\ResponseBuilder;
 use App\DataTransferObjects\Models\TransactionModelData;
 use App\Http\Controllers\NotificationController as Notifications;
-use App\Services\User\UserSettingsService;
 
 class TransactionController extends Controller
 {
@@ -99,6 +100,19 @@ class TransactionController extends Controller
         $balance = $wallet->getBalance('wallet');
         $amount = (float) $request->amount;
         $type = $request->type;
+
+        // Get the payment method if provided
+        $paymentMethod = null;
+        if ($request->has('payment_method_id')) {
+            $paymentMethod = PaymentMethod::where('user_id', $user->id)
+                ->find($request->payment_method_id);
+                
+            if (!$paymentMethod) {
+                return ResponseBuilder::asError(404)
+                    ->withMessage('Payment method not found.')
+                    ->build();
+            }
+        }
     
         $settings = app(UserSettingsService::class);
     
@@ -160,6 +174,32 @@ class TransactionController extends Controller
                     ->build();
             }
         }
+
+        $paymentMethodData = null;
+        if ($paymentMethod) {
+            $paymentMethodData = $paymentMethod->type === 'bank'
+                ? [
+                    'id' => $paymentMethod->id,
+                    'type' => $paymentMethod->type,
+                    'label' => $paymentMethod->label,
+                    'currency' => $paymentMethod->currency,
+                    'account_name' => $paymentMethod->account_name,
+                    'account_number' => $paymentMethod->account_number,
+                    'bank_name' => $paymentMethod->bank_name,
+                    'routing_number' => $paymentMethod->routing_number,
+                    'bank_reference' => $paymentMethod->bank_reference,
+                    'bank_address' => $paymentMethod->bank_address,
+                ]
+                : [
+                    'id' => $paymentMethod->id,
+                    'type' => $paymentMethod->type,
+                    'label' => $paymentMethod->label,
+                    'currency' => $paymentMethod->currency,
+                    'wallet_address' => $paymentMethod->wallet_address,
+                ];
+        }
+
+        // dd($paymentMethodData);
     
         // Proceed with transaction
         $transaction = $transactionService->create(
@@ -172,7 +212,8 @@ class TransactionController extends Controller
                 ->setStatus('pending')
                 ->setSwapFrom('wallet')
                 ->setSwapTo(null)
-                ->setComment($request->comment),
+                ->setComment($request->comment)
+                ->setPaymentMethod($paymentMethodData),
             $user
         );
     

@@ -92,8 +92,8 @@
                                                     </div>
                                                 </td>
                                                 <td>
-                                                    <span class="badge badge-light-success">
-                                                        Approved
+                                                    <span class="badge text-capitalize @if($transaction->status == 'approved') badge-light-success @elseif($transaction->status == 'pending') badge-light-warning @else badge-light-danger @endif">
+                                                        {{ $transaction->status }}
                                                     </span>
                                                 </td>
                                                 <td> <p class="truncate-content">{{ $transaction['created_at']->format('d M, Y \a\t h:i A') }}</p> </td>
@@ -101,6 +101,28 @@
                                                     <div class="btn-group">
                                                         <button class="btn btn-dark rounded-pill dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">Action</button>
                                                             <ul class="dropdown-menu dropdown-menu-dark dropdown-block">
+                                                                @if($transaction->status == 'pending')
+                                                                    <li>
+                                                                        <form action="{{ route('admin.account.savings.approve', $transaction->id) }}" method="POST" style="display: inline;">
+                                                                            @csrf
+                                                                            @method('PUT')
+                                                                            <button type="submit" 
+                                                                                    class="dropdown-item fw-bold text-dark">
+                                                                                Approve
+                                                                            </button>
+                                                                        </form>
+                                                                    </li>
+                                                                    <li>
+                                                                        <form action="{{ route('admin.account.savings.decline', $transaction->id) }}" method="POST" style="display: inline;">
+                                                                            @csrf
+                                                                            @method('PUT')
+                                                                            <button type="submit" 
+                                                                                    class="dropdown-item fw-bold text-dark">
+                                                                                Decline
+                                                                            </button>
+                                                                        </form>
+                                                                    </li>
+                                                                @endif
                                                                 <li>
                                                                     <form action="{{ route('admin.savings.destroy', $transaction->id) }}" method="POST" style="display: inline;">
                                                                         @csrf

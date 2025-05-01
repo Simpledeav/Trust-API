@@ -22,12 +22,14 @@ class Transaction extends Model
         'swap_from',
         'swap_to',
         'comment',
+        'payment_method',
         'created_at',
     ];
 
     protected $casts = [
         'user_id',
         'amount' => 'float',
+        'payment_method' => 'array',
     ];
 
     public function getQuerySelectables(): array

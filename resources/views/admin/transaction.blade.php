@@ -122,6 +122,14 @@
                                                 <div class="btn-group">
                                                     <button class="btn btn-dark rounded-pill dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">Action</button>
                                                     <ul class="dropdown-menu dropdown-menu-dark dropdown-block">
+                                                        <li>
+                                                            <button class="dropdown-item fw-bold" 
+                                                                    type="button" 
+                                                                    data-bs-toggle="modal" 
+                                                                    data-bs-target="#viewTransaction{{ $transaction->id }}">
+                                                                View
+                                                            </button>
+                                                        </li>
                                                         @if($transaction->status == 'pending' && $transaction->type == 'credit')
                                                             <li>
                                                                 <form action="{{ route('admin.transactions.deposit', $transaction->id) }}" method="POST" style="display: inline;">
@@ -278,6 +286,131 @@
                                                     </div>
                                                 </div>
                                             </div>
+
+                                            <!-- View Transaction Modal -->
+                                            <div class="modal fade" id="viewTransaction{{ $transaction->id }}" tabindex="-1" aria-labelledby="viewTransactionLabel{{ $transaction->id }}" aria-hidden="true">
+                                                <div class="modal-dialog modal-lg">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title" id="viewTransactionLabel{{ $transaction->id }}">Transaction Details</h5>
+                                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            <div class="row">
+                                                                <div class="col-md-6">
+                                                                    <div class="mb-3">
+                                                                        <label class="form-label fw-bold">Transaction ID:</label>
+                                                                        <p class="form-control-static">{{ $transaction->id }}</p>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-md-6">
+                                                                    <div class="mb-3">
+                                                                        <label class="form-label fw-bold">User:</label>
+                                                                        <p class="form-control-static">{{ $transaction->user->first_name }} {{ $transaction->user->last_name }}</p>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-md-6">
+                                                                    <div class="mb-3">
+                                                                        <label class="form-label fw-bold">Amount:</label>
+                                                                        <p class="form-control-static">{{ $transaction->amount }} USD</p>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-md-6">
+                                                                    <div class="mb-3">
+                                                                        <label class="form-label fw-bold">Type:</label>
+                                                                        <p class="form-control-static">
+                                                                            @if($transaction->type == 'credit') 
+                                                                                Credit 
+                                                                            @elseif($transaction->type == 'transfer') 
+                                                                                Transfer 
+                                                                            @else 
+                                                                                Debit 
+                                                                            @endif
+                                                                        </p>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-md-6">
+                                                                    <div class="mb-3">
+                                                                        <label class="form-label fw-bold">Status:</label>
+                                                                        <p class="form-control-static">
+                                                                            @if($transaction->status == 'approved') 
+                                                                                Approved 
+                                                                            @elseif($transaction->status == 'pending') 
+                                                                                Pending  
+                                                                            @elseif($transaction->status == 'in_progress') 
+                                                                                In Progress 
+                                                                            @elseif($transaction->status == 'cancelled') 
+                                                                                Cancelled 
+                                                                            @else 
+                                                                                Declined 
+                                                                            @endif
+                                                                        </p>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-md-6">
+                                                                    <div class="mb-3">
+                                                                        <label class="form-label fw-bold">Date:</label>
+                                                                        <p class="form-control-static">{{ $transaction->created_at->format('d M, Y \a\t h:i A') }}</p>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-md-12">
+                                                                    <div class="mb-3">
+                                                                        <label class="form-label fw-bold">Comment:</label>
+                                                                        <p class="form-control-static">{{ $transaction->comment ?? 'N/A' }}</p>
+                                                                    </div>
+                                                                </div>
+                                                                
+                                                                <!-- Payment Method Section -->
+                                                                <div class="col-md-12">
+                                                                    <div class="card">
+                                                                        <div class="card-header">
+                                                                            <h5 class="card-title">Payment Method</h5>
+                                                                        </div>
+                                                                        <div class="card-body">
+                                                                            @if($transaction->payment_method)
+                                                                                @if($transaction->payment_method['type'] === 'bank')
+                                                                                    <div class="row">
+                                                                                        <div class="col-md-6">
+                                                                                            <p><strong>Type:</strong> Bank Transfer</p>
+                                                                                            <p><strong>Label:</strong> {{ $transaction->payment_method['label'] ?? 'N/A' }}</p>
+                                                                                            <p><strong>Bank Name:</strong> {{ $transaction->payment_method['bank_name'] ?? 'N/A' }}</p>
+                                                                                            <p><strong>Account Name:</strong> {{ $transaction->payment_method['account_name'] ?? 'N/A' }}</p>
+                                                                                            <p><strong>Account Number:</strong> {{ $transaction->payment_method['account_number'] ?? 'N/A' }}</p>
+                                                                                        </div>
+                                                                                        <div class="col-md-6">
+                                                                                            <p><strong>Routing Number:</strong> {{ $transaction->payment_method['routing_number'] ?? 'N/A' }}</p>
+                                                                                            <p><strong>Reference:</strong> {{ $transaction->payment_method['bank_reference'] ?? 'N/A' }}</p>
+                                                                                            <p><strong>Bank Address:</strong> {{ $transaction->payment_method['bank_address'] ?? 'N/A' }}</p>
+                                                                                            <p><strong>Currency:</strong> {{ $transaction->payment_method['currency'] ?? 'N/A' }}</p>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                @elseif($transaction->payment_method['type'] === 'crypto')
+                                                                                    <div class="row">
+                                                                                        <div class="col-md-6">
+                                                                                            <p><strong>Type:</strong> Crypto Wallet</p>
+                                                                                            <p><strong>Label:</strong> {{ $transaction->payment_method['label'] ?? 'N/A' }}</p>
+                                                                                            <p><strong>Currency:</strong> {{ $transaction->payment_method['currency'] ?? 'N/A' }}</p>
+                                                                                        </div>
+                                                                                        <div class="col-md-6">
+                                                                                            <p><strong>Wallet Address:</strong> {{ $transaction->payment_method['wallet_address'] ?? 'N/A' }}</p>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                @endif
+                                                                            @else
+                                                                                <p class="text-muted">No payment method associated with this transaction.</p>
+                                                                            @endif
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
                                         </tr>
                                     @endforeach
                                 </tbody>
@@ -455,14 +588,24 @@
                                 </div>
                                 @endif
 
-                                
-
                                 <div class="col-md-12">
                                     <div class="mb-3">
                                         <label class="form-label">Date</label>
                                         <input class="form-control" type="datetime-local" name="created_at" id="date" required>
                                     </div>
                                 </div>
+
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Send Email</label>
+                                        <div class="form-check-size">
+                                            <div class="form-check form-switch form-check-inline">
+                                                <input class="form-check-input check-size" type="checkbox" role="switch" name="is_email" checked >
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
                                 <div class="form-footer mt-4 d-flex">
                                     <button class="btn btn-primary btn-block" type="submit">Submit</button>
                                     <button class="btn btn-danger btn-block mx-2" type="button" data-bs-dismiss="modal">Cancel</button>

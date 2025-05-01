@@ -195,7 +195,8 @@ class UserController extends Controller
     public function credit(Request $request, User $user)
     {
         $validator = Validator::make($request->all(), [
-            'amount' => ['required'],
+            'account' => 'required|in:wallet,brokerage,auto',
+            'amount' => 'required',
         ]);
 
         if ($validator->fails()) {
@@ -204,20 +205,18 @@ class UserController extends Controller
 
         $amount = $request->amount;
 
-        $user->wallet->credit($amount, 'wallet', 'Admin deposit');
+        $account = $request->account;
 
-        $transaction = $user->storeTransaction($amount, $user->wallet->id, 'App/Models/Wallet', 'credit', 'approved', 'Admin credited user', null, null, now());
+        $user->wallet->credit($amount, $account, 'Admin credited ' . $account);
 
-        if($transaction)
-            return redirect()->back()->with('success', 'Account credited successfully');
-        
-        return redirect()->back()->with('error', 'Something went worng!! ');
+        return redirect()->back()->with('success', 'Account credited successfully');
     }
 
     public function debit(Request $request, User $user)
     {
         $validator = Validator::make($request->all(), [
-            'amount' => ['required'],
+            'account' => 'required|in:wallet,brokerage,auto',
+            'amount' => 'required',
         ]);
 
         if ($validator->fails()) {
@@ -225,19 +224,19 @@ class UserController extends Controller
         }
 
         $amount = $request->amount;
-        $balance = $user->wallet->getBalance('wallet');
 
-        if($amount < $balance)
-            $user->wallet->debit($amount, 'wallet', 'Admin deposit');
-        else
-            return back()->with('error', 'Insufficient Wallet balance');
+        $account = $request->account;
 
-        $transaction = $user->storeTransaction($amount, $user->wallet->id, 'App/Models/Wallet', 'debit', 'approved', 'Admin debited user', null, null, now());
+        $balance = $user->wallet->getBalance($account);
 
-        if($transaction)
+        if($amount <= $balance) {
+            $user->wallet->debit($amount, $account, 'Admin debit');
+
             return redirect()->back()->with('success', 'Account debited successfully');
-        
-        return redirect()->back()->with('error', 'Something went worng!!');
+
+        } else {
+            return back()->with('error', 'Insufficient ' . $account . ' balance');
+        }
     }
 
     public function bank(Request $request, User $user)

@@ -9,6 +9,7 @@ class PaymentMethodService
     public function create(array $data, $user)
     {
         $data['user_id'] = $user->id;
+        $data['is_withdrawal'] = true;
         return PaymentMethod::create($data);
     }
 

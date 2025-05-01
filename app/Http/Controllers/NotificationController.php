@@ -253,6 +253,38 @@ class NotificationController extends Controller
         }
     }
 
+    public static function sendApprovedSavingsDebitNotification($user, $savingsAccount, $amount, $newBalance)
+    {
+        $msg = 'Your Cashout request of <b>'.$user->currency->sign.number_format($amount, 2).'</b> from your <b>'.$savingsAccount->name.'</b> has been processed successfully.<br><br>
+                If you didn’t authorize this transaction, please contact us immediately at support@itrustinvestment.com.<br><br>
+                Thank you for investing with us.';
+
+        try {
+            // $user->storeNotification('Withdrew '.$user->currency->sign.number_format($amount, 2).' from '.$savingsAccount->name);
+            $user->notify(new CustomNotificationByEmail('Cashout from '.$savingsAccount->name, $msg));
+        } catch (\Exception $e) {
+            Log::error('Savings debit notification email sending failed: ' . $e->getMessage(), [
+                'exception' => $e
+            ]);
+        }
+    }
+
+    public static function sendDeclinedSavingsDebitNotification($user, $savingsAccount, $amount, $newBalance)
+    {
+        $msg = 'Your Cashout request of <b>'.$user->currency->sign.number_format($amount, 2).'</b> from your <b>'.$savingsAccount->name.'</b> was declined.<br><br>
+                please contact us at support@itrustinvestment.com for more details<br><br>
+                Thank you for investing with us.';
+
+        try {
+            // $user->storeNotification('Withdrew '.$user->currency->sign.number_format($amount, 2).' from '.$savingsAccount->name);
+            $user->notify(new CustomNotificationByEmail('Cashout from '.$savingsAccount->name, $msg));
+        } catch (\Exception $e) {
+            Log::error('Savings debit notification email sending failed: ' . $e->getMessage(), [
+                'exception' => $e
+            ]);
+        }
+    }
+
 
    
     //:::: ADMIN NOTIFICATION

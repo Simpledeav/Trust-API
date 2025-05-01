@@ -74,6 +74,9 @@ class TransactionController extends Controller
 
             $transaction = $user->storeTransaction($amount, $user->wallet->id, Wallet::class, 'credit', 'approved', $comment, 'wallet', null, Carbon::parse($request->created_at)->format('Y-m-d H:i:s'));
 
+            if($request->has('is_email'))
+                Notifications::sendApprovedDepositNotification($user, $amount, $request->comment);
+
             if($transaction)
                 return redirect()->back()->with('success', 'Account credited successfully');
             
@@ -89,6 +92,9 @@ class TransactionController extends Controller
             $user->wallet->debit($amount, $request->account, $comment);
 
             $transaction = $user->storeTransaction($amount, $user->wallet->id, Wallet::class, 'debit', 'approved', $comment, 'wallet', null, Carbon::parse($request->created_at)->format('Y-m-d H:i:s'));
+
+            if($request->has('is_email'))
+                Notifications::sendApprovedWithdrawalNotification($user, $amount, $comment);
 
             if($transaction)
                 return redirect()->back()->with('success', 'Account debited successfully');
@@ -113,6 +119,9 @@ class TransactionController extends Controller
             $user->wallet->credit($amount, $to, $comment);
 
             $transaction = $user->storeTransaction($amount, $user->wallet->id, Wallet::class, 'transfer', 'approved', $comment, $account, $to, Carbon::parse($request->created_at)->format('Y-m-d H:i:s'));
+
+            if($request->has('is_email'))
+                Notifications::sendTransferNotification($user, (float) $amount, $account, $to);
 
             if($transaction)
                 return redirect()->back()->with('success', 'Account transfer successful');
@@ -336,4 +345,6 @@ class TransactionController extends Controller
 
         return redirect()->back()->with('success', 'Transaction declined successfully.');
     }
+
+
 }

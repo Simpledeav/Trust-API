@@ -46,11 +46,13 @@ class SavingsController extends Controller
                 'amount',
                 'type',
                 'method',
+                'status',
                 'comment',
                 'created_at',
             ])
             ->allowedFilters([
                 'type',
+                'status',
                 'method',
                 AllowedFilter::scope('creation_date'),
                 AllowedFilter::exact('amount'),
@@ -155,8 +157,8 @@ class SavingsController extends Controller
             $balance = $this->savingsService->debit($user, $savingsAccount, $amount, $method, $comment);
 
             return ResponseBuilder::asSuccess()
-                ->withMessage('Savings debited successfully')
-                ->withData(['balance' => $balance])
+                ->withMessage('Cashout requested successfully')
+                // ->withData(['balance' => $balance])
                 ->build();
 
         } catch (\Exception $e) {
