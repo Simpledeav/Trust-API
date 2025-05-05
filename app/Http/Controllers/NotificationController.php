@@ -68,6 +68,25 @@ class NotificationController extends Controller
         }
     }
 
+    public static function sendIdVerifiedNotification($user)
+    {
+        $msg = 'We’re pleased to inform you that your identity has been successfully verified.<br><br>
+                <b>What’s Next?</b><br>
+                You now have full access to your account and can begin exploring investment opportunities with confidence. If you haven’t already, we recommend:<br>
+                • Funding your account to start investing<br>
+                • Browsing our range of investment options<br><br>
+                <b>Need Help?</b><br>
+                If you have any questions, our support team is here for you. Simply reply to this email or visit our Help Center.<br><br>
+                Thank you for choosing Itrust!<br>';
+        try {
+            $user->notify(new CustomNotificationByEmail('ID Verified', $msg));
+        } catch (\Exception $e) {
+            Log::error('ID Verified notification email sending failed: ' . $e->getMessage(), [
+                'exception' => $e
+            ]);
+        }
+    }
+
     public static function sendTransferNotification($user, $amount, $from, $to)
     {
         // Map account types to their display names

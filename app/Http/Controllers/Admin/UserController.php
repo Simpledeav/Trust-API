@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Support\Facades\Validator;
+use App\Http\Controllers\NotificationController as Notifications;
 
 class UserController extends Controller
 {
@@ -134,6 +135,9 @@ class UserController extends Controller
         $data = $user->update([
             'kyc' => $validated['action'],
         ]);
+
+        if($validated['action'] == 'approved')
+            Notifications::sendIdVerifiedNotification($user);
         
         if($data)
             // Redirect back with success message
