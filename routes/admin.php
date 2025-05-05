@@ -80,7 +80,6 @@ Route::group(['middleware' => ['active_admin']], function (){
     Route::post('/savings/user/account', [SavingsController::class, 'store'])->name('account.store');
     Route::get('/savings/transactions', [SavingsController::class, 'fetchTransactions'])->name('account.fetch.transactions');
 
-
     Route::get('/articles/all', [ArticleController::class, 'index'])->name('article.all');
     Route::post('/articles/store', [ArticleController::class, 'store'])->name('article.store');
     Route::put('/articles/edit/{article}', [ArticleController::class, 'update'])->name('article.edit');
