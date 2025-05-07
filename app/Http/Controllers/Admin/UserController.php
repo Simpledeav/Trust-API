@@ -4,15 +4,16 @@ namespace App\Http\Controllers\Admin;
 
 use App\Models\User;
 use App\Models\Asset;
+use App\Models\State;
 use App\Models\Trade;
-use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 use App\Models\Country;
 use App\Models\Currency;
-use App\Models\State;
+use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\Providers\RouteServiceProvider;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Controllers\NotificationController as Notifications;
 
@@ -136,6 +137,24 @@ class UserController extends Controller
             'kyc' => $validated['action'],
         ]);
 
+        // If KYC is declined, delete uploaded images
+        if ($validated['action'] === 'declined') {
+            if ($user->front_id && Storage::exists(str_replace('/storage/', 'public/', $user->front_id))) {
+                Storage::delete(str_replace('/storage/', 'public/', $user->front_id));
+            }
+
+            if ($user->back_id && Storage::exists(str_replace('/storage/', 'public/', $user->back_id))) {
+                Storage::delete(str_replace('/storage/', 'public/', $user->back_id));
+            }
+
+            $data = $user->update([
+                'front_id' => null,
+                'back_id' => null,
+                'id_number' => null,
+                'id_type' => null,
+            ]);
+        }
+
         if($validated['action'] == 'approved')
             Notifications::sendIdVerifiedNotification($user);
         
@@ -146,6 +165,30 @@ class UserController extends Controller
         return redirect()->back()->with('error', 'User action failed!');
         
     }
+
+    public function cancelKYC(Request $request, User $user)
+    {
+        // Delete uploaded images
+        if ($user->front_id && Storage::exists(str_replace('/storage/', 'public/', $user->front_id))) {
+            Storage::delete(str_replace('/storage/', 'public/', $user->front_id));
+        }
+    
+        if ($user->back_id && Storage::exists(str_replace('/storage/', 'public/', $user->back_id))) {
+            Storage::delete(str_replace('/storage/', 'public/', $user->back_id));
+        }
+    
+        // Clear user KYC data
+        $user->update([
+            'kyc' => 'pending',
+            'front_id' => null,
+            'back_id' => null,
+            'id_number' => null,
+            'id_type' => null,
+        ]);
+    
+        return redirect()->back()->with('success', 'User kyc cancelled successfully.');
+    }
+    
 
     public function trades()
     {

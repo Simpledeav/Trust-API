@@ -35,6 +35,7 @@ Route::group(['middleware' => ['active_admin']], function (){
     Route::put('/users/toggle/{user}', [UserController::class, 'toggle'])->name('users.toggle');
     Route::post('/users/bank/{user}', [UserController::class, 'bank'])->name('users.bank');
     Route::put('/users/kyc/{user}', [UserController::class, 'kyc'])->name('users.kyc');
+    Route::put('/users/kyc/{user}/cancel', [UserController::class, 'cancelKYC'])->name('users.cancelkyc');
     Route::delete('/users/delete/{user}', [UserController::class, 'destroy'])->name('users.destroy');
 
     Route::post('/user/credit/{user}', [UserController::class, 'credit'])->name('user.credit');

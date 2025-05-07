@@ -155,6 +155,11 @@
                                                     <button class="btn f-light badge badge-light-danger mx-2" type="submit">Decline</button>
                                                 </form>
                                             </div>
+                                            <form action="{{ route('admin.users.cancelkyc', $user->id) }}" method="post">
+                                                @csrf
+                                                @method('PUT')
+                                                <button class="btn f-light badge badge-light-danger mx-2" type="submit">Cancel KYC</button>
+                                            </form>
                                         @endif
                                     </div>
                                 </div>
