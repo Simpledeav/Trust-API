@@ -99,6 +99,10 @@ return [
             'transport' => 'mailgun',
         ],
 
+        'mailersend' => [
+            'transport' => 'mailersend',
+        ],
+
     ],
 
     /*
