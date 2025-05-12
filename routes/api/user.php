@@ -65,6 +65,7 @@ Route::middleware('auth:api_user')->group(function () {
             //Profile
             Route::patch('profile', [ProfileController::class, 'updateProfile']);
             Route::patch('profile/kyc', [ProfileController::class, 'updateKYC']);
+            Route::patch('profile/kyc/cancel', [ProfileController::class, 'cancelKYC']);
             // Route::post('/profile/bank', [PaymentController::class, 'updatePayment']);
             Route::patch('profile/toggle-drip', [ProfileController::class, 'toggleDrip']);
             Route::post('profile/connect-wallet', [ProfileController::class, 'updateWalletSettings']);
@@ -88,6 +89,7 @@ Route::middleware('auth:api_user')->group(function () {
                     Route::post('/deposit', [TransactionController::class, 'store']);
                     Route::post('/withdraw', [TransactionController::class, 'store']);
                     Route::post('/swap', [TransactionController::class, 'transfer']);
+                    Route::post('/cancel/{transaction}', [TransactionController::class, 'cancel']);
                 });
             });
 

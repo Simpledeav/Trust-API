@@ -7,10 +7,12 @@ namespace App\Services\User;
 use App\Models\User;
 use App\Models\Transaction;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 use App\DataTransferObjects\Models\TransactionModelData;
 
 class TransactionService
 {
+    
     public function create(TransactionModelData $data, User $user): Transaction
     {
         return Transaction::query()->create($data->toArray())->refresh();
@@ -41,5 +43,16 @@ class TransactionService
         $user->wallet->credit($data->getAmount(), $data->getSwapTo(), "Received from {$data->getSwapFrom()}");
 
         return $transaction;
+    }
+
+    public function cancel(Transaction $transaction, User $user): Transaction
+    {
+        return DB::transaction(function () use ($transaction) {
+            $transaction->update([
+                'status' => 'cancelled',
+            ]);
+    
+            return $transaction->fresh(); // Return updated instance
+        });
     }
 }

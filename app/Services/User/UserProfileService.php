@@ -102,6 +102,30 @@ class UserProfileService
         return $user->refresh();
     }
 
+    public function cancelKyc(User $user): User
+    {
+
+        // Delete uploaded images
+        if ($user->front_id && Storage::exists(str_replace('/storage/', 'public/', $user->front_id))) {
+            Storage::delete(str_replace('/storage/', 'public/', $user->front_id));
+        }
+    
+        if ($user->back_id && Storage::exists(str_replace('/storage/', 'public/', $user->back_id))) {
+            Storage::delete(str_replace('/storage/', 'public/', $user->back_id));
+        }
+    
+        // Clear user KYC data
+        $user->update([
+            'kyc' => 'pending',
+            'front_id' => null,
+            'back_id' => null,
+            'id_number' => null,
+            'id_type' => null,
+        ]);
+
+        return $user->refresh();
+    }
+
     /**
      * Helper function to upload a file and return its storage path.
      *

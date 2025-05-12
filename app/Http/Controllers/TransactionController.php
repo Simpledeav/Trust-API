@@ -20,6 +20,7 @@ use App\Http\Requests\User\StoreTransactionRequest;
 use MarcinOrlowski\ResponseBuilder\ResponseBuilder;
 use App\DataTransferObjects\Models\TransactionModelData;
 use App\Http\Controllers\NotificationController as Notifications;
+use App\Http\Requests\User\ToggleTransactionsRequest;
 
 class TransactionController extends Controller
 {
@@ -278,6 +279,48 @@ class TransactionController extends Controller
         return ResponseBuilder::asSuccess()
             ->withHttpCode(Response::HTTP_CREATED)
             ->withMessage('Transafer created successfully')
+            ->withData([
+                'transaction' => $transaction,
+            ])
+            ->build();
+    }
+
+
+    /**
+     * Cancel a pending transaction.
+     *
+     * @param \App\Http\Requests\User\StoreTransactionRequest $request
+     * @param \App\Services\TransactionService $transactionService
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function cancel(
+        ToggleTransactionsRequest $request,
+        Transaction $transaction,
+        TransactionService $transactionService
+    ): Response {
+        $user = $request->user();
+    
+        // Ensure the transaction belongs to the authenticated user
+        if ($transaction->user_id !== $user->id) {
+            return ResponseBuilder::asError(500)
+                ->withHttpCode(Response::HTTP_FORBIDDEN)
+                ->withMessage('Unauthorized access to this transaction')
+                ->build();
+        }
+    
+        // Ensure the transaction is still pending
+        if ($transaction->status !== "pending") {
+            return ResponseBuilder::asError(500)
+                ->withHttpCode(Response::HTTP_UNPROCESSABLE_ENTITY)
+                ->withMessage("You can only cancel a pending transaction")
+                ->build();
+        }
+    
+        $transaction = $transactionService->cancel($transaction, $user);
+    
+        return ResponseBuilder::asSuccess()
+            ->withHttpCode(Response::HTTP_OK)
+            ->withMessage('Transaction cancelled successfully')
             ->withData([
                 'transaction' => $transaction,
             ])

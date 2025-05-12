@@ -445,6 +445,21 @@ class ProfileController extends Controller
             ->build();
     }
 
+    public function cancelKYC(Request $request, UserProfileService $userProfileService): Response
+    {
+        /** @var \App\Models\User $user */
+        $user = $request->user();
+
+        $user = $userProfileService->cancelKyc($user);
+
+        return ResponseBuilder::asSuccess()
+            ->withMessage('KYC cancelled successfully')
+            ->withData([
+                'user' => $user,
+            ])
+            ->build();
+    }
+
     /**
      * Delete profile.
      *
