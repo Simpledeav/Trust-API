@@ -10,13 +10,14 @@ use App\Models\Wallet;
 use App\Models\Country;
 use App\Models\SystemData;
 use Illuminate\Support\Str;
+use App\Models\UserSettings;
 use App\Enums\SystemDataCode;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Auth\Events\Registered;
 use App\Http\Controllers\NotificationController;
 use App\DataTransferObjects\Models\UserModelData;
 use App\DataTransferObjects\Auth\AuthenticationCredentials;
-use App\Models\UserSettings;
 
 class UserService
 {
@@ -29,61 +30,66 @@ class UserService
      */
     public function create(UserModelData $userModelData, bool $authenticate = false): User|AuthenticationCredentials
     {
-        /** @var \App\Models\User $user */
-        $user = User::query()->create([
-            'first_name' => $userModelData->getFirstname(),  // Corrected field name
-            'last_name' => $userModelData->getLastname(),  // Corrected field name
-            'email' => $userModelData->getEmail(),
-            'password' => $userModelData->getPassword() ? Hash::make($userModelData->getPassword()) : null,
-            'username' => $userModelData->getUsername(),
-            'phone' => $userModelData->getPhoneNumber(),
-            'address' => $userModelData->getAddress(),  // Added new field 'address'
-            'zipcode' => $userModelData->getZipcode(),  // Added new field 'zipcode'
-            'ssn' => $userModelData->getSsn(),  // Added new field 'ssn'
-            'dob' => $userModelData->getDateOfBirth(),
-            'nationality' => $userModelData->getNationality(),  // Added new field 'nationality'
-            'experience' => $userModelData->getExperience(),  // Added new field 'experience'
-            'employed' => $userModelData->getEmployed(),  // Added new field 'employed'
-            'status' => 'active',  // Default status
-            'kyc' => 'pending',  // Default KYC status
-            'id_number' => $userModelData->getIdNumber(),  // Added new field 'id_number'
-            'front_id' => $userModelData->getFrontId(),  // Added new field 'front_id'
-            'back_id' => $userModelData->getBackId(),  // Added new field 'back_id'
-            'country_id' => $userModelData->getCountryId(),
-            'state_id' => $userModelData->getStateId(),
-            'city' => $userModelData->getCity(),
-            'currency_id' => $userModelData->getCurrencyId(),
-        ])->refresh();
-
-        // Fire the Registered event
-        event(new Registered($user));
-
-        // **Create wallet for the user**
-        Wallet::create([
-            'id' => Str::uuid(),
-            'user_id' => $user->id,
-            'balance' => 0, // Default balance
-        ]);
-
-        UserSettings::create([
-            'id' => Str::uuid(),
-            'user_id' => $user->id
-        ]);
-
-        // Create payment records for the user
-        // $user->storePayment('admin', []);
-        // $user->storePayment('user', []);
-
-        $admin = Admin::where('email', config('app.admin_mail'))->first();
-
-        NotificationController::sendAdminNewUserNotification($admin, $user);
-
-        // Return user or authentication credentials
-        return $authenticate
-            ? (new AuthenticationCredentials())
-                ->setUser($user)
-                ->setApiMessage('User created successfully')
-                ->setToken($user->createToken($user->getMorphClass())->plainTextToken)
-            : $user;
+        return DB::transaction(function () use ($userModelData, $authenticate) {
+            try {
+                /** @var \App\Models\User $user */
+                $user = User::query()->create([
+                    'first_name' => $userModelData->getFirstname(),
+                    'last_name' => $userModelData->getLastname(),
+                    'email' => $userModelData->getEmail(),
+                    'password' => $userModelData->getPassword() ? Hash::make($userModelData->getPassword()) : null,
+                    'username' => $userModelData->getUsername(),
+                    'phone' => $userModelData->getPhoneNumber(),
+                    'address' => $userModelData->getAddress(),
+                    'zipcode' => $userModelData->getZipcode(),
+                    'ssn' => $userModelData->getSsn(),
+                    'dob' => $userModelData->getDateOfBirth(),
+                    'nationality' => $userModelData->getNationality(),
+                    'experience' => $userModelData->getExperience(),
+                    'employed' => $userModelData->getEmployed(),
+                    'status' => 'active',
+                    'kyc' => 'pending',
+                    'id_number' => $userModelData->getIdNumber(),
+                    'front_id' => $userModelData->getFrontId(),
+                    'back_id' => $userModelData->getBackId(),
+                    'country_id' => $userModelData->getCountryId(),
+                    'state_id' => $userModelData->getStateId(),
+                    'city' => $userModelData->getCity(),
+                    'currency_id' => $userModelData->getCurrencyId(),
+                ])->refresh();
+    
+                event(new Registered($user));
+    
+                Wallet::create([
+                    'id' => Str::uuid(),
+                    'user_id' => $user->id,
+                    'balance' => 0,
+                ]);
+    
+                UserSettings::create([
+                    'id' => Str::uuid(),
+                    'user_id' => $user->id
+                ]);
+    
+                $admin = Admin::where('email', config('app.admin_mail'))->first();
+    
+                // Send notification - catch any error
+                if (!$admin || !NotificationController::sendAdminNewUserNotification($admin, $user)) {
+                    throw new \Exception("Failed to send admin notification.");
+                }
+    
+                return $authenticate
+                    ? (new AuthenticationCredentials())
+                        ->setUser($user)
+                        ->setApiMessage('User created successfully')
+                        ->setToken($user->createToken($user->getMorphClass())->plainTextToken)
+                    : $user;
+    
+            } catch (\Throwable $e) {
+                // Optional: log error
+                throw new \Exception("User creation failed: " . $e->getMessage(), 0, $e);
+            }
+        });
     }
+    
 }

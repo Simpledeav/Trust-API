@@ -29,10 +29,7 @@ class UpdateAssetsData extends Command
      */
     public function handle()
     {
-        Artisan::call('config:clear');
-        Artisan::call('cache:clear');
-        // Artisan::call('view:clear');
-        // Artisan::call('route:clear');
+        Artisan::call('optimize:clear');
 
         $this->info('All caches cleared successfully!');
         
