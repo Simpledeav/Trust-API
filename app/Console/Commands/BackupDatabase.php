@@ -40,6 +40,8 @@ class BackupDatabase extends Command
                 'user_id' => $user->id,
                 'balance' => 0,
             ]);
+
+            $this->info("Creating wallet for user: {$user->id}");
         }
 
         $num = User::whereDoesntHave('wallet')->count();
