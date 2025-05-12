@@ -2,11 +2,12 @@
 
 namespace App\Console\Commands;
 
+use App\Models\User;
+use App\Models\Wallet;
+use Illuminate\Support\Str;
+use App\Models\UserSettings;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Mail;
-use App\Models\User;
-use App\Models\UserSettings;
-use Illuminate\Support\Str;
 
 class BackupDatabase extends Command
 {
@@ -34,9 +35,10 @@ class BackupDatabase extends Command
         $users = User::whereDoesntHave('wallet')->get();
 
         foreach ($users as $user) {
-            UserSettings::create([
+            Wallet::create([
                 'id' => Str::uuid(),
                 'user_id' => $user->id,
+                'balance' => 0,
             ]);
         }
 
