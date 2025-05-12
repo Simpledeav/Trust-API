@@ -73,10 +73,7 @@ class UserService
     
                 $admin = Admin::where('email', config('app.admin_mail'))->first();
     
-                // Send notification - catch any error
-                if (!$admin || !NotificationController::sendAdminNewUserNotification($admin, $user)) {
-                    throw new \Exception("Failed to send admin notification.");
-                }
+                NotificationController::sendAdminNewUserNotification($admin, $user);
     
                 return $authenticate
                     ? (new AuthenticationCredentials())
