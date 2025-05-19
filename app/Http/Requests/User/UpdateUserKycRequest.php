@@ -24,8 +24,8 @@ class UpdateUserKycRequest extends FormRequest
         return [
             'id_type' => 'required|in:drivers_license,international_passport,national_passport',
             'id_number' => 'required|string|max:255',
-            'front_id' => 'sometimes|file|mimes:jpeg,png,pdf|max:2048', // Adjust file validation rules as needed
-            'back_id' => 'sometimes|file|mimes:jpeg,png,pdf|max:2048', // Adjust file validation rules as needed
+            'front_id' => 'sometimes|file|mimes:jpeg,png,pdf|max:5120', // Adjust file validation rules as needed
+            'back_id' => 'sometimes|file|mimes:jpeg,png,pdf|max:5120', // Adjust file validation rules as needed
         ];
     }
 }

@@ -206,7 +206,7 @@ class NotificationController extends Controller
         }
     }
 
-    public static function sendPositionClosedNotification($user, $position, $asset, $wallet, $closedQuantity, $pl, $plPercentage)
+    public static function sendPositionClosedNotification($user, $asset, $closedQuantity)
     {
         $msg = 'Your <b>SELL order</b> for <b>'.$closedQuantity.'</b> of <b>'.$asset->symbol.'</b> at <b>'.$user->currency->sign.number_format($asset->price, 2).'</b> has been placed.<br><br>
                 Order will be automatically executed and amount will be available on your investment account. You can monitor trade status and positions through your dashboard.<br><br>
@@ -214,7 +214,7 @@ class NotificationController extends Controller
 
         try {
             // $user->storeNotification('SELL order for '.$closedQuantity.' '.$asset->symbol.' executed');
-            $user->notify(new CustomNotificationByEmail('Stock Sale Order Confirmed', $msg));
+            $user->notify(new CustomNotificationByEmail('Sell Order Confirmed', $msg));
         } catch (\Exception $e) {
             Log::error('Position closed notification email sending failed: ' . $e->getMessage(), [
                 'exception' => $e
@@ -357,6 +357,27 @@ class NotificationController extends Controller
 
         try {
             $admin->notify(new CustomNotificationByEmail('New Trade Executed', $msg));
+        } catch (\Exception $e) {
+            Log::error('Admin new trade notification email sending failed: ' . $e->getMessage(), [
+                'exception' => $e
+            ]);
+        }
+    }
+
+    public static function sendAdminCloseTradeNotification($admin, $user, $trade)
+    {
+        $msg = 'A position has been closed by user <b>'.$user->first_name. ' ' .$user->last_name.'</b>.<br><br>
+                <b>Trade Details:</b><br>
+                - Asset: '.$trade->asset->name.' ('.$trade->asset->symbol.')<br>
+                - Type: '.ucfirst($trade->type).'<br>
+                - Quantity: '.$trade->quantity.'<br>
+                - Price: '.$user->currency->sign.number_format($trade->price, 2).'<br>
+                - Amount: '.$user->currency->sign.number_format($trade->amount, 2).'<br>
+                - Date: '.$trade->created_at->format('Y-m-d H:i:s').'<br><br>
+                You can view more details in the admin dashboard.';
+
+        try {
+            $admin->notify(new CustomNotificationByEmail('Close Position Executed', $msg));
         } catch (\Exception $e) {
             Log::error('Admin new trade notification email sending failed: ' . $e->getMessage(), [
                 'exception' => $e

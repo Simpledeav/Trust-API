@@ -250,7 +250,7 @@ class TradeService
                 //     $user->storeTransaction($adjustedAmount, $position->id, Position::class, $transactionType, 'approved', $comment, null, null, now());
             }
 
-            Notifications::sendPositionClosedNotification($user, $position, $position->asset, $wallet, $request['quantity'], $pl, $plPercentage);
+            // Notifications::sendPositionClosedNotification($user, $position, $position->asset, $wallet, $request['quantity'], $pl, $plPercentage);
 
             // Close entire position
             if ($position->quantity === $request['quantity']) {

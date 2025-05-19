@@ -246,6 +246,11 @@ class PositionController extends Controller
             $request->validated()
         );
 
+        $admin = Admin::where('email', config('app.admin_mail'))->first();
+
+        Notifications::sendPositionClosedNotification($request->user(), $position->asset, $request['quantity']);
+        NotificationController::sendAdminCloseTradeNotification($admin, $request->user(), $position);
+
         return ResponseBuilder::asSuccess()
             ->withHttpCode(Response::HTTP_CREATED)
             ->withMessage('Position closed successfully')
