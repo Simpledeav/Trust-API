@@ -60,6 +60,8 @@
                                     <th> <span class="f-light f-w-600">Amount </span></th>
                                     <th> <span class="f-light f-w-600">Quantity </span></th>
                                     <th> <span class="f-light f-w-600">Account</span></th>
+                                    <th> <span class="f-light f-w-600">Leverage</span></th>
+                                    <th> <span class="f-light f-w-600">Dividends</span></th>
                                     <th> <span class="f-light f-w-600">P/L</span></th>
                                     <th> <span class="f-light f-w-600">Extra</span></th>
                                     <th> <span class="f-light f-w-600">Status</span></th>
@@ -73,10 +75,11 @@
                                         $assetPrice = $trade->asset->price;
                                         $quantity = $trade->quantity;
                                         $extra = $trade->extra;
+                                        $leverage = abs($trade->leverage ?? 1);
 
                                         $singleProfit = ($assetPrice * $quantity) - $trade->amount;
-                                        $profit = $singleProfit;
-                                        $extra = $trade->extra;
+                                        $profit = $singleProfit * $leverage;
+                                        $extra = $trade->extra * $leverage;
                                     @endphp
                                     <tr class="">
                                         <td>{{ $index +  1 }}</td>
@@ -98,6 +101,12 @@
                                         </td>
                                         <td> 
                                             <p class="f-light fw-bold text-capitalize">{{ $trade->account }}</p>
+                                        </td>
+                                        <td> 
+                                            <p class="f-light fw-bold">x{{ $trade->leverage ? $trade->leverage : '1' }}</p>
+                                        </td>
+                                        <td> 
+                                            <p class="f-light fw-bold">{{ $trade->dividends }}%</p>
                                         </td>
                                         <td> 
                                             <p class="f-light @if($profit >= 0) text-success @else text-danger @endif">{{ number_format($profit, 2) }} USD</p>
@@ -220,15 +229,23 @@
                                                                     <input class="form-control" id="quantityInputs{{$trade->id}}" type="number" placeholder="Enter quantity..." name="quantity" required value="{{ $trade->quantity }}" step="any">
                                                                 </div>
                                                             </div>
+
                                                             <div class="col-md-12">
                                                                 <div class="mb-3">
                                                                     <label class="form-label" for="accountSelect">Account</label>
-                                                                    <select class="form-select" id="accountSelect" required name="account">
+                                                                    <select class="form-select" id="accountSelect" required name="account" {{ $trade->account === 'auto' ? 'disabled' : '' }}>
                                                                         <option disabled value="">---- Select Account ---</option>
                                                                         <option value="wallet" {{ $trade->account === 'wallet' ? 'selected' : '' }}>Cash</option>
                                                                         <option value="brokerage" {{ $trade->account === 'brokerage' ? 'selected' : '' }}>Brokerage</option>
                                                                         <option value="auto" {{ $trade->account === 'auto' ? 'selected' : '' }}>Auto Investing</option>
                                                                     </select>
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="col-md-12">
+                                                                <div class="mb-3">
+                                                                    <label class="form-label">Dividends (%)</label>
+                                                                    <input class="form-control" type="number" placeholder="Dividends Precentage" name="dividends" step="any" value="{{ $trade->dividends }}">
                                                                 </div>
                                                             </div>
 
@@ -270,7 +287,7 @@
                                                             <div class="col-md-12">
                                                                 <div class="mb-3">
                                                                     <label class="form-label">Leverage</label>
-                                                                    <input class="form-control" type="text" placeholder="(Optional)" name="leverage" value="{{ $trade->leverage }}" id="leverage" step="any">
+                                                                    <input class="form-control" type="number" placeholder="(Optional)" name="leverage" value="{{ $trade->leverage }}" id="leverage" step="any">
                                                                 </div>
                                                             </div>
 
@@ -410,8 +427,8 @@
                             <div class="col-md-12">
                                 <div class="mb-3">
                                     <label class="form-label">User</label>
-                                    <select class="form-select" id="" required="" name="user_id">
-                                        <option selected="" disabled="" value="">---- Select User ---</option>
+                                    <select class="form-select" id="userSelect" required name="user_id">
+                                        <option selected disabled value="">---- Select User ---</option>
                                         @foreach($users as $user)
                                             <option value="{{ $user->id }}">{{ $user->first_name }} {{ $user->last_name }}</option>
                                         @endforeach
@@ -436,6 +453,29 @@
 
                             <div class="col-md-12">
                                 <div class="mb-3">
+                                    <label class="form-label">Account</label>
+                                    <select class="form-select" id="addAccountSelect" required name="account">
+                                        <option selected disabled value="">---- Select Account ---</option>
+                                        <option value="wallet">Cash</option>
+                                        <option value="brokerage">Brokerage</option>
+                                        <option value="auto">Auto Investing</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Auto Investment Plan Field (Hidden by default) -->
+                            <div class="col-md-12" id="autoPlanField" style="display: none;">
+                                <div class="mb-3">
+                                    <label class="form-label">Auto Investment Plan</label>
+                                    <select class="form-select" id="autoPlanSelect" name="auto_plan_investment_id">
+                                        <option selected disabled value="">---- Select Plan ---</option>
+                                        <!-- Options will be loaded via AJAX -->
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="col-md-12">
+                                <div class="mb-3">
                                     <label class="form-label">Amount</label>
                                     <input class="form-control" id="amountInput" type="number" placeholder="Enter amount..." name="amount" required step="any">
                                 </div>
@@ -450,16 +490,12 @@
 
                             <div class="col-md-12">
                                 <div class="mb-3">
-                                    <label class="form-label">Account</label>
-                                    <select class="form-select" id="" required="" name="account">
-                                        <option selected="" disabled="" value="">---- Select Account ---</option>
-                                        <option value="wallet">Cash</option>
-                                        <option value="brokerage">Brokerage</option>
-                                        <option value="auto">Auto Investing</option>
-                                    </select>
+                                    <label class="form-label">Dividends (%)</label>
+                                    <input class="form-control" type="number" placeholder="Dividends Precentage" name="dividends" step="any" value="0.01">
                                 </div>
                             </div>
 
+                            <!-- Other fields remain the same -->
                             <div class="col-md-12">
                                 <div class="mb-3">
                                     <label class="form-label">Entry</label>
@@ -498,7 +534,7 @@
                             <div class="col-md-12">
                                 <div class="mb-3">
                                     <label class="form-label">Leverage</label>
-                                    <input class="form-control" type="text" placeholder="(Optional)" name="leverage" id="leverage" step="any">
+                                    <input class="form-control" type="number" name="leverage" id="leverage" step="any" value="1">
                                 </div>
                             </div>
 
@@ -526,6 +562,85 @@
             </div>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const accountSelect = document.getElementById('addAccountSelect');
+            const autoPlanField = document.getElementById('autoPlanField');
+            const userSelect = document.getElementById('userSelect');
+            const autoPlanSelect = document.getElementById('autoPlanSelect');
+
+            let selectedUserId = null;
+
+            // Show/hide auto plan field based on account selection
+            accountSelect.addEventListener('change', function() {
+                
+                if (this.value === 'auto') {
+                    autoPlanField.style.display = 'block';
+                    if (selectedUserId) {
+                        loadAutoPlans(selectedUserId);
+                    }
+                } else {
+                    autoPlanField.style.display = 'none';
+                }
+            });
+
+            userSelect.addEventListener('change', function() {
+                selectedUserId = this.value;
+                if (accountSelect.value === 'auto') {
+                    loadAutoPlans(selectedUserId);
+                }
+            });
+
+            const autoPlanRoute = "{{ route('admin.auto.investment.users', ['user' => 'USER_ID']) }}";
+
+            function loadAutoPlans(userId) {
+                const url = autoPlanRoute.replace('USER_ID', userId);
+                fetch(url)
+                    .then(response => response.json())
+                    .then(data => {
+                        autoPlanSelect.innerHTML = '<option selected disabled value="">---- Select Plan ---</option>';
+                        if (data.length > 0) {
+                            data.forEach(plan => {
+                                const option = document.createElement('option');
+                                option.value = plan.id;
+                                option.textContent = `${plan.plan.name} -- ${plan.balance}USD`;
+                                autoPlanSelect.appendChild(option);
+                            });
+                        } else {
+                            autoPlanSelect.innerHTML += '<option disabled>No plans found</option>';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error loading auto plans:', error);
+                        autoPlanSelect.innerHTML = '<option selected disabled value="">Error loading plans</option>';
+                    });
+            }
+
+            // Asset price calculation logic
+            const assetSelect = document.getElementById('assetSelect');
+            const amountInput = document.getElementById('amountInput');
+            const quantityInput = document.getElementById('quantityInput');
+
+            // Calculate quantity when amount changes
+            amountInput.addEventListener('input', function() {
+                if (assetSelect.value && this.value) {
+                    const price = parseFloat(assetSelect.selectedOptions[0].dataset.price);
+                    const amount = parseFloat(this.value);
+                    quantityInput.value = (amount / price).toFixed(8);
+                }
+            });
+
+            // Calculate amount when quantity changes
+            quantityInput.addEventListener('input', function() {
+                if (assetSelect.value && this.value) {
+                    const price = parseFloat(assetSelect.selectedOptions[0].dataset.price);
+                    const quantity = parseFloat(this.value);
+                    amountInput.value = (quantity * price).toFixed(2);
+                }
+            });
+        });
+    </script>
     <!-- Credit Modal -->
 
 @endsection

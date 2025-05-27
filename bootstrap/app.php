@@ -68,4 +68,9 @@ return Application::configure(basePath: dirname(__DIR__))
              ->onOneServer()
              ->runInBackground();
 
+        $schedule->command('dividends:process')
+             ->dailyAt('00:00')
+             ->withoutOverlapping()
+             ->timezone('UTC');
+
     })->create();

@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\TradeController;
 use App\Http\Controllers\Admin\ArticleController;
+use App\Http\Controllers\Admin\AutoinvestController;
 use App\Http\Controllers\Admin\SavingsController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\PositionController;
@@ -97,5 +98,15 @@ Route::group(['middleware' => ['active_admin']], function (){
     Route::put('/positions/user/update/{id}', [PositionController::class, 'update'])->name('position.update');
     Route::put('/trades/update/{trade}', [TradeController::class, 'updateHistory'])->name('trade.date.update');
     Route::delete('/trades/delete/{trade}', [TradeController::class, 'destroyHistory'])->name('trade.date.delete');
+
+    Route::get('/auto-invest/plans', [AutoinvestController::class, 'index'])->name('auto.plans');
+    Route::post('/auto-invest/plans', [AutoinvestController::class, 'store'])->name('auto.plans.store');
+    Route::put('/auto-invest/{autoPlan}', [AutoinvestController::class, 'update'])->name('auto.plans.update');
+    Route::delete('/auto-invest/{autoPlan}', [AutoinvestController::class, 'destroy'])->name('auto.plans.delete');
+    Route::get('/auto-invest/investments', [AutoinvestController::class, 'investment'])->name('auto.investments');
+    Route::get('/users/{user}/auto-plans', [AutoinvestController::class, 'getUserPlans'])->name('auto.investment.users');
+    Route::delete('/auto-invest/close/{autoPlanInvestmentId}', [AutoinvestController::class, 'closeAutoInvestment'])->name('auto.investment.close');
+    Route::post('/auto-invest/invest', [AutoinvestController::class, 'startInvestment'])->name('auto.plans.invest');
+
 
 });

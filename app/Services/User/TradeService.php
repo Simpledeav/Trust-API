@@ -141,7 +141,7 @@ class TradeService
                     'status'      => 'open',
                     'entry'       => $data['entry'] ?? null,
                     'exit'        => $data['exit'] ?? null,
-                    'leverage'    => $data['leverage'] ?? null,
+                    'leverage'    => $data['leverage'] ?? 1,
                     'interval'    => $data['interval'] ?? null,
                     'tp'          => $data['tp'] ?? null,
                     'sl'          => $data['sl'] ?? null,
@@ -207,15 +207,11 @@ class TradeService
     public function closePosition(Position $position, $user, $request)
     {
         return DB::transaction(function () use ($position, $user, $request) {
-            // Validate asset existence
-            $asset = Asset::findOrFail($position->asset_id);
-            
-            // Ensure the position belongs to the authenticated user
+            // Validate position ownership and status
             if ($user->id !== $position->user_id) {
                 abort(403, 'Unauthorized: This trade does not belong to you.');
             }
 
-            // Prevent reopening a closed or locked trade
             if ($position->status === 'locked') {
                 abort(400, 'You cannot close this locked position.');
             }
@@ -224,59 +220,59 @@ class TradeService
                 abort(400, 'Empty position: Contact admin for more information.');
             }
 
-            // Lock position row to prevent race conditions
-            $position->lockForUpdate();
-
-            // Calculate amounts
-            $newPrice = $asset->price * $request['quantity'];
-            $amount = $newPrice - ($position->price * $request['quantity']) + $position['extra'];
-            $comment = "Closed position on {$asset->name} of {$amount}";
-
-            // Calculate amounts
-            $closingValue = $asset->price * $request['quantity'] + $position['extra']; // Current price × quantity
-            $openingValue = $position->price * $request['quantity']; // Position price × quantity
-            $pl = $closingValue - $openingValue; // Profit/Loss
-            $plPercentage = ($pl / $openingValue) * 100; // Profit/Loss Percentage
-
-            $wallet = $position->account ?? 'wallet';
-            $user->wallet->credit($position->price * $request['quantity'], $wallet, $comment);
-
-            // Handle wallet transactions
-            if ($amount !== 0) {
-                $transactionType = $amount > 0 ? 'credit' : 'debit';
-                $adjustedAmount = abs($amount);
-                $user->wallet->{$transactionType}($adjustedAmount, $wallet, $comment);
-                // if($adjustedAmount > 0.00)
-                //     $user->storeTransaction($adjustedAmount, $position->id, Position::class, $transactionType, 'approved', $comment, null, null, now());
+            if ($request['quantity'] > $position->quantity) {
+                abort(400, 'Invalid quantity: You cannot close more than your available position.');
             }
 
-            // Notifications::sendPositionClosedNotification($user, $position, $position->asset, $wallet, $request['quantity'], $pl, $plPercentage);
+            // Lock position and load related data
+            $position->lockForUpdate();
+            $asset = Asset::findOrFail($position->asset_id);
+            $wallet = $position->account ?? 'wallet';
+            $leverage = abs($position->leverage ?? 1);
 
-            // Close entire position
-            if ($position->quantity === $request['quantity']) {
-                
-                // Store trades as position transaction history
-                Trade::create([
-                    'user_id'     => $user->id,
-                    'asset_id'    => $position['asset_id'],
-                    'asset_type'  => $asset->type,
-                    'type'        => 'sell',
-                    'price'       => $asset->price,
-                    'quantity'    => $request['quantity'],
-                    'account'    => $position->account,
-                    'amount'      => $closingValue,
-                    'status'      => 'open',
-                    'entry'       => $position['entry'] ?? null,
-                    'exit'        => $position['exit'] ?? null,
-                    'leverage'    => $position['leverage'] ?? null,
-                    'interval'    => $position['interval'] ?? null,
-                    'tp'          => $position['tp'] ?? null,
-                    'sl'          => $position['sl'] ?? null,
-                    'extra'       => 0,
-                    'pl'          => $pl,
-                    'pl_percentage'=> $plPercentage,
-                ]);
+            // Calculate P/L values
+            $closedQuantity = $request['quantity'];
+            $closedValue = $asset->price * $closedQuantity;
+            $openingValue = $position->price * $closedQuantity;
+            $pl = ($closedValue - $openingValue + $position->extra) * $leverage;
+            $plPercentage = ($pl / $openingValue) * 100;
 
+            // Handle wallet transactions
+            $comment = "Closed position on {$asset->name}";
+            if($wallet !== 'auto')
+                $user->wallet->credit($openingValue, $wallet, $comment);
+            
+            if ($pl != 0) {
+                $transactionType = $pl > 0 ? 'credit' : 'debit';
+                $user->wallet->{$transactionType}(abs($pl), $wallet, $comment);
+            }
+
+            // Record the trade
+            $tradeData = [
+                'user_id' => $user->id,
+                'asset_id' => $position->asset_id,
+                'asset_type' => $asset->type,
+                'type' => 'sell',
+                'price' => $asset->price,
+                'quantity' => $closedQuantity,
+                'account' => $position->account,
+                'amount' => $openingValue + $pl,
+                'status' => 'open',
+                'entry' => $position->entry,
+                'exit' => $position->exit,
+                'leverage' => $position->leverage,
+                'interval' => $position->interval,
+                'tp' => $position->tp,
+                'sl' => $position->sl,
+                'extra' => 0,
+                'pl' => $pl,
+                'pl_percentage' => $plPercentage,
+            ];
+
+            Trade::create($tradeData);
+
+            // Handle full or partial position closure
+            if ($position->quantity === $closedQuantity) {
                 // Check if there are any remaining positions for the same asset and user
                 $remainingPositions = Position::where('user_id', $user->id)
                     ->where('asset_id', $position->asset_id)
@@ -307,60 +303,21 @@ class TradeService
                 }
                 
                 $position->delete();
-
                 return 'Order closed successfully';
-            }
-
-            // Close part of the position
-            if ($position->quantity > $request['quantity']) {
-                
-                $newQuantity = $position->quantity - $request['quantity'];
-                $newAmount = $position->price * $newQuantity;
-
-                $fractionAmount = $asset->price * $request['quantity'];
-                $fractionPl = $fractionAmount - ($position->price * $request['quantity']);
-                $fractionPlPercentage = ($fractionPl / $fractionAmount) * 100;
-
-                // Calculate the extra percentage
-                $closedFraction = $request['quantity'] / $position->quantity;
-                $fractionExtra = $position->extra * $closedFraction;
-                $remainingExtra = $position->extra - $fractionExtra;
-                
-                // Store trades as position transaction history
-                Trade::create([
-                    'user_id'     => $user->id,
-                    'asset_id'    => $position['asset_id'],
-                    'asset_type'  => $asset->type,
-                    'type'        => 'sell',
-                    'price'       => $asset->price,
-                    'quantity'    => $request['quantity'],
-                    'account'    => $position->account,
-                    'amount'      => $fractionAmount,
-                    'status'      => 'open',
-                    'entry'       => $position['entry'] ?? null,
-                    'exit'        => $position['exit'] ?? null,
-                    'leverage'    => $position['leverage'] ?? null,
-                    'interval'    => $position['interval'] ?? null,
-                    'tp'          => $position['tp'] ?? null,
-                    'sl'          => $position['sl'] ?? null,
-                    'extra'       => 0,
-                    'pl'          => $fractionPl,
-                    'pl_percentage'=> $fractionPlPercentage,
-                    'pl' => $fractionPl + $fractionExtra,
-                    'pl_percentage' => (($fractionPl + $fractionExtra) / ($position->price * $request['quantity'])) * 100
-                ]);
+            } else {
+                // Update position for partial closure
+                $remainingQuantity = $position->quantity - $closedQuantity;
+                $closedFraction = $closedQuantity / $position->quantity;
+                $remainingExtra = $position->extra * (1 - $closedFraction);
                 
                 $position->update([
-                    'quantity' => $newQuantity, 
-                    'amount' => $newAmount,
+                    'quantity' => $remainingQuantity,
+                    'amount' => $position->price * $remainingQuantity,
                     'extra' => $remainingExtra
                 ]);
                 
                 return $position;
             }
-
-            // Requested quantity exceeds available position
-            abort(400, 'Invalid quantity: You cannot close more than your available position.');
         });
     }
 

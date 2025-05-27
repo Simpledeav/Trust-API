@@ -9,8 +9,10 @@ use App\Models\Ledger;
 use App\Models\Savings;
 use App\Models\Position;
 use Carbon\CarbonPeriod;
+use App\Models\Dividends;
 use App\Models\Transaction;
 use App\Models\SavingsLedger;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
 class AnalyticsService
@@ -82,6 +84,11 @@ class AnalyticsService
             ->with('asset')
             ->get();
 
+        $positions24Hours = (clone $positionQuery)
+            ->with('asset')
+            ->where('created_at', '>=', now()->subHours(24))
+            ->get();
+
         // Trades calculations
         $rawTotalBuy = (clone $tradesQuery)
             ->where('type', 'buy')
@@ -116,7 +123,7 @@ class AnalyticsService
         }
 
         // Calculate 24-hour P&L: (current value - invested amount) + extra from positions
-        $rawTotalInvestment24hr = $positions->sum(function($trade) {
+        $rawTotalInvestment24hr = $positions24Hours->sum(function($trade) {
             $currentValue = $trade->quantity * $trade->asset->price;
             return $currentValue - $trade->amount + $trade->extra;
         });
@@ -304,206 +311,93 @@ class AnalyticsService
         return $firstTransaction ? $firstTransaction->created_at : null;
     }
 
-    //:::::: FRESH METHODS
-    // protected function getNetWorthChartData($user, $startDate = null): array
-    // {
-    //     $now = now();
+    public function getDividendChartData(User $user, string $timeframe): array
+    {
+        $now = Carbon::now();
+        $format = 'Y-m-d H:i:s';
         
-    //     // 1. Get all data up to now if no start date (for 'all' timeframe)
-    //     $cashQuery = Transaction::where('user_id', $user->id)
-    //         ->where('swap_from', 'wallet')
-    //         ->where('status', 'approved');
+        // Determine date range and grouping based on timeframe
+        switch ($timeframe) {
+            case 'week':
+                $startDate = $now->copy()->subDays(7);
+                $groupBy = 'date';
+                $dbFormat = '%Y-%m-%d';
+                break;
+                
+            case 'month':
+                $startDate = $now->copy()->subDays(31);
+                $groupBy = 'date';
+                $dbFormat = '%Y-%m-%d';
+                break;
+                
+            case 'year':
+                $startDate = $now->copy()->subMonths(12);
+                $groupBy = 'month';
+                $dbFormat = '%Y-%m';
+                break;
+                
+            case 'all':
+                $startDate = null; // No date limit
+                $groupBy = 'month';
+                $dbFormat = '%Y-%m';
+                break;
+                
+            default:
+                throw new \InvalidArgumentException('Invalid timeframe specified');
+        }
+
+        // Query dividends with optional date filtering
+        $query = Dividends::where('user_id', $user->id)
+            ->select(
+                DB::raw("DATE_FORMAT(created_at, '{$dbFormat}') as date_group"),
+                DB::raw('SUM(amount) as total_amount')
+            )
+            ->groupBy('date_group')
+            ->orderBy('date_group');
+
+        if ($startDate) {
+            $query->where('created_at', '>=', $startDate);
+        }
+
+        $dividends = $query->get()->keyBy('date_group');
+
+        // Generate complete date range with zeros for missing dates
+        return $this->generateCompleteDateRange(
+            $startDate ?? $user->created_at,
+            $now,
+            $groupBy,
+            $dividends
+        );
+    }
+
+    protected function generateCompleteDateRange(
+        Carbon $startDate,
+        Carbon $endDate,
+        string $groupBy,
+        Collection $dividends
+    ): array {
+        $result = [];
+        $current = $startDate->copy();
         
-    //     $investmentQuery = Position::where('user_id', $user->id)
-    //         ->join('assets', 'assets.id', '=', 'positions.asset_id');
+        while ($current <= $endDate) {
+            $key = $current->format($groupBy === 'month' ? 'Y-m' : 'Y-m-d');
+            
+            // For hourly data if needed later
+            if ($groupBy === 'hour') {
+                $key = $current->format('Y-m-d H:00:00');
+            }
+            
+            $result[$key] = $dividends->has($key) 
+                ? (float) $dividends[$key]->total_amount 
+                : 0;
+                
+            // Move to next period
+            $groupBy === 'month' 
+                ? $current->addMonth() 
+                : $current->addDay();
+        }
         
-    //     $savingsQuery = SavingsLedger::where('user_id', $user->id);
-        
-    //     // Apply timeframe filter if provided
-    //     if ($startDate) {
-    //         $cashQuery->where('created_at', '>=', $startDate);
-    //         $investmentQuery->where('positions.created_at', '>=', $startDate);
-    //         $savingsQuery->where('created_at', '>=', $startDate);
-    //     }
-        
-    //     // 2. Group data by appropriate time intervals
-    //     $groupByFormat = $this->getGroupByFormat($startDate);
-        
-    //     $cashData = $cashQuery
-    //         ->selectRaw("DATE_FORMAT(created_at, ?) as date, SUM(amount) as cash", [$groupByFormat])
-    //         ->groupBy('date')
-    //         ->get()
-    //         ->keyBy('date')
-    //         ->map(function ($item) {
-    //             return $item->cash;
-    //         })
-    //         ->toArray();
-        
-    //     $investmentData = $investmentQuery
-    //         ->selectRaw("DATE_FORMAT(positions.created_at, ?) as date, 
-    //             SUM(positions.quantity * assets.price) + SUM(positions.extra) as investments", 
-    //             [$groupByFormat])
-    //         ->groupBy('date')
-    //         ->get()
-    //         ->keyBy('date')
-    //         ->map(function ($item) {
-    //             return $item->investments;
-    //         })
-    //         ->toArray();
-        
-    //     $savingsData = $savingsQuery
-    //         ->selectRaw("DATE_FORMAT(created_at, ?) as date, SUM(amount) as savings", [$groupByFormat])
-    //         ->groupBy('date')
-    //         ->get()
-    //         ->keyBy('date')
-    //         ->map(function ($item) {
-    //             return $item->savings;
-    //         })
-    //         ->toArray();
-        
-    //     // 3. Combine all dates and calculate net worth
-    //     $allDates = array_unique(array_merge(
-    //         array_keys($cashData),
-    //         array_keys($investmentData),
-    //         array_keys($savingsData)
-    //     ));
-    //     sort($allDates);
-        
-    //     $chartData = [];
-    //     foreach ($allDates as $date) {
-    //         $chartData[$date] = 
-    //             ($cashData[$date] ?? 0) + 
-    //             ($investmentData[$date] ?? 0) + 
-    //             ($savingsData[$date] ?? 0);
-    //     }
-        
-    //     // 4. Fill any missing dates with previous value
-    //     return $this->fillMissingNetWorthDates($chartData, $startDate);
-    // }
-
-    // protected function getGroupByFormat($startDate = null): string
-    // {
-    //     if ($startDate === null) {
-    //         return '%Y-%m-01 00:00:00'; // Monthly for all time
-    //     }
-
-    //     // Get the actual difference in days
-    //     $days = now()->diffInDays($startDate);
-        
-    //     // For specific timeframes, use these groupings regardless of actual days
-    //     if ($days <= 1) {
-    //         return '%Y-%m-%d %H:00:00';  // Hourly for last 24 hours
-    //     } elseif ($days <= 7) {
-    //         return '%Y-%m-%d 00:00:00';  // Daily for last 7 days
-    //     } elseif ($days <= 30) {
-    //         return '%Y-%m-%d 00:00:00';  // Daily for last 30 days
-    //     } else {
-    //         return '%Y-%m-01 00:00:00';  // Monthly for longer periods
-    //     }
-    // }
-
-    // protected function fillMissingNetWorthDates(array $netWorthData, $startDate = null): array
-    // {
-    //     $filledData = [];
-    //     $now = now();
-        
-    //     // Determine interval based on timeframe
-    //     if ($startDate === null) {
-    //         $interval = '1 month';
-    //         $format = 'Y-m-01 00:00:00';
-    //         $start = !empty($netWorthData) 
-    //             ? Carbon::createFromFormat('Y-m-d H:i:s', array_key_first($netWorthData))
-    //             : $now->subYear()->startOfMonth();
-    //     } else {
-    //         $days = $now->diffInDays($startDate);
-    //         if ($days <= 1) {
-    //             $interval = '1 hour';
-    //             $format = 'Y-m-d H:00:00';
-    //             $start = $now->copy()->subHours(23)->startOfHour();
-    //         } elseif ($days <= 7) {
-    //             $interval = '1 day';
-    //             $format = 'Y-m-d 00:00:00';
-    //             $start = $now->copy()->subDays(6)->startOfDay();
-    //         } elseif ($days <= 30) {
-    //             $interval = '1 day';
-    //             $format = 'Y-m-d 00:00:00';
-    //             $start = $now->copy()->subDays(29)->startOfDay();
-    //         } else {
-    //             $interval = '1 month';
-    //             $format = 'Y-m-01 00:00:00';
-    //             $start = $now->copy()->subMonths(11)->startOfMonth();
-    //         }
-    //     }
-
-    //     $current = $start->copy();
-    //     $lastValue = 0;
-
-    //     while ($current <= $now) {
-    //         $period = $current->format($format);
-    //         $value = $netWorthData[$period] ?? $lastValue;
-    //         $filledData[$period] = $value;
-    //         $lastValue = $value;
-    //         $current->modify("+{$interval}");
-    //     }
-
-    //     return $filledData;
-    // }
-    //:::::: FRESH METHODS
-    
-    // private function getChartData($ledgerQuery, string $timeframe): array
-    // {
-    //     $groupByFormat = match ($timeframe) {
-    //         '1d' => '%Y-%m-%d %H:00:00',  // Hourly for last 24 hours
-    //         '7d', '30d' => '%Y-%m-%d 00:00:00',  // Daily for last 7 or 30 days
-    //         '1yr', 'all' => '%Y-%m-01 00:00:00',  // Monthly for 1yr or all-time
-    //         default => '%Y-%m-%d 00:00:00',
-    //     };
-
-    //     $ledgerData = $ledgerQuery
-    //         ->selectRaw("DATE_FORMAT(created_at, ?) as period, SUM(amount) as total_amount", [$groupByFormat])
-    //         ->groupBy('period')
-    //         ->orderBy('period')
-    //         ->get();
-
-    //     return $this->fillMissingDates($ledgerData, $timeframe);
-    // }
-
-    // private function fillMissingDates($ledgerData, string $timeframe): array
-    // {
-    //     $filledData = [];
-    //     $now = Carbon::now();
-    //     $start = match ($timeframe) {
-    //         '1d' => $now->copy()->subHours(23)->startOfHour(),
-    //         '7d' => $now->copy()->subDays(6)->startOfDay(),
-    //         '30d' => $now->copy()->subDays(29)->startOfDay(),
-    //         '1yr' => $now->copy()->subMonths(11)->startOfMonth(),
-    //         'all' => optional($ledgerData->first())->period ? Carbon::parse($ledgerData->first()->period) : $now,
-    //         default => $now,
-    //     };
-
-    //     $interval = match ($timeframe) {
-    //         '1d' => '1 hour',
-    //         '7d', '30d' => '1 day',
-    //         '1yr', 'all' => '1 month',
-    //         default => '1 day',
-    //     };
-
-    //     $period = $start->copy();
-    //     $existingData = $ledgerData->pluck('total_amount', 'period')->toArray();
-
-    //     while ($period->lte($now)) {
-    //         $formattedDate = match ($timeframe) {
-    //             '1d' => $period->format('Y-m-d H:00:00'),
-    //             '7d', '30d' => $period->format('Y-m-d 00:00:00'),
-    //             '1yr', 'all' => $period->format('Y-m-01 00:00:00'),
-    //             default => $period->format('Y-m-d 00:00:00'),
-    //         };
-
-    //         $filledData[$formattedDate] = isset($existingData[$formattedDate]) ? (float)$existingData[$formattedDate] : 0;
-    //         $period->modify("+{$interval}");
-    //     }
-
-    //     return $filledData;
-    // }
+        return $result;
+    }
 
 }

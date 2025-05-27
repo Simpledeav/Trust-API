@@ -8,12 +8,14 @@ use App\Models\Position;
 use App\Models\Transaction;
 use Illuminate\Http\Request;
 use App\Models\SavingsLedger;
+use App\Models\AutoPlanInvestment;
 use App\Http\Controllers\Controller;
 use App\Services\User\AnalyticsService;
 use App\Services\User\UserProfileService;
 use App\Services\User\ProfileTwoFaService;
 use App\Services\User\ProfilePasswordService;
 use Symfony\Component\HttpFoundation\Response;
+use App\Http\Requests\User\UpdateConnectWallet;
 use App\Http\Controllers\NotificationController;
 use App\Http\Requests\User\ProfileUpdateRequest;
 use App\Http\Requests\User\UpdateUserKycRequest;
@@ -21,7 +23,6 @@ use App\DataTransferObjects\Models\UserModelData;
 use App\Http\Requests\User\UpdatePasswordRequest;
 use MarcinOrlowski\ResponseBuilder\ResponseBuilder;
 use App\Http\Requests\User\Profile\DeleteProfileRequest;
-use App\Http\Requests\User\UpdateConnectWallet;
 
 class ProfileController extends Controller
 {
@@ -130,55 +131,17 @@ class ProfileController extends Controller
                 // Total value = balance + positions value
                 return $user->wallet->getBalance($accountType) + $totalPositionsValue;
             };
-            
-            // Helper function to calculate 24hr P&L and percentage change for brokerage and auto accounts
-            // $calculate24hrPLForPositions = function ($accountType) use ($user) {
-            //     // Fetch active positions for the account in the last 24 hours
-            //     $positionsLast24h = Trade::where('user_id', $user->id)
-            //         ->where('account', $accountType)
-            //         ->where('type', 'buy')
-            //         ->where('created_at', '>=', now()->subHours(24))
-            //         ->get();
 
-            //     $sellTradeLast24h = Trade::where('user_id', $user->id)
-            //         ->where('account', $accountType)
-            //         ->where('type', '')
-            //         ->where('created_at', '>=', now()->subHours(24))
-            //         ->get();
+            // Helper function to calculate total value for brokerage and auto accounts
+            $calculateTotalAutoValue = function ($accountType) use ($user) {
+                // Fetch open positions for the account
+                $investment = AutoPlanInvestment::where('user_id', $user->id)
+                    ->where('expire_at', '>', now())
+                    ->sum('amount');
 
-            //     $tradeLast24h = Position::where('user_id', $user->id)
-            //         ->where('account', $accountType)
-            //         ->where('status', 'open')
-            //         ->where('created_at', '>=', now()->subHours(24))
-            //         ->sum('extra');
-
-            //     // Calculate total P&L for positions in the last 24 hours
-            //     $totalPL = $positionsLast24h->sum(function ($position) {
-            //         // Calculate profit/loss: (current price - opening price) * quantity + extra
-            //         $currentPrice = $position->asset->price;
-            //         $openingPrice = $position->price;
-            //         $quantity = $position->quantity;
-            //         $extra = $position->extra;
-
-            //         // return ($currentPrice - $openingPrice) * $quantity + $extra;
-            //         return ($currentPrice * $quantity + $extra) - $position->amount;
-            //     }) + $tradeLast24h;
-
-            //     // Fetch the total value of the account (balance + positions value)
-            //     $totalValue = $user->wallet->getBalance($accountType) + $positionsLast24h->sum(function ($position) {
-            //         return $position->quantity * $position->asset->price + $position->extra;
-            //     });
-
-            //     // Calculate percentage change
-            //     $percentageChange = $totalValue != 0
-            //         ? ($totalPL / $totalValue) * 100
-            //         : 0;
-
-            //     return [
-            //         '24hr_pl' => number_format($totalPL, 2),
-            //         '24hr_pl_percentage' => number_format($percentageChange, 2),
-            //     ];
-            // };
+                // Total value = balance + positions value
+                return $user->wallet->getBalance($accountType) + $investment;
+            };
 
             // TEST:::: Helper function to calculate 24hr P&L and percentage change for brokerage and auto accounts
             $calculate24hrPLForPositions = function ($accountType) use ($user) {
@@ -250,7 +213,7 @@ class ProfileController extends Controller
             ];
             $user->wallet->auto = [
                 'balance' => number_format($user->wallet->getBalance('auto'), 2),
-                'total' => number_format($calculateTotalValue('auto'), 2),
+                'total' => number_format($calculateTotalAutoValue('auto'), 2),
                 '24hr_pl' => $calculate24hrPLForPositions('auto')['24hr_pl'],
                 '24hr_pl_percentage' => $calculate24hrPLForPositions('auto')['24hr_pl_percentage'],
             ];
@@ -336,6 +299,25 @@ class ProfileController extends Controller
             return ResponseBuilder::asSuccess()
                 ->withMessage('Analytics fetched successfully')
                 ->withData($data)
+                ->build();
+        } catch (\InvalidArgumentException $e) {
+            return ResponseBuilder::asError(400)
+                ->withMessage($e->getMessage())
+                ->build();
+        }
+    }
+
+    public function dividendAnalytics(Request $request)
+    {
+        try {
+            $user = $request->user();
+            $timeframe = $request->query('timeframe', 'week'); // Default to week
+            
+            $data = $this->analyticsService->getDividendChartData($user, $timeframe);
+
+            return ResponseBuilder::asSuccess()
+                ->withMessage('Dividend analytics fetched successfully')
+                ->withData(['chart_data' => $data])
                 ->build();
         } catch (\InvalidArgumentException $e) {
             return ResponseBuilder::asError(400)

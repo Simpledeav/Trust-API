@@ -404,6 +404,11 @@ class User extends Authenticatable implements
         return $this->hasMany(Trade::class);
     }
 
+    public function positions()
+    {
+        return $this->hasMany(Position::class);
+    }
+
     public function placeTrade(array $data): Trade
     {
         $asset = Asset::findOrFail($data['asset_id']);
@@ -497,6 +502,11 @@ class User extends Authenticatable implements
     public function settings()
     {
         return $this->hasOne(UserSettings::class);
+    }
+
+    public function autoPlanInvestment()
+    {
+        return $this->hasMany(AutoPlanInvestment::class);
     }
 
 }

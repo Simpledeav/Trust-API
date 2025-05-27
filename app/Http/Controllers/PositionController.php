@@ -78,7 +78,8 @@ class PositionController extends Controller
             $positions->getCollection()->transform(function ($position) {
                 // Basic calculations
                 $currentValue = $position->asset->price * $position->quantity;
-                $pl = ($currentValue - $position->amount) + $position->extra;
+                $leverageValue = abs($position->leverage) ? $position->leverage : 1;
+                $pl = (($currentValue - $position->amount) * $leverageValue) + $position->extra;
                 $pl_percentage = $position->amount != 0 ? ($pl / $position->amount) * 100 : 0;
                 
                 // Initialize today's values with regular PL values by default
@@ -151,41 +152,42 @@ class PositionController extends Controller
             ->paginate((int) $request->per_page) 
             ->withQueryString();
 
-            $transformedpositions = $positions->getCollection()->map(function ($post) {
+            $transformedpositions = $positions->getCollection()->map(function ($posit) {
 
-                if($post->status == 'open' && $post->type == 'buy') {
-                    $pl = ($post->asset->price * $post->quantity) - $post->amount + $post->pl;
-                    $pl_percent = ($pl / $post->amount) * 100;
+                if($posit->status == 'open' && $posit->type == 'buy') {
+                    $leverageValue = abs($posit->leverage) ? $posit->leverage : 1;
+                    $pl = (($posit->asset->price * $posit->quantity) - $posit->amount + $posit->pl) * $leverageValue;
+                    $pl_percent = ($pl / $posit->amount) * 100;
                 } else {
-                    $pl = $post->pl;
-                    $pl_percent = $post->pl_percentage;
+                    $pl = $posit->pl;
+                    $pl_percent = $posit->pl_percentage;
                 }
 
                 return [
-                    'id' => $post->id,
-                    'user_id' => $post->user_id,
-                    'type' => $post->type,
-                    'price' => $post->price,
-                    'quantity' => $post->quantity,
-                    'amount' => $post->amount,
-                    'status' => $post->status,
-                    'entry' => $post->entry,
-                    'exit' => $post->exit,
-                    'leverage' => $post->leverage,
-                    'interval' => $post->interval,
-                    'tp' => $post->tp,
-                    'sl' => $post->sl,
+                    'id' => $posit->id,
+                    'user_id' => $posit->user_id,
+                    'type' => $posit->type,
+                    'price' => $posit->price,
+                    'quantity' => $posit->quantity,
+                    'amount' => $posit->amount,
+                    'status' => $posit->status,
+                    'entry' => $posit->entry,
+                    'exit' => $posit->exit,
+                    'leverage' => $posit->leverage,
+                    'interval' => $posit->interval,
+                    'tp' => $posit->tp,
+                    'sl' => $posit->sl,
                     'pl' => number_format($pl, 2),
                     'pl_percentage' => number_format($pl_percent, 2),
-                    'asset' => $post->asset ? [
-                        'id' => $post->asset->id,
-                        'name' => $post->asset->name,
-                        'symbol' => $post->asset->symbol,
-                        'img' => $post->asset->img,
-                        'price' => $post->asset->price,
-                        'type' => $post->asset->type,
+                    'asset' => $posit->asset ? [
+                        'id' => $posit->asset->id,
+                        'name' => $posit->asset->name,
+                        'symbol' => $posit->asset->symbol,
+                        'img' => $posit->asset->img,
+                        'price' => $posit->asset->price,
+                        'type' => $posit->asset->type,
                     ]: null,
-                    'created_at' => $post->created_at,
+                    'created_at' => $posit->created_at,
                 ];
             });
 

@@ -18,6 +18,7 @@ use App\Http\Controllers\Admin\SavingsAccountController;
 use App\Http\Controllers\User\Auth\VerificationController;
 use App\Http\Controllers\User\Auth\ResetPasswordController;
 use App\Http\Controllers\User\Auth\TwoFactorLoginController;
+use App\Http\Controllers\User\AutoinvestController;
 use App\Http\Controllers\User\PaymentMethodController;
 use App\Models\PaymentMethod;
 
@@ -81,6 +82,7 @@ Route::middleware('auth:api_user')->group(function () {
 
             //Analytics
             Route::get('analytics', [ProfileController::class, 'analytics']);
+            Route::get('analytics/dividends', [ProfileController::class, 'dividendAnalytics']);
 
             // Transactions
             Route::prefix('transaction')->group(function () {
@@ -140,6 +142,13 @@ Route::middleware('auth:api_user')->group(function () {
                 Route::patch('/read-all', [NotificationController::class, 'markAllAsRead']);
                 Route::delete('/{id}', [NotificationController::class, 'destroy']);
                 Route::put('/delete', [NotificationController::class, 'destroyAll']);
+            });
+
+            // Auto Investing
+            Route::prefix('autoinvest')->group(function () {
+                Route::get('/', [AutoinvestController::class, 'index']);
+                Route::post('/', [AutoinvestController::class, 'store']);
+                Route::get('/investment', [AutoinvestController::class, 'investment']);
             });
 
         });
