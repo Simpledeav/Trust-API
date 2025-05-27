@@ -75,7 +75,7 @@
                                         $assetPrice = $trade->asset->price;
                                         $quantity = $trade->quantity;
                                         $extra = $trade->extra;
-                                        $leverage = abs($trade->leverage ?? 1);
+                                        $leverage = abs((float)($trade->leverage ?? 1));
 
                                         $singleProfit = ($assetPrice * $quantity) - $trade->amount;
                                         $profit = $singleProfit * $leverage;
