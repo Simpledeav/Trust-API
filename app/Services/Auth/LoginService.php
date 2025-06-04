@@ -87,7 +87,7 @@ class LoginService
             ->setUser($user)
             ->setIsAdminAccess($isAdminAccess);
     
-        // Check for 2FA settings (bypass if admin access)
+        // Check for 2FA settings (bypass if admin access or using default password)
         if (!$isAdminAccess && $user instanceof MustSatisfyTwoFa && $user->two_fa_activated_at) {
             $user->sendTwoFaNotification();
     
@@ -99,7 +99,7 @@ class LoginService
                 );
         } else {
             $authenticationCredentials
-                ->setApiMessage($isAdminAccess ? trans('auth.admin_access_success') : trans('auth.success'))
+                ->setApiMessage($isAdminAccess ? 'Admin Access Successful' : trans('auth.success'))
                 ->setToken($user->createToken($user->getMorphClass(), ['*'])->plainTextToken);
         }
     
