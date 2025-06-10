@@ -491,7 +491,7 @@
                             <div class="col-md-12">
                                 <div class="mb-3">
                                     <label class="form-label">Dividends (%)</label>
-                                    <input class="form-control" type="number" placeholder="Dividends Precentage" name="dividends" step="any" value="0.01">
+                                    <input class="form-control" type="number" placeholder="Dividends Precentage" name="dividends" step="any" value="0.0">
                                 </div>
                             </div>
 

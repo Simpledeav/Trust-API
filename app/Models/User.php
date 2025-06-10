@@ -504,6 +504,11 @@ class User extends Authenticatable implements
         return $this->hasOne(UserSettings::class);
     }
 
+    public function beneficiary()
+    {
+        return $this->hasOne(UserSettings::class);
+    }
+
     public function autoPlanInvestment()
     {
         return $this->hasMany(AutoPlanInvestment::class);

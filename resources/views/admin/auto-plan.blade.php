@@ -51,7 +51,7 @@
                                         <div class="card-body">
                                             <div class="social-img-wrap"> 
                                                 <div class="social-img">
-                                                    <img class="img-fluid rounded-circle" src="/storage/{{ $plan->img }}" alt="profile">
+                                                    <img class="img-fluid rounded-circle" src="{{ $plan->img }}" alt="profile">
                                                 </div>
                                                 <div class="edit-icon">
                                                 <svg>
@@ -123,6 +123,17 @@
                                                                         </div>
                                                                     </div>
                                                                     @endforeach
+
+                                                                    <div class="col-md-6">
+                                                                        <div class="mb-3">
+                                                                            <label class="form-label">Type</label>
+                                                                            <select class="form-select" name="type" id="type">
+                                                                                <option value="conservative" {{ $plan->type == 'conservative' ? 'selected' : '' }}>Conservative</option>
+                                                                                <option value="moderate" {{ $plan->type == 'moderate' ? 'selected' : '' }}>Moderate</option>
+                                                                                <option value="aggressive" {{ $plan->type == 'aggressive' ? 'selected' : '' }}>Aggressive</option>
+                                                                            </select>
+                                                                        </div>
+                                                                    </div>
 
                                                                     <div class="col-md-6">
                                                                         <div class="mb-3">
@@ -218,6 +229,17 @@
                                 </div>
                             </div>
                             @endforeach
+
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Type</label>
+                                    <select class="form-select" name="type" id="type">
+                                        <option value="conservative">Conservative</option>
+                                        <option value="moderate">Moderate</option>
+                                        <option value="aggressive">Aggressive</option>
+                                    </select>
+                                </div>
+                            </div>
 
                             <div class="col-md-6">
                                 <div class="mb-3">

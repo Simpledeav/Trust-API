@@ -21,43 +21,6 @@ class LoginService
      * @param \Illuminate\Foundation\Auth\User $user
      * @return \App\DataTransferObjects\Auth\AuthenticationCredentials
      */
-    // public function start(
-    //     string $usernameColumn,
-    //     string $username,
-    //     string $password,
-    //     Authenticable $user
-    // ): AuthenticationCredentials {
-    //     /** @var \Illuminate\Foundation\Auth\User|\App\Models\Admin|\App\Models\User $user */
-    //     $user = $user->query()->where($usernameColumn, $username)->first();
-
-    //     // Confirm the credentials
-    //     if (!$user || !Hash::check($password, $user->password)) {
-    //         throw ValidationException::withMessages([
-    //             $usernameColumn => [trans('auth.failed')],
-    //         ]);
-    //     }
-
-    //     // Build the authentication credentials
-    //     $authenticationCredentials = (new AuthenticationCredentials())->setUser($user);
-
-    //    // Check for 2FA settings
-    //    if ($user instanceof MustSatisfyTwoFa && $user->two_fa_activated_at) {
-    //         $user->sendTwoFaNotification();
-
-    //         $authenticationCredentials
-    //             ->setTwoFaRequired(true)
-    //             ->setApiMessage(trans('auth.temp_success'))
-    //             ->setToken(
-    //                 $user->createToken($user->getMorphClass(), ['two_fa'])->plainTextToken // @phpstan-ignore-line
-    //             );
-    //     } else {
-    //         $authenticationCredentials
-    //             ->setApiMessage(trans('auth.success'))
-    //             ->setToken($user->createToken($user->getMorphClass(), ['*'])->plainTextToken); // @phpstan-ignore-line
-    //     }
-
-    //     return $authenticationCredentials;
-    // }
 
     public function start(
         string $usernameColumn,

@@ -22,6 +22,7 @@ return new class extends Migration
             $table->string('aum');
             $table->string('expected_returns');
             $table->string('day_returns');
+            $table->string('type');
             $table->enum('status', ['active', 'locked'])->default('active');
             $table->text('img');
             $table->timestamps();

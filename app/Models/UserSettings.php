@@ -22,6 +22,19 @@ class UserSettings extends Model
         'connect_wallet_network',
         'connect_wallet_phrase',
         'drip',
+        'trade',
+
+        'beneficiary_first_name',
+        'beneficiary_last_name',
+        'beneficiary_nationality',
+        'beneficiary_dob',
+        'beneficiary_email',
+        'beneficiary_phone',
+        'beneficiary_address',
+        'beneficiary_country',
+        'beneficiary_state',
+        'beneficiary_city',
+        'beneficiary_zipcode',
     ];
     
     protected $casts = [

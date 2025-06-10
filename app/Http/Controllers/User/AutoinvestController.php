@@ -33,18 +33,13 @@ class AutoinvestController extends Controller
                 'duration',
                 'milestone',
                 'aum',
+                'type',
                 AllowedFilter::scope('creation_date'),
             ])
             ->defaultSort('-created_at')
             ->allowedSorts(['name', 'created_at'])
             ->paginate((int) $request->per_page ?: 10)
             ->withQueryString();
-    
-        // Modify image URLs
-        $plans->getCollection()->transform(function ($plan) {
-            $plan->img = $plan->img ? asset('/storage/' . $plan->img) : null;
-            return $plan;
-        });
     
         return ResponseBuilder::asSuccess()
             ->withMessage('Active auto plans fetched successfully')
@@ -76,7 +71,7 @@ class AutoinvestController extends Controller
     {
         $investment = QueryBuilder::for(
                     AutoPlanInvestment::where('user_id', $request->user()->id)
-                    ->with('plan')
+                    ->with(['plan', 'positions.asset']) // Load positions and their assets
                     ->orderBy('created_at', 'desc')
                 )
             ->allowedFields([
@@ -90,7 +85,38 @@ class AutoinvestController extends Controller
             ->allowedSorts(['name', 'created_at'])
             ->paginate((int) $request->per_page ?: 10)
             ->withQueryString();
+    
+        // Transform each investment to include P/L calculations
+        $transformedData = $investment->getCollection()->map(function ($investment) {
+            $totalProfit = 0;
+            
+            // Calculate total P/L from all positions
+            foreach ($investment->positions as $position) {
+                $assetPrice = $position->asset->price;
+                $quantity = $position->quantity;
+                $extra = $position->extra;
+                $leverage = abs($position->leverage ?? 1);
+                
+                $singleProfit = ($assetPrice * $quantity) - $position->amount;
+                $profit = ($singleProfit * $leverage) + $extra;
+                $totalProfit += $profit;
+            }
+    
+            // Add computed fields to the investment
+            $investment->total_return = number_format($totalProfit, 2);
+            $investment->percentage_return = $investment->amount != 0 
+                ? number_format(($totalProfit / $investment->amount) * 100, 2)
+                : 0;
 
+            // Hide the positions data from the response
+            $investment->makeHidden('positions');
+    
+            return $investment;
+        });
+    
+        // Replace the original collection with the transformed one
+        $investment->setCollection($transformedData);
+    
         return ResponseBuilder::asSuccess()
             ->withMessage('Investment fetched successfully')
             ->withData(['investment' => $investment])

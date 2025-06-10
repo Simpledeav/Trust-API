@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Models\Asset;
 use App\Models\Setting;
 use App\Enums\ApiErrorCode;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Cache;
 use Spatie\QueryBuilder\QueryBuilder;
+use Illuminate\Support\Facades\Artisan;
 use Symfony\Component\HttpFoundation\Response;
 use MarcinOrlowski\ResponseBuilder\ResponseBuilder;
 
@@ -18,8 +21,13 @@ class SettingController extends Controller
     {
         $settings = Setting::first();
 
+        $newest_updated = Asset::orderBy('updated_at', 'desc')->value('updated_at');
+
+        // dd($newest_updated);
+
         return view('admin.setting', [
-            'settings' => $settings
+            'settings' => $settings,
+            'asset_time' => $newest_updated
         ]);
     }
 
@@ -79,5 +87,27 @@ class SettingController extends Controller
         }
 
         return redirect()->back()->with('error', 'Failed to update settings.');
+    }
+
+    public function clearCache(Request $request)
+    {
+        Artisan::call('cache:clear');
+        Artisan::call('view:clear');
+        Artisan::call('route:clear');
+        Artisan::call('config:clear');
+        
+        // Clear any custom caches you might have
+        Cache::flush();
+        
+        return back()->with('success', 'All caches have been cleared successfully.');
+    }
+
+    public function refreshPrice(Request $request)
+    {
+        Artisan::call('assets:update');
+        
+        Cache::flush();
+        
+        return back()->with('success', 'Asset updated successfully.');
     }
 }

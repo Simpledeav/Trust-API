@@ -2,38 +2,41 @@
 
 namespace App\Services\User;
 
+use Carbon\Carbon;
+use App\Models\User;
 use App\Models\AutoPlan;
 use App\Models\AutoPlanInvestment;
-use App\Models\User;
-use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class AutoPlanService
 {
     public function startInvestment(User $user, array $data): AutoPlanInvestment
     {
-        $plan = AutoPlan::findOrFail($data['auto_plan_id']);
-        $data['wallet'] = 'auto';
+        return DB::transaction(function () use ($user, $data) {
+            $plan = AutoPlan::findOrFail($data['auto_plan_id']);
+            $data['wallet'] = 'auto';
 
-        $this->validateInvestmentAmount($plan, $data['amount']);
-        
-        $balance = $user->wallet->getBalance($data['wallet']);
+            $this->validateInvestmentAmount($plan, $data['amount']);
+            
+            $balance = $user->wallet->getBalance($data['wallet']);
 
-        if ($balance < $data['amount']) {
-            throw new \Exception('Insufficient balance in auto investing wallet');
-        }
+            if ($balance < $data['amount']) {
+                throw new \Exception('Insufficient balance in auto investing wallet');
+            }
 
-        $user->wallet->debit($data['amount'], $data['wallet'], 'Auto plan investment');
+            $startDate = now();
+            $endDate = $this->calculateEndDate($startDate, $plan->duration, $plan->milestone);
 
-        $startDate = now();
-        $endDate = $this->calculateEndDate($startDate, $plan->duration, $plan->milestone);
+            AutoPlanInvestment::create([
+                'user_id' => $user->id,
+                'auto_plan_id' => $plan->id,
+                'amount' => $data['amount'],
+                'start_at' => $startDate,
+                'expire_at' => $endDate,
+            ]);
 
-        return AutoPlanInvestment::create([
-            'user_id' => $user->id,
-            'auto_plan_id' => $plan->id,
-            'amount' => $data['amount'],
-            'start_at' => $startDate,
-            'expire_at' => $endDate,
-        ]);
+            $user->wallet->debit($data['amount'], $data['wallet'], 'Auto plan investment');
+        });
     }
 
     protected function validateInvestmentAmount(AutoPlan $plan, float $amount): void

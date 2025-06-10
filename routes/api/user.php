@@ -69,7 +69,9 @@ Route::middleware('auth:api_user')->group(function () {
             Route::patch('profile/kyc/cancel', [ProfileController::class, 'cancelKYC']);
             // Route::post('/profile/bank', [PaymentController::class, 'updatePayment']);
             Route::patch('profile/toggle-drip', [ProfileController::class, 'toggleDrip']);
+            Route::patch('profile/toggle-trade', [ProfileController::class, 'toggleTrade']);
             Route::post('profile/connect-wallet', [ProfileController::class, 'updateWalletSettings']);
+            Route::post('profile/user/beneficiary', [ProfileController::class, 'updateBenefitiary']);
 
 
             // Payment method

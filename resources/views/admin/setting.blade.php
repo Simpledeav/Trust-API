@@ -135,6 +135,30 @@
                         </div>
                     </form>
                 </div>
+                <div class="col-xl-4">
+                    <div class="card">
+                    <form class="card" action="{{ route('admin.clear.config') }}" method="post">
+                        @csrf
+                        <input type="hidden" name="type" value="admin">
+                        <div class="card-header d-flex justify-content-between">
+                            <h4 class="card-title mb-0">Configurations</h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="mb-3">
+                                        <label class="form-label">Asset Last Updated</label>
+                                        <input class="form-control" type="text" value="{{ Carbon\Carbon::parse($asset_time)->format('D M jS, Y g:ia') }}" name="" disabled>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer text-start">
+                            <button class="btn btn-warning w-100" type="submit">Clear Caches</button>
+                        </div>
+                    </form>
+                    </div>
+                </div>
             </div>
         </div>
         <!-- Container-fluid Ends-->

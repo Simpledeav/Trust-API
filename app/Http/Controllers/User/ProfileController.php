@@ -23,6 +23,7 @@ use App\DataTransferObjects\Models\UserModelData;
 use App\Http\Requests\User\UpdatePasswordRequest;
 use MarcinOrlowski\ResponseBuilder\ResponseBuilder;
 use App\Http\Requests\User\Profile\DeleteProfileRequest;
+use App\Http\Requests\User\UpdateSettings;
 
 class ProfileController extends Controller
 {
@@ -62,6 +63,20 @@ class ProfileController extends Controller
                 'max_cash_withdrawal',
                 'locked_cash',
                 'locked_bank_deposit',
+                'drip',
+                'trade',
+                
+                'beneficiary_first_name',
+                'beneficiary_last_name',
+                'beneficiary_nationality',
+                'beneficiary_dob',
+                'beneficiary_email',
+                'beneficiary_phone',
+                'beneficiary_address',
+                'beneficiary_country',
+                'beneficiary_state',
+                'beneficiary_city',
+                'beneficiary_zipcode',
             ],
         ];
 
@@ -471,6 +486,49 @@ class ProfileController extends Controller
 
         return ResponseBuilder::asSuccess()
             ->withMessage('Wallet settings updated successfully')
+            ->build();
+    }
+
+    /**
+     * Update wallet connection settings
+     *
+     * @param \Illuminate\Http\Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function updateBenefitiary(UpdateSettings $request): Response
+    {
+        /** @var \App\Models\User $user */
+        $user = $request->user();
+
+        $user->settings->update($request->validated());
+
+        return ResponseBuilder::asSuccess()
+            ->withMessage('User settings updated successfully')
+            ->build();
+    }
+
+    /**
+     * Toggle trade setting
+     *
+     * @param \Illuminate\Http\Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function toggleTrade(Request $request): Response
+    {
+        /** @var \App\Models\User $user */
+        $user = $request->user();
+
+        $option = $user->settings->trade == 'regular' ? 'option' : 'regular';
+
+        $user->settings->update([
+            'trade' => $option
+        ]);
+
+        return ResponseBuilder::asSuccess()
+            ->withMessage('Trade setting updated successfully')
+            ->withData([
+                'trade' => $user->settings->fresh()->trade
+            ])
             ->build();
     }
 

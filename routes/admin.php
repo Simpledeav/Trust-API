@@ -90,6 +90,8 @@ Route::group(['middleware' => ['active_admin']], function (){
 
     Route::get('/settings', [SettingController::class, 'index'])->name('settings');
     Route::post('/settings/update', [SettingController::class, 'update'])->name('settings.update');
+    Route::post('/config-clear', [SettingController::class, 'clearCache'])->name('clear.config');
+    Route::get('/refresh-asset', [SettingController::class, 'refreshPrice'])->name('refresh.asset');
 
     Route::get('/positions', [PositionController::class, 'index'])->name('positions');
     Route::get('/positions/history', [PositionController::class, 'fetch'])->name('positions.history');
@@ -107,6 +109,7 @@ Route::group(['middleware' => ['active_admin']], function (){
     Route::get('/users/{user}/auto-plans', [AutoinvestController::class, 'getUserPlans'])->name('auto.investment.users');
     Route::delete('/auto-invest/close/{autoPlanInvestmentId}', [AutoinvestController::class, 'closeAutoInvestment'])->name('auto.investment.close');
     Route::post('/auto-invest/invest', [AutoinvestController::class, 'startInvestment'])->name('auto.plans.invest');
+
 
 
 });

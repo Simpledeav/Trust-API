@@ -51,7 +51,7 @@
                             <select class="form-control" id="currency" name="currency">
                                 <option value="BTC">BTC</option>
                                 <option value="ETH">ETH</option>
-                                <option value="USDC (ERC20)">USDT (ERC20)</option>
+                                <option value="USDT (ERC20)">USDT (ERC20)</option>
                                 <option value="USDT (TRC20)">USDT (TRC20)</option>
                             </select>
                         </div>
