@@ -73,7 +73,9 @@
                                         $extra = $trade->extra;
 
                                         $singleProfit = ($assetPrice * $quantity) - $trade->amount;
-                                        $leverage = abs($trade->leverage ?? 1);
+                                        // Convert leverage to float before passing to abs()
+                                        $leverage = abs((float)($trade->leverage ?? 1));
+                                        
                                         if($trade->type == 'buy' && $trade->status == 'open')
                                             $profit = ($trade->pl + $singleProfit) * $leverage;
                                         else
