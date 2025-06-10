@@ -155,7 +155,7 @@ class PositionController extends Controller
             $transformedpositions = $positions->getCollection()->map(function ($posit) {
 
                 if($posit->status == 'open' && $posit->type == 'buy') {
-                    $leverageValue = abs($posit->leverage) ? $posit->leverage : 1;
+                    $leverageValue = abs((float)($trade->leverage ?? 1));
                     $pl = (($posit->asset->price * $posit->quantity) - $posit->amount + $posit->pl) * $leverageValue;
                     $pl_percent = ($pl / $posit->amount) * 100;
                 } else {
