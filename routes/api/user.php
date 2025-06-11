@@ -73,7 +73,6 @@ Route::middleware('auth:api_user')->group(function () {
             Route::post('profile/connect-wallet', [ProfileController::class, 'updateWalletSettings']);
             Route::post('profile/user/beneficiary', [ProfileController::class, 'updateBenefitiary']);
 
-
             // Payment method
             Route::prefix('payment-method')->group(function () {
                 Route::get('', [PaymentMethodController::class, 'index']);

@@ -78,7 +78,7 @@ class PositionController extends Controller
             $positions->getCollection()->transform(function ($position) {
                 // Basic calculations
                 $currentValue = $position->asset->price * $position->quantity;
-                $leverageValue = abs($position->leverage) ? $position->leverage : 1;
+                $leverageValue = abs((float)($trade->leverage ?? 1));
                 $pl = (($currentValue - $position->amount) * $leverageValue) + $position->extra;
                 $pl_percentage = $position->amount != 0 ? ($pl / $position->amount) * 100 : 0;
                 
