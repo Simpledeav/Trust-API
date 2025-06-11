@@ -16,92 +16,158 @@ class AssetSeeder extends Seeder
      */
     public function run(): void
     {
+        // ::::: STOCK Data
+        // $symbols = [
+        //     // Technology (50)
+        //     'AAPL', 'MSFT', 'GOOGL', 'AMZN', 'NVDA', 'META', 'TSLA', 'AVGO', 'ASML', 'ADBE',
+        //     'CSCO', 'ORCL', 'CRM', 'INTC', 'AMD', 'QCOM', 'TXN', 'IBM', 'NOW', 'SNOW',
+        //     'PANW', 'UBER', 'NET', 'SHOP', 'CRWD', 'ZS', 'MDB', 'DDOG', 'TEAM', 'FTNT',
+        //     'WDAY', 'ADSK', 'INTU', 'PYPL', 'SQ', 'DOCU', 'ZM', 'ROKU', 'SPLK', 'OKTA',
+        //     'CDNS', 'ANSS', 'KLAC', 'LRCX', 'AMAT', 'MU', 'MRVL', 'ADI', 'NXPI', 'SWKS', 'PLTR', 'SOFI',
+        
+        //     // Financials (30)
+        //     'JPM', 'BAC', 'WFC', 'C', 'GS', 'MS', 'SCHW', 'BLK', 'AXP', 'PYPL',
+        //     'V', 'MA', 'DFS', 'COF', 'USB', 'TFC', 'PNC', 'BK', 'STT', 'ICE',
+        //     'CME', 'SPGI', 'MCO', 'FIS', 'FISV', 'GPN', 'AJG', 'MMC', 'TW', 'NDAQ',
+        
+        //     // Healthcare (30)
+        //     'UNH', 'JNJ', 'PFE', 'ABBV', 'MRK', 'LLY', 'TMO', 'DHR', 'AMGN', 'GILD',
+        //     'BMY', 'VRTX', 'REGN', 'ISRG', 'MDT', 'SYK', 'BDX', 'ZTS', 'CI', 'HUM',
+        //     'ELV', 'CVS', 'ANTM', 'IQV', 'EW', 'IDXX', 'DXCM', 'BSX', 'HCA', 'MRNA',
+        
+        //     // Consumer Discretionary (25)
+        //     'HD', 'LOW', 'NKE', 'MCD', 'SBUX', 'TGT', 'COST', 'BKNG', 'MAR', 'HLT',
+        //     'LVS', 'YUM', 'CMG', 'DPZ', 'NFLX', 'DIS', 'RCL', 'CCL', 'EXPE', 'ABNB',
+        //     'DHI', 'LEN', 'NVR', 'PHM', 'TSCO',
+        
+        //     // Industrials (25)
+        //     'HON', 'GE', 'CAT', 'BA', 'RTX', 'LMT', 'GD', 'NOC', 'DE', 'UPS',
+        //     'FDX', 'CSX', 'UNP', 'NSC', 'WM', 'RSG', 'WAB', 'EMR', 'ETN', 'ITW',
+        //     'ROK', 'SWK', 'PH', 'DOV', 'AME',
+        
+        //     // Consumer Staples (20)
+        //     'PG', 'KO', 'PEP', 'WMT', 'COST', 'PM', 'MO', 'MDLZ', 'KHC', 'CL',
+        //     'EL', 'GIS', 'KMB', 'SYY', 'HSY', 'ADM', 'STZ', 'BF.B', 'CPB', 'MNST',
+        
+        //     // Energy (15)
+        //     'XOM', 'CVX', 'COP', 'EOG', 'SLB', 'OXY', 'PSX', 'MPC', 'VLO', 'PXD',
+        //     'HES', 'DVN', 'FANG', 'HAL', 'BKR',
+        
+        //     // Utilities (10)
+        //     'NEE', 'DUK', 'SO', 'D', 'AEP', 'EXC', 'SRE', 'PEG', 'ED', 'EIX',
+        
+        //     // Real Estate (10)
+        //     'AMT', 'PLD', 'CCI', 'EQIX', 'PSA', 'SBAC', 'DLR', 'WELL', 'AVB', 'O',
+        
+        //     // Materials (10)
+        //     'LIN', 'APD', 'SHW', 'FCX', 'NEM', 'DOW', 'ECL', 'PPG', 'VMC', 'NUE',
+        
+        //     // Communication Services (15)
+        //     'GOOG', 'GOOGL', 'META', 'DIS', 'NFLX', 'T', 'VZ', 'TMUS', 'CHTR', 'CMCSA',
+        //     'EA', 'TTWO', 'ATVI', 'ROKU', 'ZG',
+        // ];
 
+        // ::::: CRYPTO Data
+        // $symbols = [
+        //     // Top 50 by market cap
+        //     'BTCUSD', 'ETHUSD', 'USDTUSD', 'BNBUSD', 'SOLUSD', 'XRPUSD', 'USDCUSD', 'ADAUSD', 'DOGEUSD', 'AVAXUSD',
+        //     'SHIBUSD', 'DOTUSD', 'TRXUSD', 'LINKUSD', 'MATICUSD', 'WBTCUSD', 'TONUSD', 'ICPUSD', 'DAIUSD', 'LTCUSD',
+        //     'BCHUSD', 'UNIUSD', 'ATOMUSD', 'XLMUSD', 'ETCUSD', 'INJUSD', 'XMRUSD', 'FILUSD', 'IMXUSD', 'APTUSD',
+        //     'RNDRUSD', 'STXUSD', 'HBARUSD', 'CROUSD', 'NEARUSD', 'VETUSD', 'OPUSD', 'MKRUSD', 'GRTUSD', 'ARBUSD',
+        //     'THETAUSD', 'FDUSD', 'PEPEUSD', 'KASUSD', 'RUNEUSD', 'FRAXUSD', 'AAVEUSD', 'ALGOUSD', 'FLOWUSD', 'EGLDUSD',
+            
+        //     // Next 50 (51-100)
+        //     'QNTUSD', 'BSVUSD', 'XTZUSD', 'EOSUSD', 'MINAUSD', 'AXSUSD', 'SANDUSD', 'MANAUSD', 'NEOUSD', 'KCSUSD',
+        //     'BTTUSD', 'CHZUSD', 'USDPUSD', 'SNXUSD', 'FTMUSD', 'BGBUSD', 'CRVUSD', 'GALAUSD', 'ROSEUSD', 'ZECUSD',
+        //     'XECUSD', 'KAVAUSD', 'DASHUSD', 'PAXGUSD', 'IOTAUSD', 'WEMIXUSD', 'COMPUSD', 'HNTUSD', 'CAKEUSD', 'GMXUSD',
+        //     'CFXUSD', 'TUSDUSD', 'BONKUSD', 'GTUSD', '1INCHUSD', 'LDOUSD', 'XDCUSD', 'FXSUSD', 'SUIUSD', 'APEUSD',
+        //     'ENSUSD', 'AGIXUSD', 'RPLUSD', 'OCEANUSD', 'NEXOUSD', 'ZILUSD', 'KLAYUSD', 'GNOUSD', 'YFIUSD', 'WOOUSD',
+            
+        //     // Next 50 (101-150)
+        //     'CELOUSD', 'DYDXUSD', 'TFUELUSD', 'JSTUSD', 'IOTXUSD', 'ANKRUSD', 'ASTRUSD', 'GUSDUSD', 'SKLUSD', 'CSPRUSD',
+        //     'BATUSD', 'GLMUSD', 'LSKUSD', 'AUDIOUSD', 'RVNUSD', 'SUSHIUSD', 'ICXUSD', 'STORJUSD', 'ONTUSD', 'ZRXUSD',
+        //     'SSVUSD', 'UMAUSD', 'WAVESUSD', 'CKBUSD', 'SCUSD', 'FETUSD', 'LRCUSD', 'TWTUSD', 'DCRUSD', 'API3USD',
+        //     'BALUSD', 'GLMRUSD', 'SXPUSD', 'NMRUSD', 'COTIUSD', 'CTSIUSD', 'BANDUSD', 'OXTUSD', 'HOTUSD', 'QTUMUSD',
+        //     'POWRUSD', 'DGBUSD', 'KSMUSD', 'XEMUSD', 'FLRUSD', 'YGGUSD', 'JASMYUSD', 'ACHUSD', 'RLCUSD', 'MDTUSD',
+            
+        //     // Next 50 (151-200)
+        //     'STRAXUSD', 'SYSUSD', 'CVCUSD', 'REQUSD', 'POLYXUSD', 'STEEMUSD', 'WAXPUSD', 'ARUSD', 'DENTUSD', 'CELRUSD',
+        //     'VTHOUSD', 'UOSUSD', 'MTLUSD', 'PERPUSD', 'ONGUSD', 'CHRUSD', 'ILVUSD', 'SFPUSD', 'HIVEUSD', 'ORBSUSD',
+        //     'PEOPLEUSD', 'DUSKUSD', 'RAYUSD', 'SLPUSD', 'PUNDIXUSD', 'CEEKUSD', 'METISUSD', 'NKNUSD', 'MASKUSD', 'ATAUSD',
+        //     'GALUSD', 'LPTUSD', 'AMBUSD', 'RIFUSD', 'ADXUSD', 'OASUSD', 'DIAUSD', 'IQUSD', 'AGLDUSD', 'ERNUSD',
+        //     'PHAUSD', 'FLOKIUSD', 'MOVRUSD', 'TUSD', 'CFGUSD', 'AERGOUSD', 'BICOUSD', 'TRUUSD', 'MXCUSD', 'ALPHAUSD',
+            
+        //     // Next 50 (201-250)
+        //     'AIOZUSD', 'MBOXUSD', 'AURORAUSD', 'SUNUSD', 'RDNTUSD', 'BELUSD', 'RADUSD', 'CTXCUSD', 'VRAUSD', 'BUSD',
+        //     'HIGHUSD', 'EDENUSD', 'FIDAUSD', 'TLMUSD', 'QUICKUSD', 'XNOUSD', 'AKTUSD', 'MLNUSD', 'REPUSD', 'ASTUSD',
+        //     'BTRSTUSD', 'GHSTUSD', 'MNGOUSD', 'RAREUSD', 'PROUSD', 'OUSD', 'LCXUSD', 'FARMUSD', 'POLSUSD', 'ALICEUSD',
+        //     'FORTHUSD', 'KP3RUSD', 'BADGERUSD', 'BONDUSD', 'TRBUSD', 'IDEXUSD', 'TRIBEUSD', 'GTCUSD', 'MIRUSD', 'ASMUSD',
+        //     'CLVUSD', 'DFIUSD', 'FUNUSD', 'GUSD', 'MULTIUSD', 'NESTUSD', 'PLAUSD', 'PROMUSD', 'SUKUUSD', 'VELOUSD'
+        // ];
+
+        // ::::: ETF's Data
         $symbols = [
-            'SOFI'
-            // // Technology (50)
-            // 'AAPL', 'MSFT', 'GOOGL', 'AMZN', 'NVDA', 'META', 'TSLA', 'AVGO', 'ASML', 'ADBE',
-            // 'CSCO', 'ORCL', 'CRM', 'INTC', 'AMD', 'QCOM', 'TXN', 'IBM', 'NOW', 'SNOW',
-            // 'PANW', 'UBER', 'NET', 'SHOP', 'CRWD', 'ZS', 'MDB', 'DDOG', 'TEAM', 'FTNT',
-            // 'WDAY', 'ADSK', 'INTU', 'PYPL', 'SQ', 'DOCU', 'ZM', 'ROKU', 'SPLK', 'OKTA',
-            // 'CDNS', 'ANSS', 'KLAC', 'LRCX', 'AMAT', 'MU', 'MRVL', 'ADI', 'NXPI', 'SWKS', 'PLTR', 'SOFI',
+            // Broad Market 
+            'SPY', 'VOO', 'IVV', 'VTI', 'SCHB', 'QQQ', 'DIA', 'IWM', 'EFA', 'VEA',
+            'EEM', 'VWO', 'AGG', 'BND', 'LQD', 'TIP', 'IEI', 'TLT', 'SHY', 'IEF',
         
-            // // Financials (30)
-            // 'JPM', 'BAC', 'WFC', 'C', 'GS', 'MS', 'SCHW', 'BLK', 'AXP', 'PYPL',
-            // 'V', 'MA', 'DFS', 'COF', 'USB', 'TFC', 'PNC', 'BK', 'STT', 'ICE',
-            // 'CME', 'SPGI', 'MCO', 'FIS', 'FISV', 'GPN', 'AJG', 'MMC', 'TW', 'NDAQ',
+            // Sector & Thematic
+            'XLK', 'XLV', 'XLF', 'XLY', 'XLP', 'XLI', 'XLU', 'XLE', 'XLRE', 'XLDE',
+            'XLB', 'XLC', 'XBI', 'XHB', 'XRT', 'XOP', 'IYW', 'IYH', 'IYF', 'IYC',
         
-            // // Healthcare (30)
-            // 'UNH', 'JNJ', 'PFE', 'ABBV', 'MRK', 'LLY', 'TMO', 'DHR', 'AMGN', 'GILD',
-            // 'BMY', 'VRTX', 'REGN', 'ISRG', 'MDT', 'SYK', 'BDX', 'ZTS', 'CI', 'HUM',
-            // 'ELV', 'CVS', 'ANTM', 'IQV', 'EW', 'IDXX', 'DXCM', 'BSX', 'HCA', 'MRNA',
+            // Dividend & Income
+            'VIG', 'SCHD', 'DVY', 'SDY', 'DVP', 'NOBL', 'FDL', 'VYM', 'HDV', 'SPHD',
         
-            // // Consumer Discretionary (25)
-            // 'HD', 'LOW', 'NKE', 'MCD', 'SBUX', 'TGT', 'COST', 'BKNG', 'MAR', 'HLT',
-            // 'LVS', 'YUM', 'CMG', 'DPZ', 'NFLX', 'DIS', 'RCL', 'CCL', 'EXPE', 'ABNB',
-            // 'DHI', 'LEN', 'NVR', 'PHM', 'TSCO',
+            // International Developed & Emerging Markets
+            'VEU', 'VXUS', 'EEMV', 'GDX', 'GLD', 'SLV', 'DBC', 'USO', 'UNG', 'UUP',
         
-            // // Industrials (25)
-            // 'HON', 'GE', 'CAT', 'BA', 'RTX', 'LMT', 'GD', 'NOC', 'DE', 'UPS',
-            // 'FDX', 'CSX', 'UNP', 'NSC', 'WM', 'RSG', 'WAB', 'EMR', 'ETN', 'ITW',
-            // 'ROK', 'SWK', 'PH', 'DOV', 'AME',
+            // Bond & Fixed Income
+            'BIV', 'BLV', 'BSV', 'VCIT', 'VCSH', 'VCIT', 'VCIT',  // duplicates removed
+            'BNDX', 'EMB', 'PCY', 'MUB', 'IGSB', 'CSJ', 'SJNK', 'JNK', 'HYD', 'HYG',
         
-            // // Consumer Staples (20)
-            // 'PG', 'KO', 'PEP', 'WMT', 'COST', 'PM', 'MO', 'MDLZ', 'KHC', 'CL',
-            // 'EL', 'GIS', 'KMB', 'SYY', 'HSY', 'ADM', 'STZ', 'BF.B', 'CPB', 'MNST',
+            // Real Estate & Alternatives
+            'VNQ', 'SCHH', 'IYR', 'XLRE', 'REET', 'RWR', 'RWX', 'REM', 'O', 'SPG',
         
-            // // Energy (15)
-            // 'XOM', 'CVX', 'COP', 'EOG', 'SLB', 'OXY', 'PSX', 'MPC', 'VLO', 'PXD',
-            // 'HES', 'DVN', 'FANG', 'HAL', 'BKR',
+            // Thematic & Innovation
+            'ARKK', 'ARKG', 'ARKW', 'ARKF', 'XT', 'BOTZ', 'SOCL', 'LIT', 'IGM', 'ITA',
+            'USMV', 'MTUM', 'QUAL', 'VUG', 'VOOG', 'IWD', 'IWF', 'IWP', 'IWM', 'TLT',
         
-            // // Utilities (10)
-            // 'NEE', 'DUK', 'SO', 'D', 'AEP', 'EXC', 'SRE', 'PEG', 'ED', 'EIX',
-        
-            // // Real Estate (10)
-            // 'AMT', 'PLD', 'CCI', 'EQIX', 'PSA', 'SBAC', 'DLR', 'WELL', 'AVB', 'O',
-        
-            // // Materials (10)
-            // 'LIN', 'APD', 'SHW', 'FCX', 'NEM', 'DOW', 'ECL', 'PPG', 'VMC', 'NUE',
-        
-            // // Communication Services (15)
-            // 'GOOG', 'GOOGL', 'META', 'DIS', 'NFLX', 'T', 'VZ', 'TMUS', 'CHTR', 'CMCSA',
-            // 'EA', 'TTWO', 'ATVI', 'ROKU', 'ZG',
-        
-            // // Top 50 by market cap
-            // 'BTCUSD', 'ETHUSD', 'USDTUSD', 'BNBUSD', 'SOLUSD', 'XRPUSD', 'USDCUSD', 'ADAUSD', 'DOGEUSD', 'AVAXUSD',
-            // 'SHIBUSD', 'DOTUSD', 'TRXUSD', 'LINKUSD', 'MATICUSD', 'WBTCUSD', 'TONUSD', 'ICPUSD', 'DAIUSD', 'LTCUSD',
-            // 'BCHUSD', 'UNIUSD', 'ATOMUSD', 'XLMUSD', 'ETCUSD', 'INJUSD', 'XMRUSD', 'FILUSD', 'IMXUSD', 'APTUSD',
-            // 'RNDRUSD', 'STXUSD', 'HBARUSD', 'CROUSD', 'NEARUSD', 'VETUSD', 'OPUSD', 'MKRUSD', 'GRTUSD', 'ARBUSD',
-            // 'THETAUSD', 'FDUSD', 'PEPEUSD', 'KASUSD', 'RUNEUSD', 'FRAXUSD', 'AAVEUSD', 'ALGOUSD', 'FLOWUSD', 'EGLDUSD',
+            // Commodities & Currencies
+            'UNG', 'USO', 'UUP', 'FXE', 'FXY', 'GLD', 'IAU', 'SLV', 'DBC', 'PDBC',
+
+            // Broad Market & Large Cap
+            'SCHG','IWF','IWB','VV','SCHX','SPTM','SCHZ','AGGY','VIGI','SPDW',
+            'SPLG','ITOT','ONEQ','DGRO','SCHD','SCHY','SCHB','SUSA','SPYD','SPYV',
             
-            // // Next 50 (51-100)
-            // 'QNTUSD', 'BSVUSD', 'XTZUSD', 'EOSUSD', 'MINAUSD', 'AXSUSD', 'SANDUSD', 'MANAUSD', 'NEOUSD', 'KCSUSD',
-            // 'BTTUSD', 'CHZUSD', 'USDPUSD', 'SNXUSD', 'FTMUSD', 'BGBUSD', 'CRVUSD', 'GALAUSD', 'ROSEUSD', 'ZECUSD',
-            // 'XECUSD', 'KAVAUSD', 'DASHUSD', 'PAXGUSD', 'IOTAUSD', 'WEMIXUSD', 'COMPUSD', 'HNTUSD', 'CAKEUSD', 'GMXUSD',
-            // 'CFXUSD', 'TUSDUSD', 'BONKUSD', 'GTUSD', '1INCHUSD', 'LDOUSD', 'XDCUSD', 'FXSUSD', 'SUIUSD', 'APEUSD',
-            // 'ENSUSD', 'AGIXUSD', 'RPLUSD', 'OCEANUSD', 'NEXOUSD', 'ZILUSD', 'KLAYUSD', 'GNOUSD', 'YFIUSD', 'WOOUSD',
+            // Mid/Small Cap
+            'VB','IJH','IJS','IJR','MDY','SMLN','SLY','SLYV','EWMC','EWMS',
             
-            // // // Next 50 (101-150)
-            // // 'CELOUSD', 'DYDXUSD', 'TFUELUSD', 'JSTUSD', 'IOTXUSD', 'ANKRUSD', 'ASTRUSD', 'GUSDUSD', 'SKLUSD', 'CSPRUSD',
-            // // 'BATUSD', 'GLMUSD', 'LSKUSD', 'AUDIOUSD', 'RVNUSD', 'SUSHIUSD', 'ICXUSD', 'STORJUSD', 'ONTUSD', 'ZRXUSD',
-            // // 'SSVUSD', 'UMAUSD', 'WAVESUSD', 'CKBUSD', 'SCUSD', 'FETUSD', 'LRCUSD', 'TWTUSD', 'DCRUSD', 'API3USD',
-            // // 'BALUSD', 'GLMRUSD', 'SXPUSD', 'NMRUSD', 'COTIUSD', 'CTSIUSD', 'BANDUSD', 'OXTUSD', 'HOTUSD', 'QTUMUSD',
-            // // 'POWRUSD', 'DGBUSD', 'KSMUSD', 'XEMUSD', 'FLRUSD', 'YGGUSD', 'JASMYUSD', 'ACHUSD', 'RLCUSD', 'MDTUSD',
+            // Sector-Specific (complementing prior list)
+            'IYJ','IYK','IYT','IYZ','IYE','IYW','IXC','IXG','IXN','IXP',
+            'IXU','IXV','IXG','IXH','IXJ','IXN','IXP','IXY','IYM','IYG',
             
-            // // // Next 50 (151-200)
-            // // 'STRAXUSD', 'SYSUSD', 'CVCUSD', 'REQUSD', 'POLYXUSD', 'STEEMUSD', 'WAXPUSD', 'ARUSD', 'DENTUSD', 'CELRUSD',
-            // // 'VTHOUSD', 'UOSUSD', 'MTLUSD', 'PERPUSD', 'ONGUSD', 'CHRUSD', 'ILVUSD', 'SFPUSD', 'HIVEUSD', 'ORBSUSD',
-            // // 'PEOPLEUSD', 'DUSKUSD', 'RAYUSD', 'SLPUSD', 'PUNDIXUSD', 'CEEKUSD', 'METISUSD', 'NKNUSD', 'MASKUSD', 'ATAUSD',
-            // // 'GALUSD', 'LPTUSD', 'AMBUSD', 'RIFUSD', 'ADXUSD', 'OASUSD', 'DIAUSD', 'IQUSD', 'AGLDUSD', 'ERNUSD',
-            // // 'PHAUSD', 'FLOKIUSD', 'MOVRUSD', 'TUSD', 'CFGUSD', 'AERGOUSD', 'BICOUSD', 'TRUUSD', 'MXCUSD', 'ALPHAUSD',
+            // International (Developed & Emerging)
+            'EPP','EFA','EEM','EWZ','EWT','EWA','EWC','EWL','EWU','EWS',
+            'EWP','EWH','EWI','EWW','EWY','EWG','EWD','INDA','SCZ','FEZ',
             
-            // // Next 50 (201-250)
-            // 'AIOZUSD', 'MBOXUSD', 'AURORAUSD', 'SUNUSD', 'RDNTUSD', 'BELUSD', 'RADUSD', 'CTXCUSD', 'VRAUSD', 'BUSD',
-            // 'HIGHUSD', 'EDENUSD', 'FIDAUSD', 'TLMUSD', 'QUICKUSD', 'XNOUSD', 'AKTUSD', 'MLNUSD', 'REPUSD', 'ASTUSD',
-            // 'BTRSTUSD', 'GHSTUSD', 'MNGOUSD', 'RAREUSD', 'PROUSD', 'OUSD', 'LCXUSD', 'FARMUSD', 'POLSUSD', 'ALICEUSD',
-            // 'FORTHUSD', 'KP3RUSD', 'BADGERUSD', 'BONDUSD', 'TRBUSD', 'IDEXUSD', 'TRIBEUSD', 'GTCUSD', 'MIRUSD', 'ASMUSD',
-            // 'CLVUSD', 'DFIUSD', 'FUNUSD', 'GUSD', 'MULTIUSD', 'NESTUSD', 'PLAUSD', 'PROMUSD', 'SUKUUSD', 'VELOUSD'
+            // Fixed Income & Bonds
+            'BSYL','BSV','BIV','LQD','VNQI','MBB','SJNK','IBND','SCHP','TIPZ',
+            
+            // Dividend & Value
+            'VTV','IVE','RSP','DIA','SDY','DON','RSP','VLUE','PFF','VIG',
+            
+            // Real Estate/Niche
+            'REET','ROBO','FTXR','FINX','FINU','CIBR','KWEB','IBB','XLRE','XLK',
+            'PNQI','ARKQ','ARKV','SPHB','USMV','QUAL','VUG','VOOG','IWP','IWD',
+            
+            // Commodities & Currency
+            'PALL','PALL','URA','SLYG','GDXJ','GLTR','UNL','UUP','FXY','FXC',
+            'FXA','FXB','FCOM','FCG','FXS','FXM','FXP','FXU','FXE',
+            
+            // Thematic & Smart Beta
+            'IHI','IYF','IYJ','IYM','IYT','XBIO','XWEB','XT','XLRE','XLV',
         ];
+        
         
         $apiKey = env('ASSET_KEY');;
         $batchSize = 100;
@@ -158,7 +224,7 @@ class AssetSeeder extends Seeder
                             'previous_close' => $asset['previousClose'] ?? 0,
                             'eps' => $asset['eps'] ?? 0,
                             'pe' => $asset['pe'] ?? 0,
-                            'type' => $type,  // Dynamic type assignment
+                            'type' => 'etf',  // Dynamic type assignment
                             'status' => 'active',
                             'tradeable' => 1,
                             'created_at' => now(),

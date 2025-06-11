@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('name');
             $table->text('img');
             $table->decimal('price', 15, 2);
-            $table->enum('type', ['crypto', 'stocks']);
+            $table->enum('type', ['crypto', 'stocks', 'etf']);
             $table->decimal('changes_percentage', 10, 4);
             $table->decimal('change', 10, 2);
             $table->decimal('day_low', 15, 2);
