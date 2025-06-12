@@ -10,9 +10,9 @@ use Illuminate\Support\Facades\DB;
 
 class AutoPlanService
 {
-    public function startInvestment(User $user, array $data): AutoPlanInvestment
+    public function startInvestment(User $user, array $data)
     {
-        return DB::transaction(function () use ($user, $data) {
+        DB::transaction(function () use ($user, $data) {
             $plan = AutoPlan::findOrFail($data['auto_plan_id']);
             $data['wallet'] = 'auto';
 
@@ -27,7 +27,7 @@ class AutoPlanService
             $startDate = now();
             $endDate = $this->calculateEndDate($startDate, $plan->duration, $plan->milestone);
 
-            AutoPlanInvestment::create([
+            $auto = AutoPlanInvestment::create([
                 'user_id' => $user->id,
                 'auto_plan_id' => $plan->id,
                 'amount' => $data['amount'],
@@ -36,6 +36,8 @@ class AutoPlanService
             ]);
 
             $user->wallet->debit($data['amount'], $data['wallet'], 'Auto plan investment');
+
+            return $auto;
         });
     }
 
