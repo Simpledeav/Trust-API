@@ -103,7 +103,7 @@
                                             <p class="f-light fw-bold text-capitalize">{{ $trade->account }}</p>
                                         </td>
                                         <td> 
-                                            <p class="f-light fw-bold">x{{ $trade->leverage ? $trade->leverage : '1' }}</p>
+                                            <p class="f-light fw-bold">{{ $trade->leverage ? $trade->leverage : '1' }}x</p>
                                         </td>
                                         <td> 
                                             <p class="f-light fw-bold">{{ $trade->dividends }}%</p>
