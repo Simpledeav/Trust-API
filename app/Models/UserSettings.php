@@ -11,10 +11,14 @@ class UserSettings extends Model
 
     protected $fillable = [
         'user_id',
-        'min_cash_deposit',
-        'max_cash_deposit',
-        'min_cash_withdrawal',
-        'max_cash_withdrawal',
+        'min_cash_bank_deposit',
+        'min_cash_crypto_deposit',
+        'max_cash_bank_deposit',
+        'max_cash_crypto_deposit',
+        'min_cash_bank_withdrawal',
+        'min_cash_crypto_withdrawal',
+        'max_cash_bank_withdrawal',
+        'max_cash_crypto_withdrawal',
         'locked_cash',
         'locked_cash_message',
         'locked_bank_deposit',
