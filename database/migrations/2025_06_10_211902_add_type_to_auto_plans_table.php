@@ -21,10 +21,12 @@ return new class extends Migration
      */
     public function down(): void
     {
+        Schema::enableForeignKeyConstraints();
         Schema::table('auto_plans', function (Blueprint $table) {
             $table->dropColumn([
                 'type'
             ]);
         });
+        Schema::disableForeignKeyConstraints();
     }
 };

@@ -351,13 +351,15 @@ class UserController extends Controller
     public function settings(Request $request, User $user)
     {
         $validated = $request->validate([
-            'min_cash_deposit' => 'nullable|numeric|min:0',
-            'max_cash_deposit' => 'nullable|numeric|min:0',
-            'min_cash_withdrawal' => 'nullable|numeric|min:0',
-            'max_cash_withdrawal' => 'nullable|numeric|min:0',
-            // 'locked_cash' => 'nullable|boolean',
+            'min_cash_bank_deposit' => 'nullable|numeric|min:0',
+            'min_cash_crypto_deposit' => 'nullable|numeric|min:0',
+            'max_cash_bank_deposit' => 'nullable|numeric|min:0',
+            'max_cash_crypto_deposit' => 'nullable|numeric|min:0',
+            'min_cash_bank_withdrawal' => 'nullable|numeric|min:0',
+            'min_cash_crypto_withdrawal' => 'nullable|numeric|min:0',
+            'max_cash_bank_withdrawal' => 'nullable|numeric|min:0',
+            'max_cash_crypto_withdrawal' => 'nullable|numeric|min:0',
             'locked_cash_message' => 'nullable|string',
-            // 'locked_bank_deposit' => 'nullable|boolean',
             'locked_bank_deposit_message' => 'nullable|string',
         ]);
     
