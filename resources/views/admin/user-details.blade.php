@@ -579,55 +579,54 @@
                         </div>
                         <div class="card-body">
                             <div class="row">
-                                
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label">Min Bank Deposit</label>
-                                    <input class="form-control" type="text" value="{{ $user->settings->min_cash_bank_deposit }}" name="min_cash_bank_deposit">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Min Bank Deposit</label>
+                                        <input class="form-control" type="text" value="{{ $user->settings->min_cash_bank_deposit }}" name="min_cash_bank_deposit">
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label">Min Crypto Deposit</label>
-                                    <input class="form-control" type="text" value="{{ $user->settings->min_cash_crypto_deposit }}" name="min_cash_crypto_deposit">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Min Crypto Deposit</label>
+                                        <input class="form-control" type="text" value="{{ $user->settings->min_cash_crypto_deposit }}" name="min_cash_crypto_deposit">
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label">Max Bank Deposit</label>
-                                    <input class="form-control" type="text" value="{{ $user->settings->max_cash_bank_deposit }}" name="max_cash_bank_deposit">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Max Bank Deposit</label>
+                                        <input class="form-control" type="text" value="{{ $user->settings->max_cash_bank_deposit }}" name="max_cash_bank_deposit">
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label">Max Crypto Deposit</label>
-                                    <input class="form-control" type="text" value="{{ $user->settings->max_cash_crypto_deposit }}" name="max_cash_crypto_deposit">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Max Crypto Deposit</label>
+                                        <input class="form-control" type="text" value="{{ $user->settings->max_cash_crypto_deposit }}" name="max_cash_crypto_deposit">
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label">Min Bank Withdrawal</label>
-                                    <input class="form-control" type="text" value="{{ $user->settings->min_cash_bank_withdrawal }}" name="min_cash_bank_withdrawal">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Min Bank Withdrawal</label>
+                                        <input class="form-control" type="text" value="{{ $user->settings->min_cash_bank_withdrawal }}" name="min_cash_bank_withdrawal">
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label">Min Crypto Withdrawal</label>
-                                    <input class="form-control" type="text" value="{{ $user->settings->min_cash_crypto_withdrawal }}" name="min_cash_crypto_withdrawal">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Min Crypto Withdrawal</label>
+                                        <input class="form-control" type="text" value="{{ $user->settings->min_cash_crypto_withdrawal }}" name="min_cash_crypto_withdrawal">
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label">Max Bank Withdrawal</label>
-                                    <input class="form-control" type="text" value="{{ $user->settings->max_cash_bank_withdrawal }}" name="max_cash_bank_withdrawal">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Max Bank Withdrawal</label>
+                                        <input class="form-control" type="text" value="{{ $user->settings->max_cash_bank_withdrawal }}" name="max_cash_bank_withdrawal">
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label">Max Crypto Withdrawal</label>
-                                    <input class="form-control" type="text" value="{{ $user->settings->max_cash_crypto_withdrawal }}" name="max_cash_crypto_withdrawal">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Max Crypto Withdrawal</label>
+                                        <input class="form-control" type="text" value="{{ $user->settings->max_cash_crypto_withdrawal }}" name="max_cash_crypto_withdrawal">
+                                    </div>
                                 </div>
-                            </div>
 
                                 
                                 <div class="col-md-6">
