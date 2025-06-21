@@ -101,6 +101,7 @@ class TransactionController extends Controller
         $balance = $wallet->getBalance('wallet');
         $amount = (float) $request->amount;
         $type = $request->type;
+        $comment = $request->comment;
 
         // Get the payment method if provided
         $paymentMethod = null;
@@ -142,33 +143,50 @@ class TransactionController extends Controller
     
         // Validate min/max deposit
         if ($type === 'credit') {
-            $min = $settings->getValue($user, 'min_cash_deposit');
-            $max = $settings->getValue($user, 'max_cash_deposit');
-    
+            $isBankDeposit = str_contains(strtolower($comment), 'bank');
+            
+            if ($isBankDeposit) {
+                $min = $settings->getValue($user, 'min_cash_bank_deposit');
+                $max = $settings->getValue($user, 'max_cash_bank_deposit');
+            } else {
+                // Default to crypto for any non-bank comment
+                $min = $settings->getValue($user, 'min_cash_crypto_deposit');
+                $max = $settings->getValue($user, 'max_cash_crypto_deposit');
+            }
+
             if ($amount < $min) {
                 return ResponseBuilder::asError(ApiErrorCode::INSUFFICIENT_FUNDS->value)
                     ->withMessage("Minimum deposit amount is $min.")
                     ->build();
             }
-    
+
             if ($amount > $max) {
                 return ResponseBuilder::asError(ApiErrorCode::INSUFFICIENT_FUNDS->value)
                     ->withMessage("Maximum deposit amount is $max.")
                     ->build();
             }
         }
-    
+
         // Validate min/max withdrawal
         if ($type === 'debit') {
-            $min = $settings->getValue($user, 'min_cash_withdrawal');
-            $max = $settings->getValue($user, 'max_cash_withdrawal');
-    
+            $isBankWithdrawal = str_contains(strtolower($comment), 'bank') || 
+                                ($paymentMethod && $paymentMethod->type === 'bank');
+            
+            if ($isBankWithdrawal) {
+                $min = $settings->getValue($user, 'min_cash_bank_withdrawal');
+                $max = $settings->getValue($user, 'max_cash_bank_withdrawal');
+            } else {
+                // Default to crypto for any non-bank comment or payment method
+                $min = $settings->getValue($user, 'min_cash_crypto_withdrawal');
+                $max = $settings->getValue($user, 'max_cash_crypto_withdrawal');
+            }
+
             if ($amount < $min) {
                 return ResponseBuilder::asError(ApiErrorCode::INSUFFICIENT_FUNDS->value)
                     ->withMessage("Minimum withdrawal amount is $min.")
                     ->build();
             }
-    
+
             if ($amount > $max) {
                 return ResponseBuilder::asError(ApiErrorCode::INSUFFICIENT_FUNDS->value)
                     ->withMessage("Maximum withdrawal amount is $max.")
@@ -199,8 +217,6 @@ class TransactionController extends Controller
                     'wallet_address' => $paymentMethod->wallet_address,
                 ];
         }
-
-        // dd($paymentMethodData);
     
         // Proceed with transaction
         $transaction = $transactionService->create(
