@@ -35,7 +35,15 @@
                                     <h4>Users</h4>
                                 </div>
                                 <div class="d-flex align-items-center">
-                                    <input class="form-control" id="inputEmail4" type="email" placeholder="Search in {{ $users->count() }} Users...">
+                                    <form action="{{ route('admin.users') }}" method="GET" class="d-flex align-items-center">
+                                        <input 
+                                            type="text" 
+                                            name="search" 
+                                            class="form-control" 
+                                            placeholder="Search in {{ $users->total() }} Users..." 
+                                            value="{{ request('search') }}"
+                                        >
+                                    </form>
                                 </div>
                             </div>
                         </div>
@@ -50,6 +58,7 @@
                                     <th> <span class="f-light f-w-600">Currency</span></th>
                                     <th> <span class="f-light f-w-600">Status</span></th>
                                     <th> <span class="f-light f-w-600">Joined</span></th>
+                                    <!-- <th> <span class="f-light f-w-600">Balance</span></th> -->
                                     <th> <span class="f-light f-w-600">Action</span></th>
                                 </tr>
                                 </thead>
@@ -82,6 +91,13 @@
                                             <td> 
                                                 <p class="f-light truncate-content">{{ $user['created_at']->format('d M, Y \a\t h:i A') }}</p>
                                             </td>
+                                            <!-- <td>
+                                                <p class="f-light truncate-content">
+                                                    @if($user->wallet)
+                                                        {{ $user->currency->sign }} {{ $user->wallet->getBalance('wallet') }}
+                                                    @endif
+                                                </p>
+                                            </td> -->
                                             <td>
                                                 <div class="btn-group">
                                                     <button class="btn btn-dark rounded-pill dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">Action</button>
@@ -135,6 +151,8 @@
                             <!-- Pagination Links -->
                             <div class="jsgrid-pager my-3 mx-2">
                                 Pages:
+                                {{ $users->appends(['search' => request('search')])->links() }}
+
                                 @if ($users->onFirstPage())
                                     <span class="jsgrid-pager-nav-button jsgrid-pager-nav-inactive-button">
                                         <a href="javascript:void(0);">First</a>

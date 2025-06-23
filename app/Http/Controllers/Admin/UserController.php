@@ -19,14 +19,29 @@ use App\Http\Controllers\NotificationController as Notifications;
 
 class UserController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $users = User::orderBy('created_at', 'desc')->paginate(20);
-
+        $query = User::query();
+    
+        if ($request->has('search') && $request->search !== null) {
+            $searchTerm = $request->search;
+    
+            $query->where(function ($q) use ($searchTerm) {
+                $q->where('first_name', 'like', "%{$searchTerm}%")
+                  ->orWhere('last_name', 'like', "%{$searchTerm}%")
+                  ->orWhere('email', 'like', "%{$searchTerm}%")
+                  ->orWhere('phone', 'like', "%{$searchTerm}%");
+            });
+        }
+    
+        $users = $query->orderBy('created_at', 'desc')->paginate(20);
+    
         return view('admin.user', [
-            'users' => $users
+            'users' => $users,
+            'search' => $request->search,
         ]);
     }
+    
 
     public function show(User $user)
     {
